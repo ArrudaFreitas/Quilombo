@@ -1,6 +1,7 @@
 package com.quilombo.auth;
 
 import com.quilombo.security.JwtService;
+import com.quilombo.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,8 +20,16 @@ import java.util.Map;
  * Emissão e troca dos códigos de login de uso único.
  *
  * <p>No sucesso do OAuth, {@link #issueLoginCode} gera um código opaco e guarda
- * apenas o seu hash. O frontend troca o código por um JWT em {@link #exchangeCodeForToken},
- * que consome o código atomicamente (uso único) e cunha o token só nesse momento.
+ * apenas o seu hash + o HMAC do e-mail verificado pelo Google. O callback chega
+ * no domínio raiz (o redirect URI do Google é fixo), então <b>sem tenant</b> —
+ * a autorização acontece na troca.
+ *
+ * <p>{@link #exchangeCodeForToken} roda no subdomínio da comunidade (tenant
+ * resolvido pelo interceptor): o e-mail precisa estar na allowlist de admins
+ * <b>daquela</b> comunidade ({@code @TenantId} + RLS restringem a busca). Sem
+ * allowlist não há JWT. A recusa por allowlist (403) não consome o código — o
+ * admin que errou de subdomínio pode trocar no certo dentro do TTL; o consumo
+ * (uso único, atômico) acontece só no sucesso.
  */
 @Service
 @RequiredArgsConstructor
@@ -29,17 +38,19 @@ public class AuthService {
     private static final Duration CODE_TTL = Duration.ofSeconds(60);
 
     private final LoginCodeRepository repository;
+    private final AdminRepository adminRepository;
+    private final EmailHasher emailHasher;
     private final JwtService jwtService;
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Transactional
-    public String issueLoginCode(String subject, String name) {
+    public String issueLoginCode(String email, String name) {
         repository.deleteExpired(Instant.now());
 
         var rawCode = generateRawCode();
         var loginCode = new LoginCode();
         loginCode.setCodeHash(sha256Hex(rawCode));
-        loginCode.setSubject(subject);
+        loginCode.setEmailHash(emailHasher.hash(email));
         loginCode.setName(name != null ? name : "");
         loginCode.setExpiresAt(Instant.now().plus(CODE_TTL));
         repository.save(loginCode);
@@ -49,6 +60,9 @@ public class AuthService {
 
     @Transactional
     public String exchangeCodeForToken(String rawCode) {
+        var communityId = TenantContext.getCommunityId()
+                .orElseThrow(TenantRequiredException::new);
+
         var loginCode = repository.findByCodeHash(sha256Hex(rawCode))
                 .orElseThrow(InvalidLoginCodeException::new);
 
@@ -58,13 +72,19 @@ public class AuthService {
             throw new InvalidLoginCodeException();
         }
 
+        // Allowlist da comunidade do subdomínio (busca tenant-scoped).
+        var admin = adminRepository.findByEmailHash(loginCode.getEmailHash())
+                .orElseThrow(EmailNotAllowedException::new);
+
         // Consumo atômico: numa corrida concorrente, só uma transação deleta 1 linha.
         if (repository.consumeById(loginCode.getId()) == 0) {
             throw new InvalidLoginCodeException();
         }
 
-        return jwtService.generateToken(loginCode.getSubject(),
-                Map.of("name", loginCode.getName()));
+        // sub = id do admin (sem PII); communityId ancora o token ao tenant.
+        return jwtService.generateToken(admin.getId().toString(), Map.of(
+                "communityId", communityId,
+                "name", loginCode.getName()));
     }
 
     private String generateRawCode() {

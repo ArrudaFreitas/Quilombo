@@ -67,6 +67,7 @@ services:
       DB_MIGRATION_USERNAME:  quilombo
       DB_MIGRATION_PASSWORD:  quilombo
       JWT_SECRET:             dev-docker-secret-nao-usar-em-producao
+      EMAIL_HASH_SECRET:      dev-docker-email-hash-nao-usar-em-producao
       APP_BASE_DOMAIN:        quilombo.localhost
       # Variáveis de MinIO — usadas quando a feature de upload for implementada
       MINIO_ENDPOINT:         http://minio:9000

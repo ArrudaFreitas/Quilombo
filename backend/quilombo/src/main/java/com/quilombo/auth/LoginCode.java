@@ -13,8 +13,9 @@ import java.time.Instant;
 
 /**
  * Código de troca de uso único emitido no sucesso do login OAuth.
- * Armazena apenas o hash do código; o código em si só trafega na URL de redirect
- * por poucos segundos e é consumido na primeira troca.
+ * Armazena apenas o hash do código — o código em si só trafega na URL de redirect
+ * por poucos segundos e é consumido na primeira troca — e o HMAC do e-mail
+ * verificado pelo Google (nunca o e-mail cru — LGPD, V4).
  */
 @Entity
 @Table(name = "auth_login_codes")
@@ -29,8 +30,8 @@ public class LoginCode {
     @Column(name = "code_hash", nullable = false, unique = true, length = 64)
     private String codeHash;
 
-    @Column(nullable = false)
-    private String subject;
+    @Column(name = "email_hash", nullable = false, length = 64)
+    private String emailHash;
 
     @Column(nullable = false)
     private String name;

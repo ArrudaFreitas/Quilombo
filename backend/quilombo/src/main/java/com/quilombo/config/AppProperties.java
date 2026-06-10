@@ -11,8 +11,14 @@ public record AppProperties(
         String baseDomain,
         StorageProperties storage,
         SectionsProperties sections,
-        JwtProperties jwt
+        JwtProperties jwt,
+        AuthProperties auth
 ) {
+
+    public record AuthProperties(
+            /* pepper do HMAC-SHA256 dos e-mails — sem ele não há lookup nem rainbow table */
+            String emailHashSecret
+    ) {}
 
     public record StorageProperties(
             long limitBytes,
