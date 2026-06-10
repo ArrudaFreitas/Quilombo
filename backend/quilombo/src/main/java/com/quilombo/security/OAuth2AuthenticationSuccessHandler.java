@@ -1,5 +1,6 @@
 package com.quilombo.security;
 
+import com.quilombo.auth.AuthService;
 import com.quilombo.config.AppProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,13 +12,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-    private final JwtService jwtService;
+    private final AuthService authService;
     private final AppProperties appProperties;
 
     @Override
@@ -28,14 +28,14 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         var email = (String) oauth2User.getAttributes().get("email");
         var name  = (String) oauth2User.getAttributes().get("name");
 
-        var token = jwtService.generateToken(email, Map.of(
-                "name", name != null ? name : ""));
+        // Emite um código opaco de uso único; o JWT não trafega na URL.
+        // O frontend troca o código por um JWT em POST /api/v1/auth/token.
+        var code = authService.issueLoginCode(email, name);
 
-        // frontend recebe o token via query param e o armazena localmente
         var redirectUrl = UriComponentsBuilder
                 .fromUriString("https://" + appProperties.baseDomain())
                 .path("/auth/callback")
-                .queryParam("token", token)
+                .queryParam("code", code)
                 .build()
                 .toUriString();
 
