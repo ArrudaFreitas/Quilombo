@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 5
+
+  flyway:
+    clean-disabled: true
+    out-of-order: false
+
+  # Credenciais do HTTP Basic Auth que bloqueia o acesso ao ambiente.
+  # Defina HOMOLOG_PASSWORD via variável de ambiente no servidor.
+  security:
+    user:
+      name: ${HOMOLOG_USER:dev}
+      password: ${HOMOLOG_PASSWORD}
+
+logging:
+  level:
+    root: INFO
+    com.quilombo: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers
+  endpoint:
+    health:
+      show-details: when-authorized
+
+springdoc:
+  swagger-ui:
+    enabled: true
