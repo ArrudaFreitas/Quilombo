@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest
+@WebMvcTest(controllers = EnvelopeDemoController.class)
 @Import({WebConfig.class, GlobalExceptionHandler.class, EnvelopeDemoController.class})
 @AutoConfigureMockMvc(addFilters = false)
 class ApiResponseWebTest {
