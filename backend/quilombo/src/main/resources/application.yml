@@ -3,10 +3,12 @@ spring:
     name: quilombo
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/quilombo
-    username: quilombo
-    password: quilombo
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/quilombo}
+    username: ${DB_USERNAME:quilombo}
+    password: ${DB_PASSWORD:quilombo}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: quilombo-pool
 
   jpa:
     hibernate:
@@ -15,11 +17,12 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
+        format_sql: false
 
   flyway:
     locations: classpath:db/migration
-    baseline-on-migrate: false
+    validate-on-migrate: true
+    clean-disabled: true
 
   security:
     oauth2:
@@ -31,16 +34,19 @@ spring:
             scope: openid,email,profile
 
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
+  error:
+    include-stacktrace: never
+    include-message: on_param
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
+        include: health
   endpoint:
     health:
-      show-details: when-authorized
+      show-details: never
 
 springdoc:
   api-docs:
@@ -49,13 +55,13 @@ springdoc:
     path: /swagger-ui.html
 
 app:
-  base-domain: quilombo.localhost
+  base-domain: ${APP_BASE_DOMAIN:quilombo.localhost}
   storage:
-    limit-bytes: 52428800    # 50 MB por comunidade
-    upload-max-bytes: 5242880 # 5 MB antes do processamento
+    limit-bytes: 52428800
+    upload-max-bytes: 5242880
     image-max-dimension: 1920
   sections:
     limit: 20
   jwt:
     secret: ${JWT_SECRET:dev-only-secret-change-in-production}
-    expiration-hours: 24
+    expiration-hours: ${JWT_EXPIRATION_HOURS:24}
