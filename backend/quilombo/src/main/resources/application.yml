@@ -3,8 +3,6 @@ spring:
     name: quilombo
 
   jackson:
-    serialization:
-      write-dates-as-timestamps: false
     default-property-inclusion: non_null
     time-zone: UTC
 
