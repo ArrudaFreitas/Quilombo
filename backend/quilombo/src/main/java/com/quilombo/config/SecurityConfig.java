@@ -1,6 +1,7 @@
 package com.quilombo.config;
 
 import com.quilombo.security.JwtAuthenticationFilter;
+import com.quilombo.security.OAuth2AuthenticationSuccessHandler;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,13 +56,16 @@ public class SecurityConfig {
     @Bean
     @Profile("prod")
     SecurityFilterChain prodFilterChain(HttpSecurity http,
-                                        JwtAuthenticationFilter jwtFilter) throws Exception {
+                                        JwtAuthenticationFilter jwtFilter,
+                                        OAuth2AuthenticationSuccessHandler successHandler) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers("/actuator/health", "/oauth2/**", "/login/oauth2/**").permitAll()
                         .anyRequest().authenticated())
-                .sessionManagement(sm ->
-                        sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // OAuth2 precisa de sessão para armazenar o state/nonce do PKCE durante o handshake.
+                // O JWT assume após o redirecionamento do successHandler.
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .oauth2Login(oauth2 -> oauth2.successHandler(successHandler))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable())
                 .build();
