@@ -1,5 +1,7 @@
 package com.quilombo.config;
 
+import com.quilombo.security.JwtAuthenticationFilter;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -7,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -15,9 +18,17 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
 
     /**
-     * Dev: sem restrições — foco em desenvolvimento ágil.
-     * Swagger UI, Actuator e todos os endpoints acessíveis sem autenticação.
+     * Impede que o Spring Boot registre o JwtAuthenticationFilter como filtro de servlet
+     * diretamente — ele é gerenciado exclusivamente pela security filter chain de prod.
      */
+    @Bean
+    FilterRegistrationBean<JwtAuthenticationFilter> jwtFilterRegistration(
+            JwtAuthenticationFilter filter) {
+        var registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
+    }
+
     @Bean
     @Profile("dev")
     SecurityFilterChain devFilterChain(HttpSecurity http) throws Exception {
@@ -27,11 +38,6 @@ public class SecurityConfig {
                 .build();
     }
 
-    /**
-     * Homolog: HTTP Basic Auth como portão de entrada.
-     * Credenciais definidas por HOMOLOG_USER / HOMOLOG_PASSWORD no servidor.
-     * Health exposto publicamente para health-checks do hosting.
-     */
     @Bean
     @Profile("homolog")
     SecurityFilterChain homologFilterChain(HttpSecurity http) throws Exception {
@@ -46,19 +52,17 @@ public class SecurityConfig {
                 .build();
     }
 
-    /**
-     * Prod: placeholder — será substituído pela implementação completa de JWT/OAuth2.
-     * Health exposto publicamente; demais endpoints bloqueados até a implementação de auth.
-     */
     @Bean
     @Profile("prod")
-    SecurityFilterChain prodFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain prodFilterChain(HttpSecurity http,
+                                        JwtAuthenticationFilter jwtFilter) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(sm ->
                         sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable())
                 .build();
     }
