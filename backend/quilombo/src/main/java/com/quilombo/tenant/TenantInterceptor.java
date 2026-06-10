@@ -45,7 +45,16 @@ public class TenantInterceptor implements HandlerInterceptor {
         }
         Community community = communityRepository.getObject().findBySlug(slug)
                 .orElseThrow(() -> new TenantNotFoundException(slug));
-        TenantContext.setCommunityId(community.getId());
+        var current = TenantContext.getCommunityId();
+        if (current.isPresent()) {
+            // Tenant já resolvido pelo claim do JWT (autoritativo): apenas
+            // cross-check defensivo com o subdomínio — não sobrescreve.
+            if (!current.get().equals(community.getId())) {
+                throw new TenantMismatchException();
+            }
+        } else {
+            TenantContext.setCommunityId(community.getId());
+        }
         return true;
     }
 

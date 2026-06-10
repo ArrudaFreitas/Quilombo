@@ -2,6 +2,8 @@ package com.quilombo.config;
 
 import com.quilombo.security.JwtAuthenticationFilter;
 import com.quilombo.security.OAuth2AuthenticationSuccessHandler;
+import com.quilombo.security.RestAccessDeniedHandler;
+import com.quilombo.security.RestAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -86,7 +88,9 @@ public class SecurityConfig {
     @Profile("prod")
     SecurityFilterChain prodFilterChain(HttpSecurity http,
                                         JwtAuthenticationFilter jwtFilter,
-                                        OAuth2AuthenticationSuccessHandler successHandler) throws Exception {
+                                        OAuth2AuthenticationSuccessHandler successHandler,
+                                        RestAuthenticationEntryPoint authenticationEntryPoint,
+                                        RestAccessDeniedHandler accessDeniedHandler) throws Exception {
         return http
                 .cors(withDefaults())
                 .authorizeHttpRequests(auth -> auth
@@ -94,6 +98,10 @@ public class SecurityConfig {
                         // troca do código de login por JWT — público (ainda não há Bearer)
                         .requestMatchers("/api/v1/auth/token").permitAll()
                         .anyRequest().authenticated())
+                // 401/403 da security chain em RFC 7807, como o resto da API
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler))
                 // OAuth2 precisa de sessão para armazenar o state/nonce do PKCE durante o handshake.
                 // O JWT assume após o redirecionamento do successHandler.
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))

@@ -1,5 +1,6 @@
 package com.quilombo.security;
 
+import com.quilombo.tenant.TenantContext;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -38,6 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             chain.doFilter(request, response);
             return;
         }
+        var tenantSetHere = false;
         try {
             var claims = jwtService.parseToken(authHeader.substring(7));
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -45,10 +47,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         claims.getSubject(), null, List.of());
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(auth);
+
+                // O claim do JWT é a fonte autoritativa do tenant do admin; o
+                // TenantInterceptor cruza com o subdomínio (403 se divergir).
+                if (claims.get("communityId") instanceof Number communityId) {
+                    TenantContext.setCommunityId(communityId.longValue());
+                    tenantSetHere = true;
+                }
             }
         } catch (JwtException ignored) {
             // token inválido — sem autenticação, a security chain retorna 401
         }
-        chain.doFilter(request, response);
+        try {
+            chain.doFilter(request, response);
+        } finally {
+            // não confiar só no afterCompletion do MVC: se a chain barrar a
+            // requisição antes do DispatcherServlet, o tenant vazaria no pool
+            if (tenantSetHere) {
+                TenantContext.clear();
+            }
+        }
     }
 }
