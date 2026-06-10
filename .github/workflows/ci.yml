@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ develop, main ]
+  push:
+    branches: [ develop, main ]
+
+permissions:
+  contents: read
+
+# Cancela execuções antigas do mesmo ref quando um novo push chega
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend/quilombo
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      # Os runners Ubuntu já têm Docker — os testes de integração com
+      # Testcontainers (PostgreSQL) rodam normalmente nesta etapa.
+      - name: Build and verify
+        run: ./mvnw -B --no-transfer-progress verify
