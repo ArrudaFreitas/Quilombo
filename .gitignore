@@ -46,3 +46,9 @@ Thumbs.db
 uploads/
 *.webp
 *.db
+
+# ── Certificados TLS gerados localmente (não commitar) ───────────────────────
+infra/certs/
+*.crt
+*.key
+*.pem

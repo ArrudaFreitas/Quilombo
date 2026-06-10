@@ -1,0 +1,96 @@
+services:
+
+  # ── Banco de dados ──────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB:       quilombo
+      POSTGRES_USER:     quilombo
+      POSTGRES_PASSWORD: quilombo
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:         ["CMD-SHELL", "pg_isready -U quilombo -d quilombo"]
+      interval:     5s
+      timeout:      5s
+      retries:      10
+      start_period: 10s
+
+  # ── Object storage (S3-compatível para dev) ─────────────────────────────────
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER:     quilombo
+      MINIO_ROOT_PASSWORD: quilombo123
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9001:9001"   # console web acessível em http://localhost:9001
+    healthcheck:
+      test:         ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval:     10s
+      timeout:      5s
+      retries:      5
+      start_period: 15s
+
+  # Cria o bucket na primeira vez que o MinIO sobe
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+        mc alias set local http://minio:9000 quilombo quilombo123 &&
+        mc mb --ignore-existing local/quilombo-uploads &&
+        mc anonymous set public local/quilombo-uploads &&
+        echo '[minio] bucket quilombo-uploads pronto.'
+      "
+    restart: on-failure
+
+  # ── Backend ─────────────────────────────────────────────────────────────────
+  backend:
+    build:
+      context:    ./backend/quilombo
+      dockerfile: Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DATABASE_URL:           jdbc:postgresql://postgres:5432/quilombo
+      DB_USERNAME:            quilombo
+      DB_PASSWORD:            quilombo
+      JWT_SECRET:             dev-docker-secret-nao-usar-em-producao
+      APP_BASE_DOMAIN:        quilombo.localhost
+      # Variáveis de MinIO — usadas quando a feature de upload for implementada
+      MINIO_ENDPOINT:         http://minio:9000
+      MINIO_ACCESS_KEY:       quilombo
+      MINIO_SECRET_KEY:       quilombo123
+      MINIO_BUCKET:           quilombo-uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:         ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval:     10s
+      timeout:      5s
+      retries:      12
+      start_period: 60s
+
+  # ── Reverse proxy ───────────────────────────────────────────────────────────
+  nginx:
+    build:
+      context:    ./infra/nginx
+      dockerfile: Dockerfile
+    ports:
+      - "8080:443"
+    volumes:
+      - nginx_certs:/etc/nginx/certs   # certificado gerado no primeiro start
+    depends_on:
+      backend:
+        condition: service_healthy
+
+# ── Volumes ──────────────────────────────────────────────────────────────────
+volumes:
+  postgres_data:
+  minio_data:
+  nginx_certs:

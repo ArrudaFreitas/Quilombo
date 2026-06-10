@@ -1,8 +1,9 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/quilombo_dev
-    username: quilombo
-    password: quilombo
+    # Fallback para dev local sem Docker. Em Docker, DATABASE_URL sobrescreve.
+    url:      ${DATABASE_URL:jdbc:postgresql://localhost:5432/quilombo_dev}
+    username: ${DB_USERNAME:quilombo}
+    password: ${DB_PASSWORD:quilombo}
     hikari:
       maximum-pool-size: 5
 
