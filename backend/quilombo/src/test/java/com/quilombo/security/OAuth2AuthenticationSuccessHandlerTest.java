@@ -26,7 +26,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
         when(authService.issueLoginCode("admin@example.com", "Admin Quilombo"))
                 .thenReturn("CODE-123");
 
-        var appProperties = new AppProperties("quilombo.localhost", null, null, null);
+        var appProperties = new AppProperties("quilombo.localhost", null, null, null, null);
         var handler = new OAuth2AuthenticationSuccessHandler(authService, appProperties);
 
         var principal = new DefaultOAuth2User(

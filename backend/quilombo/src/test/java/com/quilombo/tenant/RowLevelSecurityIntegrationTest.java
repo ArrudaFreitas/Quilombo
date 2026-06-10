@@ -42,6 +42,7 @@ class RowLevelSecurityIntegrationTest {
     void seedAsOwner() throws SQLException {
         try (var owner = ownerConnection(); var st = owner.createStatement()) {
             st.execute("DELETE FROM community_profiles");
+            st.execute("DELETE FROM admins");
             st.execute("DELETE FROM communities");
             try (var rs = st.executeQuery(
                     "INSERT INTO communities (slug, name, location) VALUES ('kalunga', 'Kalunga', 'GO') RETURNING id")) {

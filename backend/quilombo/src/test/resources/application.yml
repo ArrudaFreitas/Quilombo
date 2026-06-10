@@ -13,3 +13,5 @@ app:
   jwt:
     secret: test-secret-key-for-junit-tests-only-not-production
     expiration-hours: 1
+  auth:
+    email-hash-secret: test-email-hash-secret-for-junit-tests-only
