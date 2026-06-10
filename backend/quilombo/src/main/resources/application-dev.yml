@@ -1,9 +1,10 @@
 spring:
   datasource:
     # Fallback para dev local sem Docker. Em Docker, DATABASE_URL sobrescreve.
+    # Runtime conecta como a role NÃO-DONA quilombo_app (o RLS vale para ela).
     url:      ${DATABASE_URL:jdbc:postgresql://localhost:5432/quilombo_dev}
-    username: ${DB_USERNAME:quilombo}
-    password: ${DB_PASSWORD:quilombo}
+    username: ${DB_USERNAME:quilombo_app}
+    password: ${DB_PASSWORD:quilombo_app}
     hikari:
       maximum-pool-size: 5
 
@@ -17,6 +18,10 @@ spring:
     clean-disabled: false
     baseline-on-migrate: true
     out-of-order: true
+    # Migração como o usuário DONO (fallback local segue o datasource acima)
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/quilombo_dev}
+    user: ${DB_MIGRATION_USERNAME:quilombo}
+    password: ${DB_MIGRATION_PASSWORD:quilombo}
 
 logging:
   level:

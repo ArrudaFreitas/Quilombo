@@ -1,5 +1,6 @@
 spring:
   datasource:
+    # Runtime: role NÃO-DONA (RLS vale), provisionada por ops — sem defaults.
     url: ${DATABASE_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
@@ -9,6 +10,10 @@ spring:
   flyway:
     clean-disabled: true
     out-of-order: false
+    # Migração: usuário DONO do schema, separado do runtime.
+    url: ${DATABASE_URL}
+    user: ${DB_MIGRATION_USERNAME}
+    password: ${DB_MIGRATION_PASSWORD}
 
   # Credenciais do HTTP Basic Auth que bloqueia o acesso ao ambiente.
   # Defina HOMOLOG_PASSWORD via variável de ambiente no servidor.

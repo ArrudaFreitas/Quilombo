@@ -27,13 +27,17 @@ Plataforma **multi-tenant** para comunidades quilombolas — cada comunidade é 
 .
 ├── backend/quilombo/      # aplicação Spring Boot
 │   ├── src/main/java/com/quilombo/
+│   │   ├── auth/          # troca de código de login por JWT
+│   │   ├── community/     # tenant root (Community) e perfil público
 │   │   ├── config/        # configurações (Security, JPA, OpenAPI, MapStruct…)
-│   │   └── security/      # JWT e OAuth2
+│   │   ├── security/      # JWT e OAuth2
+│   │   └── tenant/        # multi-tenancy: @TenantId + RLS (subdomínio → tenant)
 │   ├── src/main/resources/
 │   │   ├── db/migration/  # migrations Flyway (V1__…)
 │   │   └── application*.yml
 │   └── Dockerfile
 ├── infra/nginx/           # reverse proxy TLS para dev
+├── infra/postgres/init/   # provisiona a role de runtime (RLS) na 1ª subida
 └── docker-compose.yml     # postgres, minio, backend, nginx
 ```
 
