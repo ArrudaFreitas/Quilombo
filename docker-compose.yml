@@ -9,6 +9,9 @@ services:
       POSTGRES_PASSWORD: quilombo
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      # Provisiona a role de runtime (quilombo_app) na 1ª subida do volume.
+      # Volume já existente não reexecuta: docker compose down -v && up.
+      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test:         ["CMD-SHELL", "pg_isready -U quilombo -d quilombo"]
       interval:     5s
@@ -57,8 +60,12 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: dev
       DATABASE_URL:           jdbc:postgresql://postgres:5432/quilombo
-      DB_USERNAME:            quilombo
-      DB_PASSWORD:            quilombo
+      # Runtime conecta como a role NÃO-DONA quilombo_app — o RLS vale para ela
+      DB_USERNAME:            quilombo_app
+      DB_PASSWORD:            quilombo_app
+      # Flyway/migração conecta como o usuário DONO (cria schema e políticas)
+      DB_MIGRATION_USERNAME:  quilombo
+      DB_MIGRATION_PASSWORD:  quilombo
       JWT_SECRET:             dev-docker-secret-nao-usar-em-producao
       APP_BASE_DOMAIN:        quilombo.localhost
       # Variáveis de MinIO — usadas quando a feature de upload for implementada

@@ -13,6 +13,10 @@ spring:
   flyway:
     clean-disabled: true
     out-of-order: false
+    # Migração: usuário DONO do schema, separado da role de runtime (RLS).
+    url: ${DATABASE_URL}
+    user: ${DB_MIGRATION_USERNAME}
+    password: ${DB_MIGRATION_PASSWORD}
 
 logging:
   level:

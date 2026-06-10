@@ -7,9 +7,11 @@ spring:
     time-zone: UTC
 
   datasource:
+    # Runtime conecta como a role NÃO-DONA quilombo_app — sem privilégio de
+    # furar o RLS. A migração usa o datasource do Flyway (dono), abaixo.
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/quilombo}
-    username: ${DB_USERNAME:quilombo}
-    password: ${DB_PASSWORD:quilombo}
+    username: ${DB_USERNAME:quilombo_app}
+    password: ${DB_PASSWORD:quilombo_app}
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: quilombo-pool
@@ -27,6 +29,11 @@ spring:
     locations: classpath:db/migration
     validate-on-migrate: true
     clean-disabled: true
+    # Migração conecta como o usuário DONO do schema (cria tabelas e políticas
+    # RLS; o dono não é afetado pelo RLS — separado da role de runtime).
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/quilombo}
+    user: ${DB_MIGRATION_USERNAME:quilombo}
+    password: ${DB_MIGRATION_PASSWORD:quilombo}
 
   security:
     oauth2:
