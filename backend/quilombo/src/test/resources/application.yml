@@ -1,0 +1,14 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test-client-id
+            client-secret: test-client-secret
+            scope: openid,email,profile
+
+app:
+  jwt:
+    secret: test-secret-key-for-junit-tests-only-not-production
+    expiration-hours: 1
