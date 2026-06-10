@@ -2,6 +2,7 @@ package com.quilombo.config;
 
 import com.quilombo.security.JwtAuthenticationFilter;
 import com.quilombo.security.OAuth2AuthenticationSuccessHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,12 +12,38 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final AppProperties appProperties;
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        var config = new CorsConfiguration();
+        config.setAllowedOriginPatterns(List.of(
+                "https://*." + appProperties.baseDomain(),
+                "https://" + appProperties.baseDomain(),
+                "http://localhost:[*]",
+                "http://127.0.0.1:[*]"
+        ));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
+        var source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
 
     /**
      * Impede que o Spring Boot registre o JwtAuthenticationFilter como filtro de servlet
@@ -34,6 +61,7 @@ public class SecurityConfig {
     @Profile("dev")
     SecurityFilterChain devFilterChain(HttpSecurity http) throws Exception {
         return http
+                .cors(withDefaults())
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .csrf(csrf -> csrf.disable())
                 .build();
@@ -43,6 +71,7 @@ public class SecurityConfig {
     @Profile("homolog")
     SecurityFilterChain homologFilterChain(HttpSecurity http) throws Exception {
         return http
+                .cors(withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health").permitAll()
                         .anyRequest().authenticated())
@@ -59,6 +88,7 @@ public class SecurityConfig {
                                         JwtAuthenticationFilter jwtFilter,
                                         OAuth2AuthenticationSuccessHandler successHandler) throws Exception {
         return http
+                .cors(withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health", "/oauth2/**", "/login/oauth2/**").permitAll()
                         .anyRequest().authenticated())
