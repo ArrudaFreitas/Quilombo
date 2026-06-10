@@ -39,6 +39,11 @@ server:
     include-stacktrace: never
     include-message: on_param
 
+spring:
+  mvc:
+    problemdetails:
+      enabled: true
+
 management:
   endpoints:
     web:
