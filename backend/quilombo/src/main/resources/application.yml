@@ -39,16 +39,15 @@ spring:
             client-secret: ${GOOGLE_CLIENT_SECRET:placeholder}
             scope: openid,email,profile
 
+  mvc:
+    problemdetails:
+      enabled: true
+
 server:
   port: ${SERVER_PORT:8080}
   error:
     include-stacktrace: never
     include-message: on_param
-
-spring:
-  mvc:
-    problemdetails:
-      enabled: true
 
 management:
   endpoints:
