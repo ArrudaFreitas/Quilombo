@@ -91,6 +91,8 @@ public class SecurityConfig {
                 .cors(withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health", "/oauth2/**", "/login/oauth2/**").permitAll()
+                        // troca do código de login por JWT — público (ainda não há Bearer)
+                        .requestMatchers("/api/v1/auth/token").permitAll()
                         .anyRequest().authenticated())
                 // OAuth2 precisa de sessão para armazenar o state/nonce do PKCE durante o handshake.
                 // O JWT assume após o redirecionamento do successHandler.
