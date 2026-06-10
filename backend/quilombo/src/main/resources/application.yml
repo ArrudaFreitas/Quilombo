@@ -2,6 +2,10 @@ spring:
   application:
     name: quilombo
 
+  jackson:
+    default-property-inclusion: non_null
+    time-zone: UTC
+
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/quilombo}
     username: ${DB_USERNAME:quilombo}
@@ -33,6 +37,10 @@ spring:
             client-secret: ${GOOGLE_CLIENT_SECRET:placeholder}
             scope: openid,email,profile
 
+  mvc:
+    problemdetails:
+      enabled: true
+
 server:
   port: ${SERVER_PORT:8080}
   error:
@@ -43,7 +51,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health,prometheus
   endpoint:
     health:
       show-details: never

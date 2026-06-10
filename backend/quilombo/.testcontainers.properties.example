@@ -1,0 +1,9 @@
+# Copie este arquivo para ~/.testcontainers.properties para reusar
+# containers entre execuções de testes locais (acelera o ciclo de dev).
+#
+# Não afeta CI — a flag é ignorada quando TESTCONTAINERS_RYUK_DISABLED não
+# está ativo, e cada runner de CI já começa com um daemon Docker limpo.
+#
+# Uso:
+#   cp .testcontainers.properties.example ~/.testcontainers.properties
+testcontainers.reuse.enable=true
