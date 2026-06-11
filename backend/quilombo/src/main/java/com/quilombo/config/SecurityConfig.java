@@ -59,12 +59,23 @@ public class SecurityConfig {
         return registration;
     }
 
+    /**
+     * Dev libera tudo (Swagger, Actuator, endpoints sem token), mas mantém o fluxo
+     * de login real funcional: oauth2Login registra os endpoints do handshake com o
+     * Google e o filtro JWT autentica Bearer quando presente — sem eles, o login só
+     * funcionaria em prod e o /auth/me seria intestável no navegador.
+     */
     @Bean
     @Profile("dev")
-    SecurityFilterChain devFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain devFilterChain(HttpSecurity http,
+                                       JwtAuthenticationFilter jwtFilter,
+                                       OAuth2AuthenticationSuccessHandler successHandler) throws Exception {
         return http
                 .cors(withDefaults())
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .oauth2Login(oauth2 -> oauth2.successHandler(successHandler))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable())
                 .build();
     }
