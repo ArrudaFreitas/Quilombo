@@ -80,3 +80,5 @@ app:
   jwt:
     secret: ${JWT_SECRET:dev-only-secret-change-in-production}
     expiration-hours: ${JWT_EXPIRATION_HOURS:24}
+  auth:
+    email-hash-secret: ${EMAIL_HASH_SECRET:dev-only-email-hash-secret-change-in-production}

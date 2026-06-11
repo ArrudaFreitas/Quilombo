@@ -120,6 +120,7 @@ class TenantIdIntegrationTest {
         try (var owner = DriverManager.getConnection(jdbcUrl, ownerUser, ownerPassword);
              var st = owner.createStatement()) {
             st.execute("DELETE FROM community_profiles");
+            st.execute("DELETE FROM admins");
             st.execute("DELETE FROM communities");
         }
     }

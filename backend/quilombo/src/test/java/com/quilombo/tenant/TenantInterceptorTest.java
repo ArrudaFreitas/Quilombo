@@ -26,7 +26,7 @@ class TenantInterceptorTest {
 
     private final CommunityRepository repository = mock(CommunityRepository.class);
     private final TenantInterceptor interceptor = new TenantInterceptor(
-            provider(repository), new AppProperties(BASE_DOMAIN, null, null, null));
+            provider(repository), new AppProperties(BASE_DOMAIN, null, null, null, null));
 
     @SuppressWarnings("unchecked")
     private static ObjectProvider<CommunityRepository> provider(CommunityRepository repository) {
@@ -84,6 +84,25 @@ class TenantInterceptorTest {
 
         assertThat(TenantContext.getCommunityId()).isEmpty();
         verifyNoInteractions(repository);
+    }
+
+    @Test
+    void cross_checks_when_jwt_already_resolved_the_tenant() {
+        var community = new Community();
+        community.setId(42L);
+        when(repository.findBySlug("kalunga")).thenReturn(Optional.of(community));
+
+        // tenant do JWT (filtro) igual ao do subdomínio: passa e não sobrescreve
+        TenantContext.setCommunityId(42L);
+        assertThat(interceptor.preHandle(request("kalunga.quilombo.localhost"),
+                new MockHttpServletResponse(), new Object())).isTrue();
+        assertThat(TenantContext.getCommunityId()).contains(42L);
+
+        // tenant do JWT divergente do subdomínio: 403
+        TenantContext.setCommunityId(7L);
+        assertThatThrownBy(() -> interceptor.preHandle(request("kalunga.quilombo.localhost"),
+                new MockHttpServletResponse(), new Object()))
+                .isInstanceOf(TenantMismatchException.class);
     }
 
     @Test

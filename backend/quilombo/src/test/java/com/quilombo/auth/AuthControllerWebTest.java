@@ -54,6 +54,18 @@ class AuthControllerWebTest {
     }
 
     @Test
+    void email_not_in_allowlist_returns_403_problem_detail() throws Exception {
+        given(authService.exchangeCodeForToken("foreign-code"))
+                .willThrow(new EmailNotAllowedException());
+
+        mockMvc.perform(post("/api/v1/auth/token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"code\":\"foreign-code\"}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.detail").value("E-mail não autorizado para esta comunidade"));
+    }
+
+    @Test
     void invalid_code_returns_401_problem_detail() throws Exception {
         given(authService.exchangeCodeForToken("bad-code"))
                 .willThrow(new InvalidLoginCodeException());

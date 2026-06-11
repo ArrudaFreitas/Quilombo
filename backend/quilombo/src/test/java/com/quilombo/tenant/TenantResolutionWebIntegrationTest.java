@@ -52,6 +52,7 @@ class TenantResolutionWebIntegrationTest {
         try (var owner = DriverManager.getConnection(jdbcUrl, ownerUser, ownerPassword);
              var st = owner.createStatement()) {
             st.execute("DELETE FROM community_profiles");
+            st.execute("DELETE FROM admins");
             st.execute("DELETE FROM communities");
         }
         var community = new Community();
@@ -81,9 +82,11 @@ class TenantResolutionWebIntegrationTest {
 
     @Test
     void root_domain_passes_without_tenant() throws Exception {
+        // chega ao controller sem tenant; a troca exige subdomínio -> 400
         mockMvc.perform(post("https://quilombo.localhost/api/v1/auth/token")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"code\":\"inexistente\"}"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail").value("A troca do código exige o subdomínio da comunidade"));
     }
 }
