@@ -42,6 +42,8 @@ public class TestcontainersConfiguration {
 			registry.add("spring.flyway.url", container::getJdbcUrl);
 			registry.add("spring.flyway.user", container::getUsername);
 			registry.add("spring.flyway.password", container::getPassword);
+			// Os ITs controlam os próprios dados — sem seed de dev no startup.
+			registry.add("app.seed.enabled", () -> "false");
 		};
 	}
 }
