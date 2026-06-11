@@ -23,6 +23,12 @@ spring:
     user: ${DB_MIGRATION_USERNAME:quilombo}
     password: ${DB_MIGRATION_PASSWORD:quilombo}
 
+app:
+  seed:
+    # Semeia as comunidades do MVP (e o admin de DEV_ADMIN_EMAIL) na subida.
+    # Os testes de integração desligam via TestcontainersConfiguration.
+    enabled: true
+
 logging:
   level:
     root: INFO
