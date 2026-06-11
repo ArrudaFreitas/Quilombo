@@ -36,8 +36,10 @@ class JwtAuthenticationFilterTest {
         var tenantDuringChain = new AtomicReference<Optional<Long>>();
         filter.doFilter(request, new MockHttpServletResponse(), (req, res) -> {
             tenantDuringChain.set(TenantContext.getCommunityId());
-            assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
-                    .isEqualTo("17");
+            var auth = SecurityContextHolder.getContext().getAuthentication();
+            assertThat(auth.getName()).isEqualTo("17");
+            assertThat(auth.getPrincipal())
+                    .isEqualTo(new JwtPrincipal(17L, "Maria"));
         });
 
         assertThat(tenantDuringChain.get()).contains(42L);

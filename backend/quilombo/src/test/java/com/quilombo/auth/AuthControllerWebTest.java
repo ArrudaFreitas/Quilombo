@@ -13,6 +13,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -63,6 +64,13 @@ class AuthControllerWebTest {
                         .content("{\"code\":\"foreign-code\"}"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.detail").value("E-mail não autorizado para esta comunidade"));
+    }
+
+    @Test
+    void me_without_authentication_returns_401() throws Exception {
+        mockMvc.perform(get("/api/v1/auth/me"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.detail").value("Sessão inválida"));
     }
 
     @Test
