@@ -75,6 +75,17 @@ cd backend/quilombo
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
+### Seed de desenvolvimento
+
+No profile `dev`, a aplicação semeia na subida (idempotente) as comunidades do MVP — `kalunga`, `palmares` e `frechal`. Para testar o **login com Google** no navegador, exporte seu e-mail antes de subir; o seed o registra como admin das três comunidades (apenas o HMAC do e-mail é persistido):
+
+```bash
+export DEV_ADMIN_EMAIL=seu-email@gmail.com
+export GOOGLE_CLIENT_ID=...      # credenciais OAuth do Google Cloud Console
+export GOOGLE_CLIENT_SECRET=...
+docker-compose up --build
+```
+
 ---
 
 ## Profiles
