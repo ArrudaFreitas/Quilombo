@@ -1,5 +1,8 @@
 package com.quilombo.auth;
 
+import com.quilombo.auth.dto.MeResponse;
+import com.quilombo.community.CommunityRepository;
+import com.quilombo.security.JwtPrincipal;
 import com.quilombo.security.JwtService;
 import com.quilombo.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +42,7 @@ public class AuthService {
 
     private final LoginCodeRepository repository;
     private final AdminRepository adminRepository;
+    private final CommunityRepository communityRepository;
     private final EmailHasher emailHasher;
     private final JwtService jwtService;
     private final SecureRandom secureRandom = new SecureRandom();
@@ -85,6 +89,22 @@ public class AuthService {
         return jwtService.generateToken(admin.getId().toString(), Map.of(
                 "communityId", communityId,
                 "name", loginCode.getName()));
+    }
+
+    /**
+     * Sessão atual do admin autenticado. Revalida contra o banco: se o admin foi
+     * removido da allowlist após a emissão do token, o RLS/{@code @TenantId} não o
+     * encontra mais e a sessão é recusada — revogação efetiva sem blocklist de JWT.
+     */
+    @Transactional(readOnly = true)
+    public MeResponse me(JwtPrincipal principal) {
+        var communityId = TenantContext.getCommunityId()
+                .orElseThrow(InvalidSessionException::new);
+        var admin = adminRepository.findById(principal.adminId())
+                .orElseThrow(InvalidSessionException::new);
+        var community = communityRepository.findById(communityId)
+                .orElseThrow(InvalidSessionException::new);
+        return new MeResponse(admin.getId(), principal.name(), community.getSlug());
     }
 
     private String generateRawCode() {
