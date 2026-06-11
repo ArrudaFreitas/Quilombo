@@ -25,9 +25,20 @@ public record AppProperties(
     ) {}
 
     public record StorageProperties(
+            /* quota de armazenamento por comunidade */
             long limitBytes,
+            /* tamanho máximo do arquivo enviado, antes do processamento */
             long uploadMaxBytes,
-            int imageMaxDimension
+            /* maior lado da imagem após o resize (sem ampliar) */
+            int imageMaxDimension,
+            /* endpoint S3-compatível (MinIO em dev, R2/S3 em prod); vazio = endpoint padrão da AWS */
+            String endpoint,
+            String accessKey,
+            String secretKey,
+            String bucket,
+            String region,
+            /* base pública dos objetos — o que vai nas URLs servidas ao navegador */
+            String publicBaseUrl
     ) {}
 
     public record SectionsProperties(

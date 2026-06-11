@@ -48,6 +48,13 @@ spring:
     problemdetails:
       enabled: true
 
+  servlet:
+    multipart:
+      # Teto do container acima da quota da aplicação (app.storage.upload-max-bytes),
+      # para que o 413 com mensagem própria venha da regra de negócio, não do framework.
+      max-file-size: 10MB
+      max-request-size: 12MB
+
 server:
   port: ${SERVER_PORT:8080}
   error:
@@ -75,6 +82,15 @@ app:
     limit-bytes: 52428800
     upload-max-bytes: 5242880
     image-max-dimension: 1920
+    # Conexão S3-compatível. Em dev/Docker, as MINIO_* do compose preenchem;
+    # sem elas (Maven local sem storage) o cliente sobe mas não é exercido.
+    endpoint: ${MINIO_ENDPOINT:}
+    access-key: ${MINIO_ACCESS_KEY:}
+    secret-key: ${MINIO_SECRET_KEY:}
+    bucket: ${MINIO_BUCKET:quilombo-uploads}
+    region: ${STORAGE_REGION:us-east-1}
+    # Base pública dos objetos servida ao navegador (host, não a rede interna do Docker)
+    public-base-url: ${MINIO_PUBLIC_URL:http://localhost:9000/quilombo-uploads}
   sections:
     limit: 20
   jwt:

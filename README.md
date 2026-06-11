@@ -2,7 +2,7 @@
 
 Plataforma **multi-tenant** para comunidades quilombolas — cada comunidade é resolvida por subdomínio (`<comunidade>.quilombo.localhost`) e administra sua própria página institucional, seções de conteúdo e acervo de imagens.
 
-> **Status:** desenvolvimento inicial. No momento o repositório contém a configuração base do backend e a infraestrutura de desenvolvimento; as features de domínio ainda serão implementadas.
+> **Status:** em desenvolvimento. O backend já implementa multi-tenancy (subdomínio + RLS), autenticação (OAuth2 Google + JWT com refresh rotacionado), o diretório público e a página institucional, e a área administrativa: card da comunidade, estilo/paleta, CRUD de seções e o acervo de imagens (upload com processamento e quota). O frontend (Next.js) ainda será iniciado.
 
 ---
 
@@ -27,10 +27,15 @@ Plataforma **multi-tenant** para comunidades quilombolas — cada comunidade é 
 .
 ├── backend/quilombo/      # aplicação Spring Boot
 │   ├── src/main/java/com/quilombo/
-│   │   ├── auth/          # troca de código de login por JWT
-│   │   ├── community/     # tenant root (Community) e perfil público
+│   │   ├── auth/          # login por código/OAuth2 → JWT + refresh rotacionado
+│   │   ├── community/     # tenant root (Community), perfil público e card admin
+│   │   ├── page/          # página institucional: estilo/paleta e CRUD de seções
+│   │   ├── media/         # acervo de imagens: upload (resize + WebP), quota, alt
+│   │   ├── storage/       # abstração de object storage S3 (MinIO em dev)
+│   │   ├── common/        # envelope ApiResponse e tratamento de erros (ProblemDetail)
 │   │   ├── config/        # configurações (Security, JPA, OpenAPI, MapStruct…)
 │   │   ├── security/      # JWT e OAuth2
+│   │   ├── seed/          # seed idempotente das comunidades de dev
 │   │   └── tenant/        # multi-tenancy: @TenantId + RLS (subdomínio → tenant)
 │   ├── src/main/resources/
 │   │   ├── db/migration/  # migrations Flyway (V1__…)
