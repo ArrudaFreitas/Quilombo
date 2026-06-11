@@ -17,7 +17,11 @@ public record AppProperties(
 
     public record AuthProperties(
             /* pepper do HMAC-SHA256 dos e-mails — sem ele não há lookup nem rainbow table */
-            String emailHashSecret
+            String emailHashSecret,
+            /* validade da sessão longa (cookie de refresh rotacionado) */
+            int refreshExpirationDays,
+            /* Secure no cookie de refresh — false apenas em dev sem TLS */
+            boolean cookieSecure
     ) {}
 
     public record StorageProperties(

@@ -106,8 +106,9 @@ public class SecurityConfig {
                 .cors(withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health", "/oauth2/**", "/login/oauth2/**").permitAll()
-                        // troca do código de login por JWT — público (ainda não há Bearer)
-                        .requestMatchers("/api/v1/auth/token").permitAll()
+                        // troca/refresh/logout autenticam pelo código ou cookie — sem Bearer
+                        .requestMatchers("/api/v1/auth/token", "/api/v1/auth/refresh",
+                                "/api/v1/auth/logout").permitAll()
                         .anyRequest().authenticated())
                 // 401/403 da security chain em RFC 7807, como o resto da API
                 .exceptionHandling(ex -> ex

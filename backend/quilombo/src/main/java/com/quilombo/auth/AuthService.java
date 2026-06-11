@@ -2,6 +2,7 @@ package com.quilombo.auth;
 
 import com.quilombo.auth.dto.MeResponse;
 import com.quilombo.community.CommunityRepository;
+import com.quilombo.config.AppProperties;
 import com.quilombo.security.JwtPrincipal;
 import com.quilombo.security.JwtService;
 import com.quilombo.tenant.TenantContext;
@@ -42,16 +43,18 @@ public class AuthService {
 
     private final LoginCodeRepository repository;
     private final AdminRepository adminRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final CommunityRepository communityRepository;
     private final EmailHasher emailHasher;
     private final JwtService jwtService;
+    private final AppProperties appProperties;
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Transactional
     public String issueLoginCode(String email, String name) {
         repository.deleteExpired(Instant.now());
 
-        var rawCode = generateRawCode();
+        var rawCode = generateOpaqueToken();
         var loginCode = new LoginCode();
         loginCode.setCodeHash(sha256Hex(rawCode));
         loginCode.setEmailHash(emailHasher.hash(email));
@@ -63,7 +66,7 @@ public class AuthService {
     }
 
     @Transactional
-    public String exchangeCodeForToken(String rawCode) {
+    public TokenPair exchangeCodeForToken(String rawCode) {
         var communityId = TenantContext.getCommunityId()
                 .orElseThrow(TenantRequiredException::new);
 
@@ -85,10 +88,65 @@ public class AuthService {
             throw new InvalidLoginCodeException();
         }
 
+        return issueTokens(admin.getId(), communityId, loginCode.getName());
+    }
+
+    /**
+     * Rotação: consome o refresh atual atomicamente e emite outro par. Reuso de um
+     * token já rotacionado falha. A allowlist é revalidada — admin removido perde
+     * também a sessão longa. Expirado é rejeitado sem deletar (lançar faria
+     * rollback); a limpeza oportunista em {@link #issueTokens} o remove depois.
+     */
+    @Transactional
+    public TokenPair refresh(String rawRefreshToken) {
+        var communityId = TenantContext.getCommunityId()
+                .orElseThrow(TenantRequiredException::new);
+        if (rawRefreshToken == null || rawRefreshToken.isBlank()) {
+            throw new InvalidRefreshTokenException();
+        }
+
+        var stored = refreshTokenRepository.findByTokenHash(sha256Hex(rawRefreshToken))
+                .orElseThrow(InvalidRefreshTokenException::new);
+        if (stored.getExpiresAt().isBefore(Instant.now())) {
+            throw new InvalidRefreshTokenException();
+        }
+        if (refreshTokenRepository.consumeById(stored.getId()) == 0) {
+            throw new InvalidRefreshTokenException();
+        }
+
+        var admin = adminRepository.findById(stored.getAdminId())
+                .orElseThrow(InvalidSessionException::new);
+
+        return issueTokens(admin.getId(), communityId, stored.getName());
+    }
+
+    /** Revoga a sessão longa pelo cookie — idempotente, tokens desconhecidos são ignorados. */
+    @Transactional
+    public void logout(String rawRefreshToken) {
+        if (rawRefreshToken == null || rawRefreshToken.isBlank()) {
+            return;
+        }
+        refreshTokenRepository.deleteByTokenHash(sha256Hex(rawRefreshToken));
+    }
+
+    private TokenPair issueTokens(Long adminId, Long communityId, String name) {
+        refreshTokenRepository.deleteExpired(Instant.now());
+
         // sub = id do admin (sem PII); communityId ancora o token ao tenant.
-        return jwtService.generateToken(admin.getId().toString(), Map.of(
+        var accessToken = jwtService.generateToken(adminId.toString(), Map.of(
                 "communityId", communityId,
-                "name", loginCode.getName()));
+                "name", name));
+
+        var rawRefreshToken = generateOpaqueToken();
+        var refreshToken = new RefreshToken();
+        refreshToken.setTokenHash(sha256Hex(rawRefreshToken));
+        refreshToken.setAdminId(adminId);
+        refreshToken.setName(name);
+        refreshToken.setExpiresAt(Instant.now().plus(
+                Duration.ofDays(appProperties.auth().refreshExpirationDays())));
+        refreshTokenRepository.save(refreshToken);
+
+        return new TokenPair(accessToken, rawRefreshToken);
     }
 
     /**
@@ -107,7 +165,7 @@ public class AuthService {
         return new MeResponse(admin.getId(), principal.name(), community.getSlug());
     }
 
-    private String generateRawCode() {
+    private String generateOpaqueToken() {
         var bytes = new byte[32];
         secureRandom.nextBytes(bytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
