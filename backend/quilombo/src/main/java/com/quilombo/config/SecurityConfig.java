@@ -110,8 +110,9 @@ public class SecurityConfig {
                         // troca/refresh/logout autenticam pelo código ou cookie — sem Bearer
                         .requestMatchers("/api/v1/auth/token", "/api/v1/auth/refresh",
                                 "/api/v1/auth/logout").permitAll()
-                        // diretório público de comunidades — a home não exige login
-                        .requestMatchers(HttpMethod.GET, "/api/v1/communities").permitAll()
+                        // diretório e página institucional públicos — não exigem login
+                        .requestMatchers(HttpMethod.GET, "/api/v1/communities",
+                                "/api/v1/community").permitAll()
                         .anyRequest().authenticated())
                 // 401/403 da security chain em RFC 7807, como o resto da API
                 .exceptionHandling(ex -> ex
