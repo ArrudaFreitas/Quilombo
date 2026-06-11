@@ -24,6 +24,9 @@ spring:
     password: ${DB_MIGRATION_PASSWORD:quilombo}
 
 app:
+  auth:
+    # cookie de refresh sobre http local (sem TLS) — não exigir Secure em dev
+    cookie-secure: false
   seed:
     # Semeia as comunidades do MVP (e o admin de DEV_ADMIN_EMAIL) na subida.
     # Os testes de integração desligam via TestcontainersConfiguration.

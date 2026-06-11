@@ -43,8 +43,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             var claims = jwtService.parseToken(authHeader.substring(7));
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                var principal = new JwtPrincipal(
+                        Long.parseLong(claims.getSubject()),
+                        claims.get("name", String.class));
                 var auth = new UsernamePasswordAuthenticationToken(
-                        claims.getSubject(), null, List.of());
+                        principal, null, List.of());
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -55,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     tenantSetHere = true;
                 }
             }
-        } catch (JwtException ignored) {
+        } catch (JwtException | NumberFormatException ignored) {
             // token inválido — sem autenticação, a security chain retorna 401
         }
         try {

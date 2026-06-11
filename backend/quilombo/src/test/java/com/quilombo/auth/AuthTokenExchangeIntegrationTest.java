@@ -40,6 +40,9 @@ class AuthTokenExchangeIntegrationTest {
     LoginCodeRepository loginCodes;
 
     @Autowired
+    RefreshTokenRepository refreshTokens;
+
+    @Autowired
     AdminRepository admins;
 
     @Autowired
@@ -87,16 +90,87 @@ class AuthTokenExchangeIntegrationTest {
         var code = authService.issueLoginCode(ADMIN_EMAIL, "Maria");
 
         TenantContext.setCommunityId(communityA);
-        var jwt = authService.exchangeCodeForToken(code);
+        var tokens = authService.exchangeCodeForToken(code);
 
-        var claims = jwtService.parseToken(jwt);
+        var claims = jwtService.parseToken(tokens.accessToken());
         assertThat(claims.getSubject()).isEqualTo(adminId.toString()); // sem PII
         assertThat(((Number) claims.get("communityId")).longValue()).isEqualTo(communityA);
         assertThat(claims.get("name")).isEqualTo("Maria");
+        assertThat(tokens.refreshToken()).isNotBlank(); // sessão longa emitida junto
 
         assertThat(loginCodes.count()).isZero(); // uso único: consumido na troca
         assertThatThrownBy(() -> authService.exchangeCodeForToken(code))
                 .isInstanceOf(InvalidLoginCodeException.class);
+    }
+
+    @Test
+    void refresh_rotates_the_long_session_exactly_once() {
+        var code = authService.issueLoginCode(ADMIN_EMAIL, "Maria");
+        TenantContext.setCommunityId(communityA);
+        var first = authService.exchangeCodeForToken(code);
+
+        var second = authService.refresh(first.refreshToken());
+        assertThat(second.accessToken()).isNotBlank();
+        assertThat(second.refreshToken()).isNotEqualTo(first.refreshToken());
+
+        // claims re-cunhados na rotação
+        var claims = jwtService.parseToken(second.accessToken());
+        assertThat(claims.getSubject()).isEqualTo(adminId.toString());
+        assertThat(claims.get("name")).isEqualTo("Maria");
+
+        // o refresh antigo foi consumido — reuso falha
+        assertThatThrownBy(() -> authService.refresh(first.refreshToken()))
+                .isInstanceOf(InvalidRefreshTokenException.class);
+    }
+
+    @Test
+    void refresh_requires_tenant_and_rejects_unknown_blank_and_expired_tokens() {
+        TenantContext.clear();
+        assertThatThrownBy(() -> authService.refresh("qualquer"))
+                .isInstanceOf(TenantRequiredException.class);
+
+        TenantContext.setCommunityId(communityA);
+        assertThatThrownBy(() -> authService.refresh(null))
+                .isInstanceOf(InvalidRefreshTokenException.class);
+        assertThatThrownBy(() -> authService.refresh("desconhecido"))
+                .isInstanceOf(InvalidRefreshTokenException.class);
+
+        var code = authService.issueLoginCode(ADMIN_EMAIL, "Maria");
+        var tokens = authService.exchangeCodeForToken(code);
+        var stored = refreshTokens.findAll().getFirst();
+        stored.setExpiresAt(Instant.now().minusSeconds(120));
+        refreshTokens.save(stored);
+        assertThatThrownBy(() -> authService.refresh(tokens.refreshToken()))
+                .isInstanceOf(InvalidRefreshTokenException.class);
+    }
+
+    @Test
+    void refresh_after_admin_removed_from_allowlist_is_rejected() throws SQLException {
+        var code = authService.issueLoginCode(ADMIN_EMAIL, "Maria");
+        TenantContext.setCommunityId(communityA);
+        var tokens = authService.exchangeCodeForToken(code);
+
+        try (var owner = DriverManager.getConnection(jdbcUrl, ownerUser, ownerPassword);
+             var st = owner.createStatement()) {
+            st.execute("DELETE FROM admins WHERE id = " + adminId);
+        }
+
+        // ON DELETE CASCADE já revogou a sessão longa junto com o admin
+        assertThatThrownBy(() -> authService.refresh(tokens.refreshToken()))
+                .isInstanceOf(InvalidRefreshTokenException.class);
+    }
+
+    @Test
+    void logout_revokes_the_long_session() {
+        var code = authService.issueLoginCode(ADMIN_EMAIL, "Maria");
+        TenantContext.setCommunityId(communityA);
+        var tokens = authService.exchangeCodeForToken(code);
+
+        authService.logout(tokens.refreshToken());
+
+        assertThatThrownBy(() -> authService.refresh(tokens.refreshToken()))
+                .isInstanceOf(InvalidRefreshTokenException.class);
+        authService.logout(tokens.refreshToken()); // idempotente
     }
 
     @Test
@@ -110,7 +184,7 @@ class AuthTokenExchangeIntegrationTest {
 
         // o código não foi consumido: a troca no subdomínio certo ainda funciona
         TenantContext.setCommunityId(communityA);
-        assertThat(authService.exchangeCodeForToken(code)).isNotBlank();
+        assertThat(authService.exchangeCodeForToken(code).accessToken()).isNotBlank();
     }
 
     @Test
