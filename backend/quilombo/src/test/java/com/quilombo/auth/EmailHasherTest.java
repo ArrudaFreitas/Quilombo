@@ -36,6 +36,6 @@ class EmailHasherTest {
 
     private static EmailHasher hasherWithSecret(String secret) {
         return new EmailHasher(new AppProperties(
-                null, null, null, null, new AuthProperties(secret)));
+                null, null, null, null, new AuthProperties(secret, 14, false)));
     }
 }

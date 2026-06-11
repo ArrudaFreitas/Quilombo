@@ -15,3 +15,5 @@ app:
     expiration-hours: 1
   auth:
     email-hash-secret: test-email-hash-secret-for-junit-tests-only
+    refresh-expiration-days: 14
+    cookie-secure: false
