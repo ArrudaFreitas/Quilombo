@@ -3,6 +3,7 @@ package com.quilombo.seed;
 import com.quilombo.TestcontainersConfiguration;
 import com.quilombo.auth.AdminRepository;
 import com.quilombo.auth.EmailHasher;
+import com.quilombo.community.CommunityCardRepository;
 import com.quilombo.community.CommunityRepository;
 import com.quilombo.tenant.TenantContext;
 import org.junit.jupiter.api.AfterEach;
@@ -35,6 +36,9 @@ class DevDataSeederIntegrationTest {
     CommunityRepository communities;
 
     @Autowired
+    CommunityCardRepository cards;
+
+    @Autowired
     AdminRepository admins;
 
     @Autowired
@@ -56,6 +60,7 @@ class DevDataSeederIntegrationTest {
             st.execute("DELETE FROM auth_login_codes");
             st.execute("DELETE FROM admins");
             st.execute("DELETE FROM community_profiles");
+            st.execute("DELETE FROM community_cards");
             st.execute("DELETE FROM communities");
         }
     }
@@ -67,7 +72,7 @@ class DevDataSeederIntegrationTest {
 
     @Test
     void seeds_mvp_communities_and_dev_admin_idempotently() throws Exception {
-        var seeder = new DevDataSeeder(communities, admins, emailHasher, DEV_EMAIL);
+        var seeder = new DevDataSeeder(communities, cards, admins, emailHasher, DEV_EMAIL);
 
         seeder.run(null);
         seeder.run(null); // reexecutar não duplica
@@ -76,6 +81,15 @@ class DevDataSeederIntegrationTest {
         assertThat(communities.findBySlug("kalunga")).isPresent();
         assertThat(communities.findBySlug("palmares")).isPresent();
         assertThat(communities.findBySlug("frechal")).isPresent();
+
+        // um card público por comunidade, aguardando imagem/descrição do admin
+        assertThat(cards.count()).isEqualTo(3);
+        assertThat(cards.findByCommunitySlug("kalunga"))
+                .hasValueSatisfying(card -> {
+                    assertThat(card.getName()).isEqualTo("Kalunga");
+                    assertThat(card.getImageUrl()).isNull();
+                    assertThat(card.getShortDescription()).isNull();
+                });
 
         // um admin por comunidade, visível apenas no tenant correspondente
         var emailHash = emailHasher.hash(DEV_EMAIL);
@@ -89,9 +103,10 @@ class DevDataSeederIntegrationTest {
 
     @Test
     void without_dev_admin_email_seeds_only_communities() throws Exception {
-        new DevDataSeeder(communities, admins, emailHasher, "").run(null);
+        new DevDataSeeder(communities, cards, admins, emailHasher, "").run(null);
 
         assertThat(communities.count()).isEqualTo(3);
+        assertThat(cards.count()).isEqualTo(3);
         try (var owner = DriverManager.getConnection(jdbcUrl, ownerUser, ownerPassword);
              var st = owner.createStatement();
              var rs = st.executeQuery("SELECT count(*) FROM admins")) {

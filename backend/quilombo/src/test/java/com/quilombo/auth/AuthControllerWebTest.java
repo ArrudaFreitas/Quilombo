@@ -25,7 +25,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest
+// controllers= restringe o slice ao AuthController — sem isso o @WebMvcTest
+// escaneia todos os @RestController e exigiria os services dos demais no contexto
+@WebMvcTest(controllers = AuthController.class)
 @Import({WebConfig.class, GlobalExceptionHandler.class, AuthController.class, AuthCookies.class})
 @AutoConfigureMockMvc(addFilters = false)
 class AuthControllerWebTest {

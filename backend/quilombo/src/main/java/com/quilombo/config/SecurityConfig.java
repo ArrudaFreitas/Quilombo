@@ -9,6 +9,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -109,6 +110,8 @@ public class SecurityConfig {
                         // troca/refresh/logout autenticam pelo código ou cookie — sem Bearer
                         .requestMatchers("/api/v1/auth/token", "/api/v1/auth/refresh",
                                 "/api/v1/auth/logout").permitAll()
+                        // diretório público de comunidades — a home não exige login
+                        .requestMatchers(HttpMethod.GET, "/api/v1/communities").permitAll()
                         .anyRequest().authenticated())
                 // 401/403 da security chain em RFC 7807, como o resto da API
                 .exceptionHandling(ex -> ex

@@ -4,6 +4,8 @@ import com.quilombo.auth.Admin;
 import com.quilombo.auth.AdminRepository;
 import com.quilombo.auth.EmailHasher;
 import com.quilombo.community.Community;
+import com.quilombo.community.CommunityCard;
+import com.quilombo.community.CommunityCardRepository;
 import com.quilombo.community.CommunityRepository;
 import com.quilombo.tenant.TenantContext;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +19,8 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * Seed de desenvolvimento: as 3 comunidades do MVP e, se {@code DEV_ADMIN_EMAIL}
+ * Seed de desenvolvimento: as 3 comunidades do MVP (com os respectivos cards do
+ * diretório público) e, se {@code DEV_ADMIN_EMAIL}
  * estiver definido, registra esse e-mail como admin de todas elas — é o que
  * permite testar o login com Google real no navegador, já que o HMAC do e-mail
  * precisa ser calculado com o {@code EMAIL_HASH_SECRET} do ambiente (por isso o
@@ -43,15 +46,18 @@ public class DevDataSeeder implements ApplicationRunner {
             new SeedCommunity("frechal", "Frechal", "Mirinzal, MA"));
 
     private final CommunityRepository communities;
+    private final CommunityCardRepository cards;
     private final AdminRepository admins;
     private final EmailHasher emailHasher;
     private final String devAdminEmail;
 
     public DevDataSeeder(CommunityRepository communities,
+                         CommunityCardRepository cards,
                          AdminRepository admins,
                          EmailHasher emailHasher,
                          @Value("${DEV_ADMIN_EMAIL:}") String devAdminEmail) {
         this.communities = communities;
+        this.cards = cards;
         this.admins = admins;
         this.emailHasher = emailHasher;
         this.devAdminEmail = devAdminEmail;
@@ -62,6 +68,8 @@ public class DevDataSeeder implements ApplicationRunner {
         for (var seed : COMMUNITIES) {
             var community = communities.findBySlug(seed.slug())
                     .orElseGet(() -> communities.save(toEntity(seed)));
+            cards.findByCommunitySlug(seed.slug())
+                    .orElseGet(() -> cards.save(toCard(seed)));
             registerDevAdmin(community);
         }
         if (devAdminEmail.isBlank()) {
@@ -96,5 +104,14 @@ public class DevDataSeeder implements ApplicationRunner {
         community.setName(seed.name());
         community.setLocation(seed.location());
         return community;
+    }
+
+    /** Card do diretório público — imagem e descrição ficam para o admin preencher. */
+    private static CommunityCard toCard(SeedCommunity seed) {
+        var card = new CommunityCard();
+        card.setCommunitySlug(seed.slug());
+        card.setName(seed.name());
+        card.setLocation(seed.location());
+        return card;
     }
 }
