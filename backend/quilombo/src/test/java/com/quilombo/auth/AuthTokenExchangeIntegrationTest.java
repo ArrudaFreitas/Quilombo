@@ -1,5 +1,6 @@
 package com.quilombo.auth;
 
+import com.quilombo.TestDatabase;
 import com.quilombo.TestcontainersConfiguration;
 import com.quilombo.community.Community;
 import com.quilombo.community.CommunityRepository;
@@ -232,12 +233,6 @@ class AuthTokenExchangeIntegrationTest {
     }
 
     private void cleanAsOwner() throws SQLException {
-        try (var owner = DriverManager.getConnection(jdbcUrl, ownerUser, ownerPassword);
-             var st = owner.createStatement()) {
-            st.execute("DELETE FROM auth_login_codes");
-            st.execute("DELETE FROM admins");
-            st.execute("DELETE FROM community_profiles");
-            st.execute("DELETE FROM communities");
-        }
+        TestDatabase.wipe(jdbcUrl, ownerUser, ownerPassword);
     }
 }

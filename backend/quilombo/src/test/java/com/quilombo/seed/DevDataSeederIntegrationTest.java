@@ -1,5 +1,6 @@
 package com.quilombo.seed;
 
+import com.quilombo.TestDatabase;
 import com.quilombo.TestcontainersConfiguration;
 import com.quilombo.auth.AdminRepository;
 import com.quilombo.auth.EmailHasher;
@@ -55,14 +56,7 @@ class DevDataSeederIntegrationTest {
 
     @BeforeEach
     void clean() throws SQLException {
-        try (var owner = DriverManager.getConnection(jdbcUrl, ownerUser, ownerPassword);
-             var st = owner.createStatement()) {
-            st.execute("DELETE FROM auth_login_codes");
-            st.execute("DELETE FROM admins");
-            st.execute("DELETE FROM community_profiles");
-            st.execute("DELETE FROM community_cards");
-            st.execute("DELETE FROM communities");
-        }
+        TestDatabase.wipe(jdbcUrl, ownerUser, ownerPassword);
     }
 
     @AfterEach

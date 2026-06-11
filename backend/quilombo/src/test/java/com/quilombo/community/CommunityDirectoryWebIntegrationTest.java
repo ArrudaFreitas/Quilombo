@@ -1,5 +1,6 @@
 package com.quilombo.community;
 
+import com.quilombo.TestDatabase;
 import com.quilombo.TestcontainersConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -49,11 +49,7 @@ class CommunityDirectoryWebIntegrationTest {
 
     @BeforeEach
     void seed() throws SQLException {
-        try (var owner = DriverManager.getConnection(jdbcUrl, ownerUser, ownerPassword);
-             var st = owner.createStatement()) {
-            st.execute("DELETE FROM community_cards");
-            st.execute("DELETE FROM communities");
-        }
+        TestDatabase.wipe(jdbcUrl, ownerUser, ownerPassword);
         community("kalunga", "Kalunga", "Chapada dos Veadeiros, GO");
         community("palmares", "Quilombo dos Palmares", "União dos Palmares, AL");
         community("frechal", "Frechal", "Mirinzal, MA");

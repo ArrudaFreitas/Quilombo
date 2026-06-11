@@ -1,5 +1,6 @@
 package com.quilombo.tenant;
 
+import com.quilombo.TestDatabase;
 import com.quilombo.TestcontainersConfiguration;
 import com.quilombo.community.Community;
 import com.quilombo.community.CommunityRepository;
@@ -14,7 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -49,12 +49,7 @@ class TenantResolutionWebIntegrationTest {
 
     @BeforeEach
     void seed() throws SQLException {
-        try (var owner = DriverManager.getConnection(jdbcUrl, ownerUser, ownerPassword);
-             var st = owner.createStatement()) {
-            st.execute("DELETE FROM community_profiles");
-            st.execute("DELETE FROM admins");
-            st.execute("DELETE FROM communities");
-        }
+        TestDatabase.wipe(jdbcUrl, ownerUser, ownerPassword);
         var community = new Community();
         community.setSlug("kalunga");
         community.setName("Kalunga");
