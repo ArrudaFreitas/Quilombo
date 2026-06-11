@@ -1,5 +1,6 @@
 package com.quilombo.auth;
 
+import com.quilombo.TestDatabase;
 import com.quilombo.TestcontainersConfiguration;
 import com.quilombo.community.Community;
 import com.quilombo.community.CommunityRepository;
@@ -17,7 +18,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,12 +64,7 @@ class AuthRefreshWebIntegrationTest {
 
     @BeforeEach
     void seed() throws SQLException {
-        try (var owner = DriverManager.getConnection(jdbcUrl, ownerUser, ownerPassword);
-             var st = owner.createStatement()) {
-            st.execute("DELETE FROM auth_login_codes");
-            st.execute("DELETE FROM admins"); // cascade revoga refresh_tokens
-            st.execute("DELETE FROM communities");
-        }
+        TestDatabase.wipe(jdbcUrl, ownerUser, ownerPassword);
         var kalunga = communities.save(community());
 
         TenantContext.setCommunityId(kalunga.getId());

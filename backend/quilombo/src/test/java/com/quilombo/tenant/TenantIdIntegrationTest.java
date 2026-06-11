@@ -1,5 +1,6 @@
 package com.quilombo.tenant;
 
+import com.quilombo.TestDatabase;
 import com.quilombo.TestcontainersConfiguration;
 import com.quilombo.community.Community;
 import com.quilombo.community.CommunityProfile;
@@ -14,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +50,7 @@ class TenantIdIntegrationTest {
 
     @BeforeEach
     void seed() throws SQLException {
-        cleanAsOwner();
+        TestDatabase.wipe(jdbcUrl, ownerUser, ownerPassword);
         // communities não é tenant-scoped: criável sem tenant no contexto
         communityA = communities.save(community("kalunga", "Kalunga", "GO")).getId();
         communityB = communities.save(community("palmares", "Palmares", "AL")).getId();
@@ -114,14 +114,5 @@ class TenantIdIntegrationTest {
         var profile = new CommunityProfile();
         profile.setShortDescription(shortDescription);
         return profile;
-    }
-
-    private void cleanAsOwner() throws SQLException {
-        try (var owner = DriverManager.getConnection(jdbcUrl, ownerUser, ownerPassword);
-             var st = owner.createStatement()) {
-            st.execute("DELETE FROM community_profiles");
-            st.execute("DELETE FROM admins");
-            st.execute("DELETE FROM communities");
-        }
     }
 }
