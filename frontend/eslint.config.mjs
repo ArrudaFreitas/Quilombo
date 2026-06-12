@@ -13,6 +13,12 @@ const eslintConfig = defineConfig([
     files: ["**/*.tsx", "**/*.jsx"],
     rules: {
       ...jsxA11y.flatConfigs.recommended.rules,
+      // Região rolável focável (padrão WAI para conteúdo com overflow):
+      // role="region" + tabIndex permite rolar por teclado (WCAG 2.1.1).
+      "jsx-a11y/no-noninteractive-tabindex": [
+        "error",
+        { tags: [], roles: ["tabpanel", "region"], allowExpressionValues: true },
+      ],
     },
   },
   // Override default ignores of eslint-config-next.

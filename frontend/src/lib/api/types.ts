@@ -69,3 +69,72 @@ export interface CommunityPage {
   };
   sections: PageSectionItem[];
 }
+
+/* ── DTOs de autenticação ──────────────────────────────────────────────── */
+
+/** GET /api/v1/auth/me (MeResponse). */
+export interface AdminMe {
+  id: number;
+  name: string;
+  communitySlug: string;
+}
+
+/** POST /api/v1/auth/token e /auth/refresh (TokenResponse). */
+export interface TokenResponse {
+  token: string;
+}
+
+/* ── DTOs do admin ─────────────────────────────────────────────────────── */
+
+/** GET/PUT /api/v1/admin/card (CardResponse). */
+export interface AdminCard {
+  name: string;
+  location: string;
+  imageUrl: string | null;
+  shortDescription: string | null;
+}
+
+/** Entrada do catálogo GET /api/v1/admin/styles (StyleOption). */
+export interface StyleOption {
+  label: string;
+  palettes: string[];
+}
+
+/** Catálogo completo: id do estilo → opção. */
+export type StylesCatalog = Record<string, StyleOption>;
+
+/** Seção na visão do admin (AdminPageResponse.AdminSectionItem). */
+export interface AdminSectionItem {
+  id: number;
+  sectionType: string;
+  orderIndex: number;
+  active: boolean;
+  content: Record<string, unknown>;
+}
+
+/** GET /api/v1/admin/page — também retornado por toda mutação de seção. */
+export interface AdminPage {
+  style: string;
+  palette: string;
+  sections: AdminSectionItem[];
+}
+
+/** Item do acervo (ImageResponse). */
+export interface AdminImage {
+  filename: string;
+  url: string;
+  sizeBytes: number;
+  sizeKb: number;
+  altText: string;
+  createdAt: string;
+  inUse: boolean;
+}
+
+/** GET /api/v1/admin/storage (StorageUsageResponse). */
+export interface StorageUsage {
+  usedBytes: number;
+  limitBytes: number;
+  usedMb: number;
+  limitMb: number;
+  percent: number;
+}

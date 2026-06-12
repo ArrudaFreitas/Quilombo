@@ -25,7 +25,7 @@ export class ApiError extends Error {
 }
 
 export interface ApiFetchOptions extends Omit<RequestInit, "body"> {
-  /** Serializado como JSON quando presente. */
+  /** Serializado como JSON quando presente; FormData segue como multipart. */
   body?: unknown;
   /**
    * Host do tenant (ex.: "kalunga.quilombo.localhost:8080") — obrigatório em
@@ -55,9 +55,10 @@ export async function apiFetch<T>(
 ): Promise<ApiEnvelope<T>> {
   const { body, tenantHost, accessToken, headers, ...init } = options;
 
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
   const requestHeaders = new Headers(headers);
   requestHeaders.set("Accept", "application/json");
-  if (body !== undefined) {
+  if (body !== undefined && !isFormData) {
     requestHeaders.set("Content-Type", "application/json");
   }
   if (accessToken) {
@@ -70,7 +71,11 @@ export async function apiFetch<T>(
   const response = await fetch(`${baseUrl()}${API_PREFIX}${path}`, {
     ...init,
     headers: requestHeaders,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    body: isFormData
+      ? (body as FormData)
+      : body !== undefined
+        ? JSON.stringify(body)
+        : undefined,
   });
 
   if (!response.ok) {

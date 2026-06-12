@@ -20,6 +20,46 @@ export const SECTION_TYPES = [
 
 export type SectionType = (typeof SECTION_TYPES)[number];
 
+/** Nomes exibidos ao usuário (índice da página pública e painel admin). */
+export const SECTION_TYPE_LABELS: Record<SectionType, string> = {
+  hero: "Capa",
+  description_short: "Apresentação",
+  description_long: "Nossa história",
+  carousel: "Galeria",
+  events: "Eventos",
+  timeline: "Linha do tempo",
+  location: "Onde estamos",
+};
+
+/*
+ * Helpers puros (sem React) — utilizáveis tanto em Server Components quanto
+ * no cliente; o registry em si é client module (error boundary).
+ */
+
+/** Âncora da seção na página (alvo do índice de navegação). */
+export function sectionAnchor(section: { id: number }): string {
+  return `secao-${section.id}`;
+}
+
+/** O tipo é conhecido/renderizável? (filtra o índice de navegação) */
+export function isRenderable(section: { sectionType: string }): boolean {
+  return (SECTION_TYPES as readonly string[]).includes(section.sectionType);
+}
+
+/** Nome da seção para o índice/painel: título do conteúdo ou label do tipo. */
+export function sectionLabel(section: {
+  sectionType: string;
+  content: Record<string, unknown>;
+}): string {
+  const title = section.content?.["title"];
+  if (typeof title === "string" && title.trim()) {
+    return title;
+  }
+  return (
+    SECTION_TYPE_LABELS[section.sectionType as SectionType] ?? section.sectionType
+  );
+}
+
 /** Referência a uma imagem do acervo. `alt_text` é obrigatório no upload. */
 export interface ImageRef {
   url: string | null;
