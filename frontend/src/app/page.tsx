@@ -1,24 +1,70 @@
+import type { Metadata } from "next";
+import { headers } from "next/headers";
+import { notFound } from "next/navigation";
+import { ApiError } from "@/lib/api/client";
+import { fetchCommunities, fetchCommunityPage } from "@/lib/api/publicServer";
+import { tenantSlugFromHost } from "@/lib/tenant";
+import { DirectoryPage } from "@/components/directory/DirectoryPage";
+import { CommunityView } from "@/components/community/CommunityView";
+
 /**
- * Placeholder da raiz. Próxima fase: na raiz (quilombo.localhost) esta página
- * vira o diretório público de comunidades (GET /api/v1/communities); nos
- * subdomínios, a página institucional (GET /api/v1/community).
+ * Rota raiz com despacho por host (mesma app para os dois mundos):
+ *   - domínio raiz  → diretório público de comunidades;
+ *   - subdomínio    → página institucional do tenant.
  */
-export default function Home() {
-  return (
-    <main
-      id="conteudo"
-      className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-4 px-4 py-16 md:px-8 lg:px-12"
-    >
-      <p className="text-sm font-bold uppercase tracking-widest text-primary">
-        Quilombos do Brasil
-      </p>
-      <h1 className="text-center text-4xl text-foreground md:text-5xl">
-        Quilombo
-      </h1>
-      <p className="max-w-prose text-center text-lg text-muted">
-        Plataforma para comunidades quilombolas criarem e gerenciarem suas
-        páginas institucionais. Em construção.
-      </p>
-    </main>
-  );
+
+export const dynamic = "force-dynamic";
+
+interface PageProps {
+  searchParams: Promise<{ name?: string }>;
+}
+
+async function currentHost(): Promise<string> {
+  const requestHeaders = await headers();
+  return requestHeaders.get("host") ?? "";
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const host = await currentHost();
+  const slug = tenantSlugFromHost(host);
+  if (!slug) {
+    return {
+      title: "Quilombos do Brasil",
+      description:
+        "Conheça comunidades quilombolas, suas histórias, eventos e territórios.",
+    };
+  }
+  try {
+    const { data } = await fetchCommunityPage(host);
+    return {
+      title: data.community.name,
+      description:
+        data.card?.shortDescription ??
+        `Página institucional da comunidade ${data.community.name}.`,
+    };
+  } catch {
+    return { title: "Comunidade" };
+  }
+}
+
+export default async function Home({ searchParams }: PageProps) {
+  const host = await currentHost();
+  const slug = tenantSlugFromHost(host);
+
+  if (!slug) {
+    const { name } = await searchParams;
+    const { data } = await fetchCommunities(name, host);
+    return <DirectoryPage communities={data} query={name ?? ""} host={host} />;
+  }
+
+  let page;
+  try {
+    page = (await fetchCommunityPage(host)).data;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      notFound(); // subdomínio não corresponde a nenhuma comunidade
+    }
+    throw error;
+  }
+  return <CommunityView page={page} host={host} />;
 }
