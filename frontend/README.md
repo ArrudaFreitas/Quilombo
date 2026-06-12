@@ -4,6 +4,33 @@ Next.js (App Router) + TypeScript + Tailwind CSS v4. Interface pública e painel
 admin da plataforma, servida pelo nginx no mesmo origin da API (`/api/v1`),
 com tenant resolvido por subdomínio (`<slug>.quilombo.localhost`).
 
+## Telas
+
+| Rota | Host | O que é |
+|---|---|---|
+| `/` | raiz | Diretório público de comunidades, com busca |
+| `/` | subdomínio | Página institucional do tenant (SSR, temas por `data-*`) |
+| `/admin` | subdomínio | Painel: abas Comunidade (card), Página (tema + seções) e Imagens (acervo) |
+| `/auth/callback` | ambos | Destino do OAuth: na raiz encaminha ao tenant; no tenant troca o código por sessão |
+
+O despacho raiz × tenant acontece em `src/app/page.tsx` lendo o header `Host`.
+No servidor, as chamadas à API usam `node:http` (`src/lib/api/server.ts`) para
+repassar o `Host` original — o `fetch` do Node descarta esse header e o backend
+resolve o tenant por ele.
+
+## Fluxo de login (OAuth2 Google)
+
+1. `/admin` do tenant → "Entrar com Google" grava o slug num cookie
+   compartilhado (`Domain=.<base>`) e abre o OAuth **no domínio raiz** (o
+   redirect_uri registrado no Google é único);
+2. o backend autentica e redireciona para `https://<base>/auth/callback?code=…`;
+3. a página na raiz lê o cookie e repassa o código ao subdomínio de origem;
+4. no subdomínio, `POST /api/v1/auth/token` troca o código por JWT (guardado
+   por tenant no localStorage) + cookie httpOnly de refresh (same-origin).
+
+`useAdminSession` (`src/lib/auth/`) reabre a sessão na montagem e renova o
+access token automaticamente em 401 via `POST /auth/refresh`.
+
 ## Scripts
 
 | Comando             | O que faz                                  |
@@ -73,6 +100,12 @@ O frontend trata isso com um **registry** (`src/sections/registry.tsx`):
   malformado) é isolada por error boundary e some sozinha — o resto da página
   continua de pé.
 
+O editor do painel admin é guiado por `src/sections/schemas.ts` (port dos
+schemas do MVP): cada tipo declara seus campos (`text`, `textarea`, `image`,
+`pills`, `list`, `richcontent`, `checkbox`) e o `FieldEditor` monta o
+formulário — nenhum formulário é escrito à mão por tipo de seção. Adicionar um
+campo = uma entrada no schema + uso no componente da seção.
+
 ## Acessibilidade — WCAG 2.1 AA
 
 Baseline já garantido pelo setup:
@@ -111,4 +144,13 @@ RFC 7807 (`ApiError`):
 - `src/lib/tenant.ts` espelha a regra de subdomínio do backend (com testes).
 
 Variáveis de ambiente: `NEXT_PUBLIC_BASE_DOMAIN` (default `quilombo.localhost`)
-e `API_INTERNAL_URL` (só server-side).
+e `API_INTERNAL_URL` (só server-side, default `http://backend:8080`).
+
+## Deploy
+
+`next.config.ts` usa `output: "standalone"` e o `Dockerfile` (multi-stage)
+gera uma imagem mínima que roda `node server.js` na porta 3000 como usuário
+sem privilégios. Em produção, o reverse proxy deve rotear como o nginx de dev:
+raiz → frontend, `/api` + `/oauth2` + `/login/oauth2` → backend, preservando o
+`Host`. Imagens de conteúdo usam `<img>` nativo (o backend já entrega WebP
+redimensionado), então nenhum host de bucket precisa ser configurado aqui.

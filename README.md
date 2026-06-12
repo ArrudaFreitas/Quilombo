@@ -2,7 +2,7 @@
 
 Plataforma **multi-tenant** para comunidades quilombolas — cada comunidade é resolvida por subdomínio (`<comunidade>.quilombo.localhost`) e administra sua própria página institucional, seções de conteúdo e acervo de imagens.
 
-> **Status:** em desenvolvimento. O backend já implementa multi-tenancy (subdomínio + RLS), autenticação (OAuth2 Google + JWT com refresh rotacionado), o diretório público e a página institucional, e a área administrativa: card da comunidade, estilo/paleta, CRUD de seções e o acervo de imagens (upload com processamento e quota). O frontend (Next.js) ainda será iniciado.
+> **Status:** funcional de ponta a ponta. Backend com multi-tenancy (subdomínio + RLS), autenticação (OAuth2 Google + JWT com refresh rotacionado), diretório público, página institucional e área administrativa completa (card, estilo/paleta, seções, acervo de imagens). Frontend Next.js com as três telas — diretório, página institucional tematizável e painel admin — conectadas à API (ver `frontend/README.md`).
 
 ---
 
