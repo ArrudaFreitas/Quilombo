@@ -1,0 +1,52 @@
+/*
+ * PALETAS — camada de COR, aplicada por cima do estilo via data-palette.
+ *
+ * Regras do contrato:
+ *   - Uma paleta define apenas os tokens de marca abaixo; nunca estrutura
+ *     (raio, sombra, tipografia) e nunca markup. Trocar de paleta muda as
+ *     cores do tema — jamais o conteúdo ou o layout.
+ *   - As 4 paletas valem para todos os estilos (catálogo do backend:
+ *     GET /api/v1/admin/styles).
+ *   - Todo par cor/sobre-cor (--q-primary/--q-on-primary etc.) mantém
+ *     contraste AA (>= 4.5:1) — verificar ao adicionar paleta nova.
+ *
+ * Uso: <div data-style="uniao" data-palette="terracota">…</div>
+ * Sem data-palette, vale o padrão (verde), definido aqui no :root.
+ */
+
+:root,
+[data-palette="verde"] {
+  --q-primary:        #2e6b4b;
+  --q-primary-strong: #245539;
+  --q-on-primary:     #ffffff;
+  --q-secondary:      #cfe2d5;
+  --q-accent:         #a1572f;
+  --q-on-accent:      #ffffff;
+}
+
+[data-palette="terracota"] {
+  --q-primary:        #a1572f;
+  --q-primary-strong: #7e4324;
+  --q-on-primary:     #ffffff;
+  --q-secondary:      #f0d6c3;
+  --q-accent:         #8a6a18;
+  --q-on-accent:      #ffffff;
+}
+
+[data-palette="ocre"] {
+  --q-primary:        #8a6a18;
+  --q-primary-strong: #6e5410;
+  --q-on-primary:     #ffffff;
+  --q-secondary:      #f3e2b0;
+  --q-accent:         #2e6b4b;
+  --q-on-accent:      #ffffff;
+}
+
+[data-palette="indigo"] {
+  --q-primary:        #2c4a7c;
+  --q-primary-strong: #1e3357;
+  --q-on-primary:     #ffffff;
+  --q-secondary:      #d8e1f1;
+  --q-accent:         #a1572f;
+  --q-on-accent:      #ffffff;
+}
