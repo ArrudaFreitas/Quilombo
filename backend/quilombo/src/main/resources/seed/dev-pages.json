@@ -1,0 +1,401 @@
+{
+  "kalunga": {
+    "shortDescription": "O maior quilombo do Brasil em extensão territorial, com cerca de 250 mil hectares no norte de Goiás.",
+    "style": "uniao",
+    "palette": "verde",
+    "sections": [
+      {
+        "sectionType": "hero",
+        "content": {
+          "kicker": "Memória viva · Chapada dos Veadeiros, GO",
+          "title": "A nossa história continua, e a porteira fica aberta",
+          "tagline": "Entre o cerrado e o rio, uma comunidade negra cuida da terra, da memória e de quem chega — há mais de três séculos.",
+          "image": { "url": null, "alt_text": "Vista panorâmica do cerrado no território Kalunga ao pôr do sol" },
+          "cta_primary": "Conhecer a comunidade",
+          "cta_secondary": "Nossa história",
+          "selo": "terra é identidade"
+        }
+      },
+      {
+        "sectionType": "description_short",
+        "content": {
+          "label": "A comunidade",
+          "body": "Somos quatro mil pessoas espalhadas por mais de trinta núcleos familiares no coração do cerrado goiano. O Kalunga não se conta de fora — se aprende caminhando na vereda e ouvindo os mais velhos.",
+          "portrait": { "url": null, "alt_text": "Retrato de uma moradora Kalunga em frente à sua casa no cerrado" }
+        }
+      },
+      {
+        "sectionType": "description_long",
+        "content": {
+          "kicker": "Nossa história",
+          "title": "Antes da estrada, já havia gente",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Quando os bandeirantes chegaram ao Planalto Central em busca de ouro, africanos escravizados já encontravam nas chapadas do norte de Goiás um refúgio. Vales encobertos, rios encachoeirados e o cerrado denso serviram de proteção para os que conseguiam fugir — e assim nasceram as primeiras famílias Kalunga, ainda no século XVIII."
+            },
+            { "type": "heading", "text": "O reconhecimento que veio de dentro" },
+            {
+              "type": "paragraph",
+              "text": "Por gerações, o território Kalunga existiu sem nome no mapa oficial. A titulação não foi uma concessão: foi o resultado de décadas de organização comunitária, de pesquisadores que ouviram os mais velhos e de advogados que transformaram memória oral em documento. Em 1991, a Lei Estadual n.º 11.409 reconheceu o Sítio Histórico e Patrimônio Cultural Kalunga — a primeira lei de reconhecimento quilombola do Brasil."
+            },
+            {
+              "type": "image",
+              "image": { "url": null, "alt_text": "Vista aérea do território Kalunga com as chapadas do cerrado ao fundo e o Rio Paranã atravessando a paisagem" },
+              "caption": "O território abrange três municípios e mais de 250 mil hectares de cerrado preservado · acervo Kalunga"
+            },
+            {
+              "type": "quote",
+              "text": "A terra não nos foi dada. Ela foi guardada pelos que vieram antes e conquistada pelos que ficaram.",
+              "cite": "Dona Maria da Guarda, matriarca, 83 anos"
+            },
+            {
+              "type": "paragraph",
+              "text": "Hoje a comunidade mantém vivas tradições como a Festa da Sussa — dança de matriz africana ao som do tambor — e a Romaria do Vão de Almas, que reúne milhares de visitantes todo mês de agosto. A economia baseia-se na agricultura familiar, no extrativismo sustentável do cerrado e, cada vez mais, no turismo de base comunitária gerido pelos próprios Kalungas."
+            }
+          ]
+        }
+      },
+      {
+        "sectionType": "carousel",
+        "content": {
+          "kicker": "Memória em imagens",
+          "title": "O dia a dia do Kalunga",
+          "cards": [
+            {
+              "title": "Romaria do Vão de Almas",
+              "subtitle": "Celebração anual de agosto que reúne fiéis e visitantes de todo o Brasil",
+              "image": { "url": null, "alt_text": "Procissão noturna com velas na Romaria do Vão de Almas, Kalunga" }
+            },
+            {
+              "title": "Artesanato em cerâmica",
+              "subtitle": "Peças em barro modeladas à mão pelas mulheres da comunidade",
+              "image": { "url": null, "alt_text": "Mãos de artesã Kalunga modelando peça de barro" }
+            },
+            {
+              "title": "Dança Sussa",
+              "subtitle": "Manifestação cultural de matriz africana dançada ao ritmo do tambor",
+              "image": { "url": null, "alt_text": "Grupo de dançarinos Kalunga em roda de Sussa ao ar livre" }
+            },
+            {
+              "title": "Culinária do cerrado",
+              "subtitle": "Pratos com pequi, baru, buriti e outros ingredientes do bioma",
+              "image": { "url": null, "alt_text": "Mesa com pratos típicos Kalunga preparados com ingredientes do cerrado" }
+            },
+            {
+              "title": "Turismo comunitário",
+              "subtitle": "Trilhas e cachoeiras guiadas pelos próprios moradores",
+              "image": { "url": null, "alt_text": "Guia Kalunga mostrando cachoeira a visitantes em trilha no cerrado" }
+            }
+          ]
+        }
+      },
+      {
+        "sectionType": "timeline",
+        "content": {
+          "kicker": "Nosso caminho",
+          "title": "Marcos que nos trouxeram até aqui",
+          "entries": [
+            {
+              "year": "Séc. XVIII",
+              "title": "A fuga e a fundação",
+              "description": "Africanos escravizados refugiam-se nos vales do cerrado goiano e formam os primeiros núcleos familiares Kalunga.",
+              "is_recent": false
+            },
+            {
+              "year": "1985",
+              "title": "O começo do registro",
+              "description": "A pesquisadora Mari Baiocchi chega à região e inicia o registro da história oral Kalunga — primeiro passo para o reconhecimento oficial.",
+              "is_recent": false
+            },
+            {
+              "year": "1991",
+              "title": "O reconhecimento pioneiro",
+              "description": "Lei Estadual n.º 11.409 reconhece o Sítio Histórico e Patrimônio Cultural Kalunga — a primeira lei quilombola do Brasil.",
+              "is_recent": false
+            },
+            {
+              "year": "2001",
+              "title": "Proteção federal",
+              "description": "O território Kalunga é reconhecido como Patrimônio Cultural pelo governo federal, garantindo proteção adicional ao cerrado e à cultura.",
+              "is_recent": false
+            },
+            {
+              "year": "2015",
+              "title": "Titulação avança",
+              "description": "O INCRA publica portaria reconhecendo o território quilombola Kalunga — o processo de titulação definitiva segue em curso.",
+              "is_recent": false
+            },
+            {
+              "year": "2026",
+              "title": "Presença digital",
+              "description": "A comunidade Kalunga passa a contar a própria história em primeira pessoa, neste espaço.",
+              "is_recent": true
+            }
+          ]
+        }
+      },
+      {
+        "sectionType": "location",
+        "content": {
+          "kicker": "Onde estamos",
+          "title": "Venha com tempo e respeito",
+          "place_name": "Território Kalunga",
+          "address": "Municípios de Cavalcante, Monte Alegre de Goiás\ne Teresina de Goiás — GO",
+          "pills": ["≈ 320 km de Brasília", "≈ 520 km de Goiânia", "Visitas com agendamento", "Melhor época: abr–set"],
+          "cta_label": "Como chegar",
+          "map_image": { "url": null, "alt_text": "Mapa da localização do território Kalunga na Chapada dos Veadeiros, norte de Goiás" }
+        }
+      }
+    ]
+  },
+
+  "palmares": {
+    "shortDescription": "Símbolo máximo da resistência negra no Brasil, liderado por Zumbi dos Palmares no século XVII.",
+    "style": "raizes",
+    "palette": "terracota",
+    "sections": [
+      {
+        "sectionType": "hero",
+        "content": {
+          "kicker": "Memória viva · Serra da Barriga, AL",
+          "title": "Quilombo dos Palmares",
+          "tagline": "O maior quilombo das Américas foi destruído, mas a sua história nunca morreu — ela continua sendo escrita por nós.",
+          "image": { "url": null, "alt_text": "Vista da Serra da Barriga ao amanhecer com vegetação densa e neblina, local do antigo Quilombo dos Palmares" },
+          "cta_primary": "Conhecer a história",
+          "cta_secondary": "Nossa trajetória",
+          "selo": "resistência é existência"
+        }
+      },
+      {
+        "sectionType": "description_short",
+        "content": {
+          "label": "Quem somos",
+          "body": "Somos os herdeiros de Zumbi, de Ganga Zumba e de cada pessoa que escolheu a liberdade em vez das correntes. Palmares foi destruído, mas o povo de Palmares nunca foi.",
+          "portrait": { "url": null, "alt_text": "Escultura de Zumbi dos Palmares com o céu ao fundo" }
+        }
+      },
+      {
+        "sectionType": "description_long",
+        "content": {
+          "kicker": "Nossa história",
+          "title": "A república livre que durou quase cem anos",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Entre 1605 e 1695, no coração da Serra da Barriga no atual estado de Alagoas, existiu a maior república negra livre das Américas. O Quilombo dos Palmares chegou a abrigar trinta mil pessoas — homens e mulheres que fugiram da escravidão, indígenas e até brancos pobres que buscavam uma vida diferente. Era uma organização social completa: lavouras, artesanato, comércio, leis próprias e um sistema de defesa sofisticado."
+            },
+            { "type": "heading", "text": "Zumbi: o símbolo que não morre" },
+            {
+              "type": "paragraph",
+              "text": "Nascido em Palmares por volta de 1655, Zumbi dos Palmares tornou-se o símbolo máximo da resistência negra no Brasil. Líder político e militar, recusou qualquer acordo que não garantisse a liberdade plena a todos — incluindo os que já haviam sido capturados e re-escravizados. Em 20 de novembro de 1695 foi morto, mas a data se tornou símbolo e, em 2003, virou feriado nacional."
+            },
+            {
+              "type": "quote",
+              "text": "Enquanto não formos livres, nenhum de nós é livre. Esta foi a lei de Palmares.",
+              "cite": "Inscrito no Memorial Quilombo dos Palmares, Serra da Barriga, AL"
+            },
+            {
+              "type": "image",
+              "image": { "url": null, "alt_text": "Vista panorâmica da Serra da Barriga em União dos Palmares, Alagoas, com vegetação de Mata Atlântica" },
+              "caption": "A Serra da Barriga, tombada como Patrimônio Histórico Nacional, onde existiu o Quilombo dos Palmares · acervo Memorial"
+            },
+            {
+              "type": "paragraph",
+              "text": "Hoje o Parque Memorial Quilombo dos Palmares, na Serra da Barriga, em União dos Palmares (AL), preserva o território original e é gerido em parceria com as comunidades remanescentes. O local recebe visitantes de todo o Brasil e do mundo, tornando-se um espaço permanente de educação, memória e afirmação da identidade negra brasileira."
+            }
+          ]
+        }
+      },
+      {
+        "sectionType": "carousel",
+        "content": {
+          "kicker": "Cultura e memória",
+          "title": "Palmares vive na cultura",
+          "cards": [
+            {
+              "title": "Parque Memorial",
+              "subtitle": "Espaço de memória na Serra da Barriga, berço do quilombo",
+              "image": { "url": null, "alt_text": "Entrada do Parque Memorial Quilombo dos Palmares com o monumento a Zumbi" }
+            },
+            {
+              "title": "Capoeira Angola",
+              "subtitle": "Arte marcial e expressão cultural herdada da resistência de Palmares",
+              "image": { "url": null, "alt_text": "Dois capoeiristas jogando capoeira angola ao som do berimbau" }
+            },
+            {
+              "title": "Semana da Consciência Negra",
+              "subtitle": "Celebrações em todo o Brasil no mês de novembro",
+              "image": { "url": null, "alt_text": "Celebração do Dia da Consciência Negra com manifestação cultural em praça pública" }
+            },
+            {
+              "title": "Arte e artesanato",
+              "subtitle": "Peças que contam a história de Palmares em madeira, barro e tecido",
+              "image": { "url": null, "alt_text": "Artesã confeccionando peça de artesanato inspirada na cultura quilombola" }
+            }
+          ]
+        }
+      },
+      {
+        "sectionType": "events",
+        "content": {
+          "kicker": "Próximas celebrações",
+          "title": "Quando Palmares se reúne",
+          "events": [
+            {
+              "day": "20",
+              "month": "Nov",
+              "datetime": "2026-11-20",
+              "title": "Dia da Consciência Negra",
+              "description": "Programação especial no Parque Memorial e nas comunidades remanescentes com shows, debates e homenagens."
+            },
+            {
+              "day": "13",
+              "month": "Mai",
+              "datetime": "2026-05-13",
+              "title": "Memória e Abolição",
+              "description": "Reflexão coletiva sobre o 13 de maio — não como celebração, mas como marco de uma luta inacabada."
+            },
+            {
+              "day": "10",
+              "month": "Jul",
+              "datetime": "2026-07-10",
+              "title": "Festival de Cultura Quilombola",
+              "description": "Apresentações de jongo, capoeira angola, maculelê e outras manifestações culturais na Serra da Barriga."
+            }
+          ]
+        }
+      },
+      {
+        "sectionType": "timeline",
+        "content": {
+          "kicker": "Nossa trajetória",
+          "title": "De Palmares ao presente",
+          "entries": [
+            {
+              "year": "1605",
+              "title": "A fundação",
+              "description": "Primeiros quilombolas chegam à Serra da Barriga e fundam o Quilombo dos Palmares, no atual estado de Alagoas.",
+              "is_recent": false
+            },
+            {
+              "year": "c. 1655",
+              "title": "Nasce Zumbi",
+              "description": "Nascimento de Zumbi dos Palmares, que se tornará o líder militar e símbolo eterno da resistência negra no Brasil.",
+              "is_recent": false
+            },
+            {
+              "year": "1695",
+              "title": "A destruição",
+              "description": "Após décadas de ataques coloniais, Palmares é destruído. Zumbi é morto em 20 de novembro — data que vira símbolo.",
+              "is_recent": false
+            },
+            {
+              "year": "1988",
+              "title": "A Constituição reconhece",
+              "description": "O artigo 68 da Constituição Federal garante às comunidades quilombolas o direito à titulação de seus territórios.",
+              "is_recent": false
+            },
+            {
+              "year": "2003",
+              "title": "Consciência Negra",
+              "description": "O Dia Nacional da Consciência Negra, 20 de novembro, é reconhecido como feriado nacional pelo governo federal.",
+              "is_recent": false
+            },
+            {
+              "year": "2007",
+              "title": "O Memorial",
+              "description": "O Parque Memorial Quilombo dos Palmares é inaugurado na Serra da Barriga, em União dos Palmares (AL).",
+              "is_recent": false
+            },
+            {
+              "year": "2026",
+              "title": "Presença digital",
+              "description": "Quilombo dos Palmares passa a contar a própria história em primeira pessoa, neste espaço.",
+              "is_recent": true
+            }
+          ]
+        }
+      },
+      {
+        "sectionType": "location",
+        "content": {
+          "kicker": "Onde estamos",
+          "title": "A Serra da Barriga espera por você",
+          "place_name": "Parque Memorial Quilombo dos Palmares",
+          "address": "Serra da Barriga\nUnião dos Palmares — Alagoas",
+          "pills": ["≈ 70 km de Maceió", "Entrada gratuita", "Ter a dom: 8h–17h", "Melhor época: mar–ago"],
+          "cta_label": "Como chegar",
+          "map_image": { "url": null, "alt_text": "Mapa da localização do Parque Memorial Quilombo dos Palmares na Serra da Barriga, Alagoas" }
+        }
+      }
+    ]
+  },
+
+  "frechal": {
+    "shortDescription": "Primeira comunidade quilombola a receber título de reserva extrativista no Brasil, em 1992.",
+    "style": "uniao",
+    "palette": "ocre",
+    "sections": [
+      {
+        "sectionType": "hero",
+        "content": {
+          "kicker": "Memória viva · litoral do Maranhão",
+          "title": "Pioneiros na luta pelo reconhecimento de terras",
+          "tagline": "Às margens do Rio Maracaçumé, uma comunidade que resistiu à expulsão e conquistou o próprio território — o primeiro quilombo a ser reconhecido como reserva extrativista no Brasil.",
+          "image": { "url": null, "alt_text": "Vista do Rio Maracaçumé com vegetação de babaçu nas margens, no território do Frechal" },
+          "cta_primary": "Nossa conquista",
+          "cta_secondary": "Nossa história",
+          "selo": "a terra nos pertence"
+        }
+      },
+      {
+        "sectionType": "description_short",
+        "content": {
+          "label": "A conquista",
+          "body": "Em 1992, o Frechal tornou-se a primeira comunidade quilombola do Brasil a receber o título de Reserva Extrativista, garantindo para sempre o território às famílias que resistiram.",
+          "portrait": { "url": null, "alt_text": "Moradora do Frechal em frente a palmeiras de babaçu no território quilombola" }
+        }
+      },
+      {
+        "sectionType": "description_long",
+        "content": {
+          "kicker": "Nossa história",
+          "title": "A terra que a comunidade não abriu mão",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "A comunidade do Frechal, localizada às margens do Rio Maracaçumé no litoral ocidental do Maranhão, resistiu por décadas a tentativas de expulsão de suas terras por fazendeiros. Descendentes de africanos escravizados que trabalhavam nas plantações de algodão e cana-de-açúcar da região, os moradores nunca aceitaram abandonar o território que seus ancestrais habitavam há gerações."
+            },
+            { "type": "heading", "text": "A organização que fez história" },
+            {
+              "type": "paragraph",
+              "text": "Na década de 1980, diante do avanço de um fazendeiro que tentava se apropriar das terras, a comunidade se organizou com apoio do Sindicato dos Trabalhadores Rurais e do ITERMA (Instituto de Terras do Maranhão). A luta ganhou repercussão nacional e chegou ao INCRA, culminando em 1992 com a criação da Reserva Extrativista do Quilombo do Frechal — a primeira do gênero no Brasil."
+            },
+            {
+              "type": "quote",
+              "text": "Não era só a terra que defendíamos. Era a nossa história, o nome dos nossos avós e o futuro dos nossos filhos.",
+              "cite": "Seu Zeferino, liderança histórica do Frechal"
+            },
+            {
+              "type": "paragraph",
+              "text": "Hoje a comunidade vive da agricultura familiar, do extrativismo do babaçu — fonte de renda das mulheres da comunidade — e da pesca artesanal no Rio Maracaçumé. As tradições de matriz africana são mantidas vivas em festas, rezas e nas histórias contadas pelos mais velhos."
+            }
+          ]
+        }
+      },
+      {
+        "sectionType": "location",
+        "content": {
+          "kicker": "Onde estamos",
+          "title": "Venha nos visitar",
+          "place_name": "Comunidade Quilombola do Frechal",
+          "address": "Mirinzal — Maranhão\nÀs margens do Rio Maracaçumé",
+          "pills": ["≈ 300 km de São Luís", "Visitas com agendamento", "Melhor época: jun–nov"],
+          "cta_label": "Como chegar",
+          "map_image": { "url": null, "alt_text": "Mapa da localização do Quilombo do Frechal no município de Mirinzal, litoral do Maranhão" }
+        }
+      }
+    ]
+  }
+}
