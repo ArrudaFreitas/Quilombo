@@ -20,6 +20,8 @@ Plataforma **multi-tenant** para comunidades quilombolas — cada comunidade é 
 | Object storage (dev) | MinIO (S3-compatível) |
 | Reverse proxy | nginx (TLS, preserva `Host` para resolver o tenant) |
 | Testes | JUnit 5 + Testcontainers (PostgreSQL real) |
+| Frontend | Next.js (App Router) + TypeScript + Tailwind CSS v4 |
+| Testes (frontend) | Vitest + Testing Library + axe (acessibilidade) |
 
 ## Estrutura do repositório
 
@@ -41,9 +43,15 @@ Plataforma **multi-tenant** para comunidades quilombolas — cada comunidade é 
 │   │   ├── db/migration/  # migrations Flyway (V1__…)
 │   │   └── application*.yml
 │   └── Dockerfile
+├── frontend/              # app Next.js (ver frontend/README.md — temas, seções, a11y)
+│   └── src/
+│       ├── app/           # rotas (App Router)
+│       ├── lib/           # cliente da API ({data, meta}/ProblemDetail) e tenancy
+│       ├── sections/      # registry e componentes das seções da página
+│       └── styles/        # tokens semânticos, paletas e estilos (data-*)
 ├── infra/nginx/           # reverse proxy TLS para dev
 ├── infra/postgres/init/   # provisiona a role de runtime (RLS) na 1ª subida
-└── docker-compose.yml     # postgres, minio, backend, nginx
+└── docker-compose.yml     # postgres, minio, backend, frontend, nginx
 ```
 
 ---
@@ -62,10 +70,14 @@ Serviços expostos:
 
 | Serviço | URL |
 |---|---|
-| API (via nginx, TLS) | `https://quilombo.localhost:8080` |
+| Frontend — diretório público | `https://quilombo.localhost:8080` |
+| Frontend — página de uma comunidade | `https://kalunga.quilombo.localhost:8080` |
+| API (mesmo origin, via nginx) | `https://quilombo.localhost:8080/api/v1/…` |
 | Swagger UI | `https://quilombo.localhost:8080/swagger-ui.html` |
 | Health check | `https://quilombo.localhost:8080/actuator/health` |
 | Console do MinIO | `http://localhost:9001` (usuário/senha: `quilombo` / `quilombo123`) |
+
+> O nginx roteia `/api`, `/oauth2`, `/login/oauth2`, `/actuator` e o Swagger para o backend; todo o resto vai para o frontend — mesmo origin, sem CORS, preservando o `Host` que resolve o tenant.
 
 > O certificado TLS é auto-assinado e gerado no primeiro start. O navegador exibirá um aviso — confie nele localmente importando `infra/nginx/certs/quilombo.crt` como CA raiz, se quiser eliminar o aviso.
 >
