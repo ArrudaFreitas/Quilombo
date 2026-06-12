@@ -8,6 +8,11 @@ spring:
             client-secret: test-client-secret
             scope: openid,email,profile
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 12MB
+
 app:
   base-domain: quilombo.localhost
   jwt:
@@ -17,3 +22,14 @@ app:
     email-hash-secret: test-email-hash-secret-for-junit-tests-only
     refresh-expiration-days: 14
     cookie-secure: false
+  storage:
+    limit-bytes: 52428800
+    upload-max-bytes: 5242880
+    image-max-dimension: 1920
+    # storage mockado nos testes; o cliente S3 sobe anônimo e nunca é exercido
+    endpoint: ""
+    access-key: ""
+    secret-key: ""
+    bucket: quilombo-test
+    region: us-east-1
+    public-base-url: http://localhost:9000/quilombo-test

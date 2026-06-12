@@ -22,6 +22,7 @@
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<jjwt.version>0.12.6</jjwt.version>
 		<scrimage.version>4.3.2</scrimage.version>
+		<awssdk.version>2.34.0</awssdk.version>
 		<springdoc.version>3.0.2</springdoc.version>
 		<commons-lang3.version>3.20.0</commons-lang3.version>
 		<commons-io.version>2.22.0</commons-io.version>
@@ -112,6 +113,15 @@
 			<groupId>com.sksamuel.scrimage</groupId>
 			<artifactId>scrimage-webp</artifactId>
 			<version>${scrimage.version}</version>
+		</dependency>
+
+		<!-- ── Object Storage ───────────────────────────────────────────────── -->
+		<!-- SDK S3 (AWS v2) — serve MinIO em dev e qualquer S3-compatível em prod.
+		     Traz o apache-client (HTTP sync) transitivamente. -->
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+			<version>${awssdk.version}</version>
 		</dependency>
 
 		<!-- ── Observabilidade ──────────────────────────────────────────────── -->
