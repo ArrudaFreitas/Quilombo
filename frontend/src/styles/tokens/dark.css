@@ -1,0 +1,44 @@
+/* ============================================================================
+   CAMADA 2 — SEMÂNTICOS · TEMA ESCURO
+   Mesma marca, contraste recalibrado para AA. Ativado por [data-theme='dark']
+   no <html> (definido pelo script anti-flash; ver lib/theme.ts).
+   ============================================================================ */
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* superfícies */
+  --bg: var(--night-900);
+  --bg-subtle: var(--night-800);
+  --surface: var(--night-700);
+  --surface-raised: var(--night-600);
+
+  /* bordas */
+  --border: var(--night-500);
+  --border-strong: var(--night-400);
+
+  /* texto */
+  --fg: var(--bone-100);
+  --fg-muted: var(--bone-200);
+  --fg-subtle: var(--bone-300);
+
+  /* marca — terracota clareada para legibilidade sobre fundo escuro */
+  --primary: var(--terracota-300);
+  --primary-hover: var(--terracota-200);
+  --on-primary: var(--ink-900);
+
+  /* acento */
+  --accent: var(--ochre-400);
+  --on-accent: var(--ink-900);
+
+  /* status */
+  --success: var(--forest-400);
+  --danger: var(--crimson-400);
+
+  /* foco */
+  --focus: var(--sky-400);
+
+  /* elevação — sombras mais densas sobre fundo escuro */
+  --elevation-sm: 0 2px 8px rgb(0 0 0 / 0.5);
+  --elevation-md: 0 8px 24px rgb(0 0 0 / 0.55);
+  --elevation-lg: 0 16px 44px rgb(0 0 0 / 0.65);
+}

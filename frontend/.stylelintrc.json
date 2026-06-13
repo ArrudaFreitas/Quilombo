@@ -1,0 +1,42 @@
+{
+  "extends": ["stylelint-config-standard"],
+  "rules": {
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": [
+          "theme",
+          "custom-variant",
+          "variant",
+          "apply",
+          "utility",
+          "reference",
+          "config",
+          "plugin",
+          "source",
+          "tailwind",
+          "layer"
+        ]
+      }
+    ],
+    "import-notation": "string",
+    "color-no-hex": true,
+    "selector-class-pattern": null,
+    "custom-property-pattern": null,
+    "no-descending-specificity": null,
+    "alpha-value-notation": null,
+    "color-function-notation": null,
+    "value-keyword-case": null,
+    "custom-property-empty-line-before": null,
+    "declaration-empty-line-before": null,
+    "comment-empty-line-before": null,
+    "rule-empty-line-before": null,
+    "declaration-block-no-redundant-longhand-properties": null
+  },
+  "overrides": [
+    {
+      "files": ["**/tokens/primitives.css", "**/institutional/*.css"],
+      "rules": { "color-no-hex": null }
+    }
+  ]
+}

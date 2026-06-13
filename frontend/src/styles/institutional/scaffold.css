@@ -1,0 +1,25 @@
+/* ============================================================================
+   INSTITUCIONAL — PREPARAÇÃO ARQUITETURAL APENAS
+   Os temas das comunidades NÃO são implementados nesta etapa.
+
+   Quando forem (etapa futura), tudo viverá ESCOPADO em `.institutional`:
+
+     .institutional[data-style='<estilo>'][data-palette='<paleta>'] { --ip-*: … }
+     [data-theme='dark'] .institutional[data-style='…'][data-palette='…'] { … }
+
+   Regras:
+   · O bloco institucional define seu próprio namespace de tokens (--ip-*) e
+     NUNCA lê os tokens do produto — isolamento por escopo de seletor.
+   · Como as combinações são finitas (estilos × paletas × claro/escuro), cada
+     uma é uma regra CSS estática selecionada por data-*. Nada de style inline
+     em runtime — exigência do CSP estrito (style-src 'self' 'nonce-…').
+   · O produto, por sua vez, nunca estiliza a partir de --ip-*.
+
+   Ver styles/README.md › "Barreira produto ⇄ institucional".
+   ============================================================================ */
+@layer components {
+  .institutional {
+    /* novo contexto de empilhamento — impede vazamento visual p/ o produto */
+    isolation: isolate;
+  }
+}

@@ -1,0 +1,99 @@
+/* ============================================================================
+   CAMADA 3 — BASE
+   Reset mínimo + tipografia base + acessibilidade global (foco, movimento).
+   Vai na @layer base do Tailwind: utilitários sempre vencem estas regras.
+   Não há valores mágicos — tudo vem de tokens.
+   ============================================================================ */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    margin: 0;
+  }
+
+  html {
+    /* prefixo mantido: iOS Safari só suporta a versão -webkit- */
+    /* stylelint-disable-next-line property-no-vendor-prefix */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* permite zoom até 200%+ (WCAG 1.4.4) — nunca travar escala */
+  }
+
+  body {
+    min-height: 100%;
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 1rem; /* base 16px — mínimo legível (WCAG 1.4.4 / 1.4.12) */
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  img,
+  svg,
+  video,
+  canvas {
+    display: block;
+    max-width: 100%;
+  }
+
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* FOCO VISÍVEL GLOBAL — WCAG 2.4.7. Um único anel, derivado de --focus,
+     para tudo que é focável. Componentes não precisam reimplementar foco. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* evita anel em clique de mouse, preservando-o para teclado */
+  :where(a, button):focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* RESPEITA prefers-reduced-motion — WCAG 2.3.3 */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

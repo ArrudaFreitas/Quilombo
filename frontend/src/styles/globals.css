@@ -1,0 +1,94 @@
+/* ============================================================================
+   ENTRYPOINT GLOBAL DE ESTILOS — importado uma única vez no root layout.
+   Ordem dos @import = ordem da cascata (ver docs Next.js › CSS).
+   Mantenha TODOS os @import no topo; as diretivas do Tailwind vêm depois.
+   ============================================================================ */
+@import 'tailwindcss';
+
+/* tokens (camada 1 → 2) */
+@import './tokens/primitives.css';
+@import './tokens/semantic.css';
+@import './tokens/dark.css';
+
+/* base (camada 3) e abstrações (camada 4) */
+@import './base.css';
+@import './components.css';
+
+/* preparação isolada dos temas institucionais (sem temas ainda) */
+@import './institutional/scaffold.css';
+
+/* ----------------------------------------------------------------------------
+   THEMING: modo escuro por atributo (sobrescreve o prefers-color-scheme
+   padrão do utilitário dark:). Ativa quando <html data-theme="dark">.
+   ---------------------------------------------------------------------------- */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* ----------------------------------------------------------------------------
+   INTEGRAÇÃO TAILWIND — tokens estáticos.
+   Limpamos a paleta default do Tailwind: cores arbitrárias (bg-red-500…)
+   deixam de existir; só os tokens semânticos são válidos → consistência
+   visual automática, sem valores mágicos.
+   ---------------------------------------------------------------------------- */
+@theme {
+  --color-*: initial;
+
+  /* tipografia (estática — vinda do next/font no root layout) */
+  --font-display: var(--font-fraunces), Georgia, 'Times New Roman', serif;
+  --font-body: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
+
+  /* raios (estáticos) */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.375rem;
+
+  /* easing padrão do sistema */
+  --ease-fluid: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* ----------------------------------------------------------------------------
+   INTEGRAÇÃO TAILWIND — tokens dinâmicos (inline: o utilitário referencia a
+   variável, cujo valor troca conforme o tema). Gera bg-bg, text-fg,
+   text-primary, border-border, shadow-md, etc.
+   ---------------------------------------------------------------------------- */
+@theme inline {
+  /* utilitárias essenciais preservadas após o reset */
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-inherit: inherit;
+  --color-white: var(--white);
+  --color-black: var(--black);
+
+  /* superfícies */
+  --color-bg: var(--bg);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+
+  /* bordas */
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  /* texto */
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+
+  /* marca / acento */
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+
+  /* status / foco */
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-focus: var(--focus);
+
+  /* elevação → utilitários shadow-sm/md/lg (temáticos) */
+  --shadow-sm: var(--elevation-sm);
+  --shadow-md: var(--elevation-md);
+  --shadow-lg: var(--elevation-lg);
+}
