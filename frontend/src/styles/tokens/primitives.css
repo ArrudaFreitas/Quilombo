@@ -1,0 +1,62 @@
+/* ============================================================================
+   CAMADA 1 — PRIMITIVOS
+   Valores crus, sem semântica. Este é o ÚNICO arquivo do sistema onde cores
+   literais (hex) são permitidas. A UI nunca consome primitivos diretamente —
+   eles alimentam exclusivamente a camada semântica (tokens/semantic.css).
+   Trocar a marca = trocar aqui.
+   ============================================================================ */
+:root {
+  /* base ----------------------------------------------------------------- */
+  --white: #fff;
+  --black: #000;
+
+  /* terracota — cor da marca --------------------------------------------- */
+  --terracota-50: #fbf1ec;
+  --terracota-100: #f6decf;
+  --terracota-200: #ebbda1;
+  --terracota-300: #dd9670;
+  --terracota-400: #c96a3f;
+  --terracota-500: #b14e25;
+  --terracota-600: #9b3d1e;
+  --terracota-700: #7a2e15;
+  --terracota-800: #5c2410;
+  --terracota-900: #3d170a;
+
+  /* papel — neutros quentes (superfícies claras) ------------------------- */
+  --paper-50: #fbf7ec;
+  --paper-100: #f2ead3;
+  --paper-200: #e8dfc8;
+  --paper-card: #faf5e9;
+  --sand-300: #ddd0b5;
+  --sand-400: #c9b79a;
+  --sand-500: #b8926a;
+
+  /* tinta — quase-preto quente (texto claro) ----------------------------- */
+  --ink-900: #1c0f06;
+  --ink-800: #2c2114;
+  --ink-700: #4a3d30;
+  --ink-600: #6b5d4e;
+  --ink-500: #857463;
+  --ink-400: #b5a898;
+
+  /* noite — superfícies escuras (tema dark) ------------------------------ */
+  --night-900: #15140e;
+  --night-800: #1d1b14;
+  --night-700: #221f17;
+  --night-600: #2a2619;
+  --night-500: #3a352a;
+  --night-400: #7e745a;
+  --bone-100: #f2ecdf;
+  --bone-200: #c2b8a4;
+  --bone-300: #9a8f79;
+
+  /* apoio e status ------------------------------------------------------- */
+  --ochre-600: #8a6a18;
+  --ochre-400: #e6be5e;
+  --forest-600: #2e6b4b;
+  --forest-400: #6fbe93;
+  --crimson-600: #b3261e;
+  --crimson-400: #f2a097;
+  --sky-600: #1a6ca8;
+  --sky-400: #6cb6e8;
+}

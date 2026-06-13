@@ -1,0 +1,247 @@
+/* ============================================================================
+   CAMADA 4 — ABSTRAÇÕES BASE + UTILITÁRIOS CUSTOM
+   Fundações reutilizáveis que codificam as decisões visuais (padding, estados,
+   sombras, raios) para que componentes futuros NÃO as redefinam. Tudo consome
+   tokens. Wrappers React virão na etapa de componentes e aplicarão estas
+   classes / utilitários.
+   ============================================================================ */
+
+/* keyframes compartilhados ------------------------------------------------- */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   UTILITÁRIOS CUSTOM (@utility — componíveis com variantes do Tailwind,
+   ex.: md:container-page, hover:focus-ring)
+   --------------------------------------------------------------------------- */
+
+/* contêiner-padrão de página: largura máxima + gutter fluido responsivo */
+@utility container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 75rem; /* 1200px */
+  padding-inline: clamp(1.25rem, 5vw, 3rem);
+}
+
+/* anel de foco como utilitário (para casos que não usam :focus-visible) */
+@utility focus-ring {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* animação de entrada respeitando reduced-motion (tratado na base) */
+@utility animate-fade-up {
+  animation: fade-up 0.45s var(--ease-fluid) both;
+}
+
+/* ---------------------------------------------------------------------------
+   COMPONENTES BASE (@layer components — utilitários sempre podem sobrepor)
+   --------------------------------------------------------------------------- */
+@layer components {
+  /* BOTÃO ----------------------------------------------------------------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.75rem; /* alvo de toque ≥ 44px (WCAG 2.5.5) */
+    padding: 0.7rem 1.4rem;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.2;
+    border: 2px solid transparent;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    text-decoration: none;
+    transition:
+      transform 0.15s var(--ease-fluid),
+      background-color 0.2s,
+      box-shadow 0.2s,
+      border-color 0.2s;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+  .btn:active {
+    transform: translateY(0);
+  }
+  .btn:disabled,
+  .btn[aria-disabled='true'] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .btn-primary {
+    background-color: var(--primary);
+    color: var(--on-primary);
+    box-shadow: var(--elevation-sm);
+  }
+  .btn-primary:hover {
+    background-color: var(--primary-hover);
+    box-shadow: var(--elevation-md);
+  }
+
+  .btn-ghost {
+    background-color: transparent;
+    color: var(--primary);
+    border-color: currentColor;
+  }
+  .btn-ghost:hover {
+    background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+  }
+
+  .btn-icon {
+    min-height: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    background-color: var(--surface);
+    color: var(--fg);
+    border: 1.5px solid var(--border-strong);
+  }
+  .btn-icon:hover {
+    background-color: var(--primary);
+    color: var(--on-primary);
+    border-color: var(--primary);
+  }
+
+  .btn-sm {
+    min-height: 2.25rem;
+    padding: 0.45rem 1rem;
+    font-size: 0.9rem;
+  }
+  .btn-lg {
+    min-height: 3.25rem;
+    padding: 0.9rem 1.8rem;
+    font-size: 1.05rem;
+  }
+
+  .btn-spinner {
+    width: 1.1em;
+    height: 1.1em;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  /* SUPERFÍCIE / CARD ----------------------------------------------------- */
+  .surface {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--elevation-sm);
+  }
+  .card-interactive {
+    transition:
+      transform 0.22s var(--ease-fluid),
+      box-shadow 0.22s,
+      border-color 0.2s;
+  }
+  .card-interactive:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--elevation-lg);
+    border-color: var(--border-strong);
+  }
+
+  /* CAMPO DE FORMULÁRIO --------------------------------------------------- */
+  .field {
+    display: grid;
+    gap: 0.4rem;
+  }
+  .field-label {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--fg-muted);
+  }
+  .field-input {
+    color: var(--fg);
+    background-color: var(--surface);
+    padding: 0.7rem 0.9rem;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s;
+  }
+  .field-input::placeholder {
+    color: var(--fg-subtle);
+  }
+  .field-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent);
+  }
+  .field-input[aria-invalid='true'] {
+    border-color: var(--danger);
+  }
+  .field-error {
+    font-size: 0.85rem;
+    color: var(--danger);
+  }
+
+  /* BADGE ----------------------------------------------------------------- */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    border-radius: 9999px;
+    background-color: var(--bg-subtle);
+    color: var(--fg-muted);
+    border: 1px solid var(--border);
+  }
+  .badge-success {
+    background-color: color-mix(in srgb, var(--success) 16%, transparent);
+    color: var(--success);
+    border-color: color-mix(in srgb, var(--success) 35%, transparent);
+  }
+
+  /* ABAS ------------------------------------------------------------------ */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab {
+    padding: 0.85rem 1.1rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+    cursor: pointer;
+    margin-bottom: -1px;
+    transition:
+      color 0.15s,
+      border-color 0.15s;
+  }
+  .tab:hover {
+    color: var(--fg);
+  }
+  .tab[aria-selected='true'] {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+}

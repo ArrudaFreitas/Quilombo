@@ -1,0 +1,50 @@
+/* ============================================================================
+   CAMADA 2 — SEMÂNTICOS (papéis) · TEMA CLARO (padrão)
+   É o que a UI e o Tailwind consomem. Só referencia primitivos — nunca hex.
+   Trocar de tema = redefinir estes mesmos nomes (ver tokens/dark.css).
+
+   Contraste (WCAG 2.1 AA) — pares de texto validados sobre --bg / --surface:
+     --fg        → corpo (≥ 4.5:1)
+     --fg-muted  → corpo (≥ 4.5:1)
+     --fg-subtle → apenas texto grande / elementos de UI (≥ 3:1)
+   ============================================================================ */
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+
+  /* superfícies */
+  --bg: var(--paper-100);
+  --bg-subtle: var(--paper-200);
+  --surface: var(--paper-card);
+  --surface-raised: var(--white);
+
+  /* bordas */
+  --border: var(--sand-300);
+  --border-strong: var(--sand-500);
+
+  /* texto */
+  --fg: var(--ink-900);
+  --fg-muted: var(--ink-600);
+  --fg-subtle: var(--ink-500);
+
+  /* marca */
+  --primary: var(--terracota-600);
+  --primary-hover: var(--terracota-700);
+  --on-primary: var(--white);
+
+  /* acento */
+  --accent: var(--ochre-600);
+  --on-accent: var(--white);
+
+  /* status */
+  --success: var(--forest-600);
+  --danger: var(--crimson-600);
+
+  /* foco — alto contraste, intencionalmente fora da paleta da marca */
+  --focus: var(--sky-600);
+
+  /* elevação (sombras) */
+  --elevation-sm: 0 1px 4px rgb(28 15 6 / 0.07);
+  --elevation-md: 0 4px 20px rgb(28 15 6 / 0.12);
+  --elevation-lg: 0 12px 40px rgb(28 15 6 / 0.18);
+}

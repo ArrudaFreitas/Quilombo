@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Quilombo · Fundação Visual do Produto</title>
+
+<!--
+  ════════════════════════════════════════════════════════════════════════
+  DEMONSTRATIVO — Sistema de Design do PRODUTO (chrome: listagem · login · admin)
+  ────────────────────────────────────────────────────────────────────────
+  Este arquivo é estático e serve para DEBATE. O <style> abaixo já segue a
+  arquitetura de camadas proposta para o Next, então é copiável para
+  src/styles/ quando aprovarmos. Comentários marcam o que é SISTEMA e o que
+  é apenas chrome desta página de documentação (SHOWCASE-ONLY).
+
+  Em produção:
+   · fontes vêm via next/font (self-host, font-src 'self'), não por <link>;
+   · o toggle de tema vira um <script nonce> inline no <head> (anti-flash);
+   · NENHUM style="" inline — CSP estrito (style-src 'self' 'nonce') o proíbe.
+  ════════════════════════════════════════════════════════════════════════
+-->
+
+<!-- SHOWCASE-ONLY: no Next isto é next/font (Fraunces + Atkinson Hyperlegible) -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,600&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   CAMADA 1 — PRIMITIVOS
+   Valores crus, sem semântica. NUNCA usados direto na UI; só alimentam a
+   camada semântica. Mudar a marca = mudar aqui.
+   ══════════════════════════════════════════════════════════════════════ */
+:root {
+  /* terracota (marca) */
+  --terracota-50:#FBF1EC; --terracota-100:#F6DECF; --terracota-200:#EBBDA1;
+  --terracota-300:#DD9670; --terracota-400:#C96A3F; --terracota-500:#B14E25;
+  --terracota-600:#9B3D1E; --terracota-700:#7A2E15; --terracota-800:#5C2410;
+  --terracota-900:#3D170A;
+
+  /* papel / neutros quentes */
+  --paper-50:#FBF7EC; --paper-100:#F2EAD3; --paper-200:#E8DFC8;
+  --sand-300:#DDD0B5; --sand-400:#C9B79A; --sand-500:#B8926A;
+
+  /* tinta (quase-preto quente) */
+  --ink-900:#1C0F06; --ink-800:#2C2114; --ink-700:#4A3D30;
+  --ink-600:#6B5D4E; --ink-500:#857463; --ink-400:#B5A898;
+
+  /* superfícies escuras (tema dark) */
+  --night-900:#15140E; --night-800:#1D1B14; --night-700:#221F17;
+  --night-600:#2A2619; --night-500:#3A352A; --night-400:#7E745A;
+  --bone-100:#F2ECDF; --bone-200:#C2B8A4; --bone-300:#9A8F79;
+
+  /* apoio / status */
+  --ochre-600:#8A6A18; --ochre-400:#E6BE5E;
+  --forest-600:#2E6B4B; --forest-400:#6FBE93;
+  --danger-600:#B3261E; --danger-400:#F2A097;
+  --sky-600:#1A6CA8;    --sky-400:#6CB6E8;
+
+  /* escala de espaço (base 4px) */
+  --space-1:.25rem; --space-2:.5rem;  --space-3:.75rem; --space-4:1rem;
+  --space-5:1.5rem; --space-6:2rem;   --space-7:3rem;   --space-8:4rem;
+  --space-9:6rem;
+
+  /* raios */
+  --radius-sm:.375rem; --radius-md:.625rem; --radius-lg:1rem;
+  --radius-xl:1.375rem; --radius-full:9999px;
+
+  /* tipografia (famílias e métrica) */
+  --font-display:"Fraunces", Georgia, serif;
+  --font-body:"Atkinson Hyperlegible", system-ui, sans-serif;
+  --container:75rem;          /* 1200px */
+  --measure:68ch;             /* largura de leitura confortável */
+
+  /* easing/duração */
+  --ease:cubic-bezier(.2,.7,.2,1); --dur:.45s;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   CAMADA 2 — SEMÂNTICOS (papéis) — TEMA CLARO
+   É o que a UI e o Tailwind consomem. Trocar de tema = trocar este bloco.
+   ══════════════════════════════════════════════════════════════════════ */
+:root, [data-theme="light"] {
+  color-scheme: light;
+  --bg:            var(--paper-100);
+  --bg-subtle:     var(--paper-200);
+  --surface:       #FAF5E9;
+  --surface-raised:#FFFFFF;
+
+  --border:        var(--sand-300);
+  --border-strong: var(--sand-500);
+
+  --fg:            var(--ink-900);   /* texto principal — AA corpo */
+  --fg-muted:      var(--ink-600);   /* secundário — AA corpo */
+  --fg-subtle:     var(--ink-500);   /* terciário — AA texto grande/UI */
+
+  --primary:       var(--terracota-600);
+  --primary-hover: var(--terracota-700);
+  --on-primary:    #FFFFFF;
+
+  --accent:        var(--ochre-600);
+  --on-accent:     #FFFFFF;
+
+  --success:       var(--forest-600);
+  --danger:        var(--danger-600);
+  --focus:         var(--sky-600);   /* anel de foco — alto contraste */
+
+  --shadow-sm: 0 1px 4px rgba(28,15,6,.07);
+  --shadow-md: 0 4px 20px rgba(28,15,6,.12);
+  --shadow-lg: 0 12px 40px rgba(28,15,6,.18);
+  --grain-blend: multiply;
+  --grain-opacity:.04;
+}
+
+/* CAMADA 2 — TEMA ESCURO (mesma marca, contraste recalibrado p/ AA) */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg:            var(--night-900);
+  --bg-subtle:     var(--night-800);
+  --surface:       var(--night-700);
+  --surface-raised:var(--night-600);
+
+  --border:        var(--night-500);
+  --border-strong: var(--night-400);
+
+  --fg:            var(--bone-100);
+  --fg-muted:      var(--bone-200);
+  --fg-subtle:     var(--bone-300);
+
+  --primary:       var(--terracota-300);
+  --primary-hover: var(--terracota-200);
+  --on-primary:    #23130A;
+
+  --accent:        var(--ochre-400);
+  --on-accent:     #1F1605;
+
+  --success:       var(--forest-400);
+  --danger:        var(--danger-400);
+  --focus:         var(--sky-400);
+
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.5);
+  --shadow-md: 0 8px 24px rgba(0,0,0,.55);
+  --shadow-lg: 0 16px 44px rgba(0,0,0,.65);
+  --grain-blend: screen;
+  --grain-opacity:.05;
+}
+
+/* Segue prefers-color-scheme quando o usuário não escolheu manualmente.
+   (No Next, esta decisão acontece no <script nonce> anti-flash do <head>.) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { color-scheme: dark; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   CAMADA 3 — BASE (reset mínimo + tipografia base + foco visível global)
+   ══════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html { -webkit-text-size-adjust:100%; }
+body {
+  background:var(--bg); color:var(--fg);
+  font-family:var(--font-body); font-size:1rem; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  transition:background-color .4s var(--ease), color .4s var(--ease);
+}
+/* atmosfera quente + grão de papel (textura sutil, não decorativa essencial) */
+body::before {
+  content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background:
+    radial-gradient(60rem 40rem at 12% -10%, color-mix(in srgb,var(--primary) 9%,transparent), transparent 60%),
+    radial-gradient(50rem 40rem at 100% 110%, color-mix(in srgb,var(--accent) 8%,transparent), transparent 55%);
+}
+body::after {
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  opacity:var(--grain-opacity); mix-blend-mode:var(--grain-blend);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+h1,h2,h3,h4 { font-family:var(--font-display); font-weight:600; line-height:1.08; letter-spacing:-.015em; color:var(--fg); }
+a { color:var(--primary); }
+img,svg { display:block; max-width:100%; }
+
+/* FOCO VISÍVEL — WCAG 2.4.7. Um único token, aplicado a tudo que é focável. */
+:where(a,button,input,select,textarea,[tabindex]):focus-visible {
+  outline:3px solid var(--focus); outline-offset:2px; border-radius:var(--radius-sm);
+}
+/* respeita quem pediu menos movimento — WCAG 2.3.3 */
+@media (prefers-reduced-motion:reduce) {
+  *, *::before, *::after { animation-duration:.001ms !important; transition-duration:.001ms !important; }
+}
+.sr-only {
+  position:absolute; width:1px; height:1px; margin:-1px; padding:0;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   CAMADA 4 — COMPONENTES BASE DO PRODUTO
+   No Next: @layer components / @utility consumindo os tokens acima.
+   ══════════════════════════════════════════════════════════════════════ */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+  min-height:2.75rem; padding:.7rem 1.4rem;            /* alvo de toque >=44px */
+  font-family:var(--font-body); font-weight:700; font-size:1rem;
+  border-radius:var(--radius-md); border:2px solid transparent; cursor:pointer;
+  text-decoration:none; transition:transform .15s var(--ease), background-color .2s, box-shadow .2s, border-color .2s;
+}
+.btn:hover { transform:translateY(-2px); }
+.btn:active { transform:translateY(0); }
+.btn-primary { background:var(--primary); color:var(--on-primary); box-shadow:var(--shadow-sm); }
+.btn-primary:hover { background:var(--primary-hover); box-shadow:var(--shadow-md); }
+.btn-ghost { background:transparent; color:var(--primary); border-color:currentColor; }
+.btn-ghost:hover { background:color-mix(in srgb,var(--primary) 10%,transparent); }
+.btn:disabled, .btn[aria-disabled="true"] { opacity:.55; cursor:not-allowed; transform:none; box-shadow:none; }
+.btn-icon { min-height:0; width:2.75rem; height:2.75rem; padding:0; border-radius:var(--radius-md);
+  background:var(--surface); color:var(--fg); border:1.5px solid var(--border-strong); }
+.btn-icon:hover { background:var(--primary); color:var(--on-primary); border-color:var(--primary); }
+.btn .spinner { width:1.1em; height:1.1em; border:2px solid currentColor; border-top-color:transparent;
+  border-radius:50%; animation:spin .7s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.field { display:grid; gap:.4rem; }
+.field label { font-size:.875rem; font-weight:700; color:var(--fg-muted); }
+.field input {
+  font:inherit; color:var(--fg); background:var(--surface);
+  padding:.7rem .9rem; border:1.5px solid var(--border); border-radius:var(--radius-md);
+  outline:none; transition:border-color .15s, box-shadow .15s;
+}
+.field input::placeholder { color:var(--fg-subtle); }
+.field input:focus { border-color:var(--primary); box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 22%,transparent); }
+.field[data-invalid] input { border-color:var(--danger); }
+.field .err { font-size:.85rem; color:var(--danger); }
+
+.tabs { display:flex; gap:2px; border-bottom:1px solid var(--border); }
+.tab { padding:.85rem 1.1rem; background:none; border:none; border-bottom:2px solid transparent;
+  font:inherit; font-weight:700; font-size:.9rem; color:var(--fg-muted); cursor:pointer; margin-bottom:-1px;
+  transition:color .15s, border-color .15s; }
+.tab:hover { color:var(--fg); }
+.tab[aria-selected="true"] { color:var(--primary); border-bottom-color:var(--primary); }
+
+.badge { display:inline-flex; align-items:center; gap:.35rem; padding:.3rem .7rem; font-size:.78rem;
+  font-weight:700; letter-spacing:.04em; border-radius:var(--radius-full);
+  background:var(--bg-subtle); color:var(--fg-muted); border:1px solid var(--border); }
+.badge.is-success { background:color-mix(in srgb,var(--success) 16%,transparent); color:var(--success);
+  border-color:color-mix(in srgb,var(--success) 35%,transparent); }
+
+/* card de comunidade — espelha a necessidade real da listagem */
+.ccard { display:flex; flex-direction:column; background:var(--surface);
+  border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;
+  box-shadow:var(--shadow-sm); transition:transform .22s var(--ease), box-shadow .22s, border-color .2s; }
+.ccard:hover { transform:translateY(-5px); box-shadow:var(--shadow-lg); border-color:var(--border-strong); }
+.ccard .media { aspect-ratio:16/9; background:linear-gradient(135deg,var(--terracota-400),var(--ochre-600));
+  display:grid; place-items:center; }
+.ccard .media span { font-family:var(--font-display); font-weight:700; font-size:2.4rem; color:rgba(255,255,255,.9); }
+.ccard .body { padding:1.1rem 1.25rem 1.35rem; }
+.ccard .eyebrow { display:inline-flex; align-items:center; gap:.4rem; font-size:.72rem; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--primary); margin-bottom:.5rem; }
+.ccard h4 { font-size:1.25rem; margin-bottom:.4rem; }
+.ccard p { color:var(--fg-muted); font-size:.92rem; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   INSTITUCIONAL (ISOLADO) — escopado em .institutional. NUNCA vaza para o
+   produto. Aqui vai só uma amostra (estilo "uniao" / paleta "verde") para
+   demonstrar a barreira; o catálogo completo (2 estilos × 4 paletas × 2
+   temas) é portado do MVP numa etapa posterior.
+   ══════════════════════════════════════════════════════════════════════ */
+.institutional[data-style="uniao"][data-palette="verde"] {
+  --ip-primary:#2E6B4B; --ip-on-primary:#fff; --ip-secondary:#CFE2D5; --ip-accent:#A1572F;
+  --ip-bg:#F2EAD3; --ip-surface:#FAF4E6; --ip-text:#211E16; --ip-border:#D4C4A8;
+  --ip-display:"Fraunces",serif; --ip-body:"Atkinson Hyperlegible",sans-serif;
+}
+[data-theme="dark"] .institutional[data-style="uniao"][data-palette="verde"] {
+  --ip-primary:#6FBE93; --ip-on-primary:#0E1B12; --ip-secondary:#2C5A3E; --ip-accent:#E29A6A;
+  --ip-bg:#15140E; --ip-surface:#221F17; --ip-text:#F2ECDF; --ip-border:#3A352A;
+}
+.institutional {
+  background:var(--ip-bg); color:var(--ip-text); border-radius:var(--radius-lg);
+  border:1px solid var(--ip-border); padding:1.5rem; font-family:var(--ip-body);
+}
+.institutional h4 { font-family:var(--ip-display); color:var(--ip-primary); font-size:1.5rem; }
+.institutional h4 em { color:var(--ip-accent); }
+.institutional .ip-btn { display:inline-flex; align-items:center; min-height:2.75rem; padding:.6rem 1.3rem;
+  margin-top:1rem; border-radius:var(--radius-full); background:var(--ip-primary); color:var(--ip-on-primary);
+  font-family:var(--ip-body); font-weight:700; border:0; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   SHOWCASE-ONLY — chrome desta página de documentação (NÃO faz parte do
+   sistema; existe só para apresentar os tokens).
+   ══════════════════════════════════════════════════════════════════════ */
+.page { max-width:var(--container); margin-inline:auto; padding:0 clamp(1.25rem,5vw,3rem); }
+.topbar { position:sticky; top:0; z-index:20; backdrop-filter:blur(8px);
+  background:color-mix(in srgb,var(--bg) 82%,transparent); border-bottom:1px solid var(--border); }
+.topbar .row { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.85rem 0; }
+.wordmark { display:flex; align-items:center; gap:.6rem; font-family:var(--font-display); font-weight:700; font-size:1.15rem; }
+.wordmark .dot { width:.7rem; height:.7rem; border-radius:50%; background:var(--primary); }
+.cover { padding:clamp(3.5rem,9vw,7rem) 0 clamp(2.5rem,6vw,4rem); }
+.cover .kicker { display:inline-flex; align-items:center; gap:.6rem; font-size:.8rem; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--fg-muted); margin-bottom:1.25rem; }
+.cover .kicker::before { content:""; width:2.5rem; height:2px; background:var(--accent); }
+.cover h1 { font-size:clamp(2.6rem,8vw,5rem); letter-spacing:-.025em; font-weight:600; }
+.cover h1 em { font-style:italic; color:var(--primary); }
+.cover .lede { font-size:clamp(1.05rem,2.2vw,1.3rem); color:var(--fg-muted); max-width:52ch; margin-top:1.25rem; }
+section.block { padding-block:clamp(2.5rem,6vw,4.5rem); border-top:1px solid var(--border); }
+.sec-head { display:flex; align-items:baseline; gap:1rem; margin-bottom:2rem; }
+.sec-num { font-family:var(--font-display); font-weight:900; font-size:1rem; color:var(--accent); }
+.sec-head h2 { font-size:clamp(1.6rem,3.5vw,2.4rem); }
+.sec-head p { color:var(--fg-muted); margin-top:.3rem; }
+.grid { display:grid; gap:1rem; }
+.cols-2 { grid-template-columns:repeat(2,1fr); }
+.cols-3 { grid-template-columns:repeat(3,1fr); }
+.cols-4 { grid-template-columns:repeat(4,1fr); }
+@media (max-width:64rem){ .cols-4{grid-template-columns:repeat(2,1fr);} .cols-3{grid-template-columns:repeat(2,1fr);} }
+@media (max-width:40rem){ .cols-2,.cols-3,.cols-4{grid-template-columns:1fr;} }
+
+/* swatch de token */
+.swatch { border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:var(--surface); }
+.swatch .chip { height:4.5rem; }
+.swatch .meta { padding:.6rem .7rem; font-size:.8rem; }
+.swatch .meta b { font-family:var(--font-body); display:block; }
+.swatch .meta code { font-size:.72rem; color:var(--fg-subtle); }
+.swatch .tag { font-size:.68rem; font-weight:700; letter-spacing:.03em; color:var(--fg-muted); }
+
+/* régua de espaço */
+.ruler { display:flex; align-items:flex-end; gap:1rem; flex-wrap:wrap; }
+.ruler .u { text-align:center; font-size:.72rem; color:var(--fg-subtle); }
+.ruler .bar { background:var(--primary); border-radius:var(--radius-sm) var(--radius-sm) 0 0; width:2.5rem; margin-bottom:.4rem; }
+
+.specimen { border:1px solid var(--border); border-radius:var(--radius-md); padding:1.25rem; background:var(--surface); }
+.specimen + .specimen { margin-top:.75rem; }
+.specimen .label { font-size:.72rem; letter-spacing:.05em; text-transform:uppercase; color:var(--fg-subtle); }
+
+.demo { border:1px solid var(--border); border-radius:var(--radius-lg); padding:clamp(1.25rem,3vw,2rem); background:var(--surface); }
+.demo .demo-title { font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--fg-subtle); margin-bottom:1rem; }
+.cluster { display:flex; flex-wrap:wrap; gap:.75rem; align-items:center; }
+
+.note { font-size:.85rem; color:var(--fg-muted); border-left:3px solid var(--accent); padding-left:.9rem; }
+
+/* tabela de breakpoints / arquitetura */
+table.spec { width:100%; border-collapse:collapse; font-size:.9rem; }
+table.spec th, table.spec td { text-align:left; padding:.6rem .7rem; border-bottom:1px solid var(--border); }
+table.spec th { font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--fg-subtle); }
+table.spec code { font-size:.82rem; color:var(--primary); }
+
+.diagram { background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:1.25rem; font-family:ui-monospace,monospace; font-size:.82rem; line-height:1.7; white-space:pre; overflow:auto; color:var(--fg-muted); }
+
+.barrier { display:grid; grid-template-columns:1fr auto 1fr; gap:1.25rem; align-items:center; }
+.barrier .vs { writing-mode:vertical-rl; font-size:.72rem; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--fg-subtle); justify-self:center; }
+@media (max-width:48rem){ .barrier{grid-template-columns:1fr;} .barrier .vs{writing-mode:horizontal-tb;} }
+
+footer.site { padding:clamp(2.5rem,6vw,4rem) 0; border-top:1px solid var(--border); color:var(--fg-subtle); font-size:.85rem; }
+
+/* toggle de tema (no Next vira botão com aria-pressed + nonce script no head) */
+.toggle { display:inline-flex; align-items:center; gap:.5rem; background:var(--surface);
+  border:1.5px solid var(--border-strong); color:var(--fg); border-radius:var(--radius-full);
+  padding:.5rem .9rem; font:inherit; font-weight:700; font-size:.85rem; cursor:pointer; }
+.toggle:hover { border-color:var(--primary); color:var(--primary); }
+</style>
+</head>
+
+<body>
+<a class="sr-only" href="#main">Pular para o conteúdo</a>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="page row">
+    <div class="wordmark"><span class="dot" aria-hidden="true"></span>Quilombo</div>
+    <button class="toggle" id="themeToggle" type="button" aria-pressed="false">
+      <span aria-hidden="true">◐</span><span id="themeLabel">Tema escuro</span>
+    </button>
+  </div>
+</header>
+
+<main id="main" class="page">
+
+  <!-- COVER -->
+  <section class="cover">
+    <span class="kicker">Sistema de Design · Fundação</span>
+    <h1>Identidade visual <em>do produto</em>,<br>antes de qualquer tela.</h1>
+    <p class="lede">As fundações compartilhadas por <b>listagem</b>, <b>login</b> e <b>administração</b> — tokens, tipografia, escalas, estados e componentes-base. A página institucional vive num sistema de temas <em>separado e isolado</em>, mostrado ao final.</p>
+    <div class="cluster" style="margin-top:1.5rem">
+      <span class="badge">Next.js 16 · Tailwind v4</span>
+      <span class="badge">WCAG 2.1 AA</span>
+      <span class="badge">Light + Dark</span>
+      <span class="badge">CSP estrito (nonce)</span>
+    </div>
+  </section>
+
+  <!-- 01 PRINCÍPIOS -->
+  <section class="block">
+    <div class="sec-head"><span class="sec-num">01</span><div><h2>Princípios</h2></div></div>
+    <div class="grid cols-3">
+      <div class="demo"><div class="demo-title">Consistência</div><p>Toda decisão visual é um <b>token semântico</b>. A UI nunca usa cor crua nem valor mágico — só papéis (<code>--fg</code>, <code>--primary</code>…).</p></div>
+      <div class="demo"><div class="demo-title">Acessibilidade primeiro</div><p>Atkinson Hyperlegible no corpo, foco visível por token, contraste AA validado em <b>ambos os temas</b>, alvos ≥44px, zoom 200%.</p></div>
+      <div class="demo"><div class="demo-title">Isolamento</div><p>Produto e comunidade são dois sistemas. A barreira é o <b>escopo do seletor</b> — não há variável compartilhada nem vazamento de cascade.</p></div>
+    </div>
+  </section>
+
+  <!-- 02 COR / TOKENS -->
+  <section class="block">
+    <div class="sec-head"><span class="sec-num">02</span><div><h2>Cor — tokens semânticos</h2><p>Alterne o tema no topo: os mesmos tokens, recalibrados. A UI não muda de classe.</p></div></div>
+
+    <h3 style="font-size:1rem;margin-bottom:.75rem;color:var(--fg-muted)">Superfícies & bordas</h3>
+    <div class="grid cols-4">
+      <div class="swatch"><div class="chip" style="background:var(--bg)"></div><div class="meta"><b>Fundo</b><code>--bg</code></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--bg-subtle)"></div><div class="meta"><b>Fundo sutil</b><code>--bg-subtle</code></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--surface)"></div><div class="meta"><b>Superfície</b><code>--surface</code></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--surface-raised)"></div><div class="meta"><b>Elevada</b><code>--surface-raised</code></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--border)"></div><div class="meta"><b>Borda</b><code>--border</code></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--border-strong)"></div><div class="meta"><b>Borda forte</b><code>--border-strong</code></div></div>
+    </div>
+
+    <h3 style="font-size:1rem;margin:1.5rem 0 .75rem;color:var(--fg-muted)">Marca, apoio & status</h3>
+    <div class="grid cols-4">
+      <div class="swatch"><div class="chip" style="background:var(--primary)"></div><div class="meta"><b>Primária</b><code>--primary</code> <span class="tag">texto branco AA</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--accent)"></div><div class="meta"><b>Acento</b><code>--accent</code></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--success)"></div><div class="meta"><b>Sucesso</b><code>--success</code></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--danger)"></div><div class="meta"><b>Erro</b><code>--danger</code></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--focus)"></div><div class="meta"><b>Foco</b><code>--focus</code></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--primary-hover)"></div><div class="meta"><b>Primária hover</b><code>--primary-hover</code></div></div>
+    </div>
+
+    <h3 style="font-size:1rem;margin:1.5rem 0 .75rem;color:var(--fg-muted)">Texto (com alvo de contraste)</h3>
+    <div class="grid cols-3">
+      <div class="specimen"><p style="color:var(--fg);font-size:1.05rem">Texto principal — <code>--fg</code></p><span class="label">AA corpo (≥4.5:1)</span></div>
+      <div class="specimen"><p style="color:var(--fg-muted);font-size:1.05rem">Texto secundário — <code>--fg-muted</code></p><span class="label">AA corpo (≥4.5:1)</span></div>
+      <div class="specimen"><p style="color:var(--fg-subtle);font-size:1.05rem">Texto terciário — <code>--fg-subtle</code></p><span class="label">AA texto grande / UI (≥3:1) — não usar em corpo pequeno</span></div>
+    </div>
+  </section>
+
+  <!-- 03 TIPOGRAFIA -->
+  <section class="block">
+    <div class="sec-head"><span class="sec-num">03</span><div><h2>Tipografia</h2><p>Fraunces (display, expressivo) + Atkinson Hyperlegible (corpo, desenhada para legibilidade).</p></div></div>
+    <div class="grid cols-2">
+      <div class="specimen">
+        <span class="label">Display · Fraunces</span>
+        <p style="font-family:var(--font-display);font-size:3rem;line-height:1;margin-top:.5rem">Território <em style="font-style:italic;color:var(--primary)">vivo</em></p>
+        <p class="note" style="margin-top:1rem">Pesos 400–900 · itálico para ênfase · optical sizing</p>
+      </div>
+      <div class="specimen">
+        <span class="label">Corpo · Atkinson Hyperlegible</span>
+        <p style="margin-top:.5rem">Formas de letra com diferenças exageradas entre caracteres parecidos (I, l, 1 · O, 0) para máxima legibilidade — ideal para WCAG.</p>
+        <p style="margin-top:.5rem;font-weight:700">Negrito 700 para destaque inline.</p>
+      </div>
+    </div>
+    <div class="specimen" style="margin-top:1rem">
+      <span class="label">Escala tipográfica (fluida via clamp — estável entre breakpoints)</span>
+      <div style="display:grid;gap:.5rem;margin-top:.75rem">
+        <div style="font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4rem);line-height:1">Display</div>
+        <div style="font-family:var(--font-display);font-size:clamp(2rem,4vw,3rem);line-height:1.05">Título H1</div>
+        <div style="font-family:var(--font-display);font-size:clamp(1.5rem,3vw,2.25rem)">Título H2</div>
+        <div style="font-family:var(--font-display);font-size:1.5rem">Título H3</div>
+        <div style="font-size:1.125rem">Corpo grande — 1.125rem</div>
+        <div style="font-size:1rem">Corpo base — 1rem (mínimo 16px)</div>
+        <div style="font-size:.875rem;color:var(--fg-muted)">Apoio — 0.875rem (rótulos/UI)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 ESPAÇO / RAIO / ELEVAÇÃO -->
+  <section class="block">
+    <div class="sec-head"><span class="sec-num">04</span><div><h2>Espaço, raio & elevação</h2><p>Escala de 4px, raios e três níveis de sombra (recalibrados no dark).</p></div></div>
+    <div class="demo">
+      <div class="demo-title">Escala de espaço</div>
+      <div class="ruler">
+        <div class="u"><div class="bar" style="height:.25rem"></div>1 · 4px</div>
+        <div class="u"><div class="bar" style="height:.5rem"></div>2 · 8px</div>
+        <div class="u"><div class="bar" style="height:.75rem"></div>3 · 12px</div>
+        <div class="u"><div class="bar" style="height:1rem"></div>4 · 16px</div>
+        <div class="u"><div class="bar" style="height:1.5rem"></div>5 · 24px</div>
+        <div class="u"><div class="bar" style="height:2rem"></div>6 · 32px</div>
+        <div class="u"><div class="bar" style="height:3rem"></div>7 · 48px</div>
+        <div class="u"><div class="bar" style="height:4rem"></div>8 · 64px</div>
+        <div class="u"><div class="bar" style="height:6rem"></div>9 · 96px</div>
+      </div>
+    </div>
+    <div class="grid cols-2" style="margin-top:1rem">
+      <div class="demo"><div class="demo-title">Raios</div><div class="cluster">
+        <div style="width:5rem;height:3.5rem;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--radius-sm)"></div>
+        <div style="width:5rem;height:3.5rem;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--radius-md)"></div>
+        <div style="width:5rem;height:3.5rem;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--radius-lg)"></div>
+        <div style="width:5rem;height:3.5rem;background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--radius-xl)"></div>
+      </div></div>
+      <div class="demo"><div class="demo-title">Elevação</div><div class="cluster">
+        <div style="width:5rem;height:3.5rem;background:var(--surface-raised);border-radius:var(--radius-md);box-shadow:var(--shadow-sm)"></div>
+        <div style="width:5rem;height:3.5rem;background:var(--surface-raised);border-radius:var(--radius-md);box-shadow:var(--shadow-md)"></div>
+        <div style="width:5rem;height:3.5rem;background:var(--surface-raised);border-radius:var(--radius-md);box-shadow:var(--shadow-lg)"></div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- 05 ESTADOS & INTERAÇÃO -->
+  <section class="block">
+    <div class="sec-head"><span class="sec-num">05</span><div><h2>Estados & interação</h2><p>Hover, foco visível (Tab no teclado), desabilitado e carregando.</p></div></div>
+    <div class="grid cols-2">
+      <div class="demo"><div class="demo-title">Botões</div><div class="cluster">
+        <button class="btn btn-primary" type="button">Primário</button>
+        <button class="btn btn-ghost" type="button">Fantasma</button>
+        <button class="btn btn-primary" type="button" disabled>Desabilitado</button>
+        <button class="btn btn-primary" type="button"><span class="spinner" aria-hidden="true"></span>Salvando…</button>
+        <button class="btn-icon" type="button" aria-label="Buscar">⌕</button>
+      </div></div>
+      <div class="demo"><div class="demo-title">Campo de formulário</div>
+        <div class="field"><label for="d1">E-mail</label><input id="d1" type="email" placeholder="voce@exemplo.org" /></div>
+        <div class="field" data-invalid style="margin-top:.75rem"><label for="d2">Slug</label><input id="d2" value="kalung@" aria-invalid="true" aria-describedby="e2" /><span class="err" id="e2">Use apenas letras, números e hífen.</span></div>
+      </div>
+    </div>
+    <div class="grid cols-2" style="margin-top:1rem">
+      <div class="demo"><div class="demo-title">Abas (admin)</div>
+        <div class="tabs" role="tablist">
+          <button class="tab" role="tab" aria-selected="true">Página</button>
+          <button class="tab" role="tab" aria-selected="false">Card</button>
+          <button class="tab" role="tab" aria-selected="false">Acervo</button>
+        </div>
+      </div>
+      <div class="demo"><div class="demo-title">Badges</div><div class="cluster">
+        <span class="badge">Rascunho</span><span class="badge is-success">Publicado</span>
+      </div>
+      <p class="note" style="margin-top:1rem">Movimento respeita <code>prefers-reduced-motion</code>.</p></div>
+    </div>
+  </section>
+
+  <!-- 06 GRID & BREAKPOINTS -->
+  <section class="block">
+    <div class="sec-head"><span class="sec-num">06</span><div><h2>Grid & breakpoints</h2><p>Mobile-first. A listagem reflui 1 → 2 → 3 colunas. Redimensione a janela.</p></div></div>
+    <div class="grid cols-3">
+      <article class="ccard"><div class="media"><span>K</span></div><div class="body"><span class="eyebrow">◍ Goiás</span><h4>Kalunga</h4><p>Maior território quilombola do Brasil, no cerrado da Chapada dos Veadeiros.</p></div></article>
+      <article class="ccard"><div class="media"><span>P</span></div><div class="body"><span class="eyebrow">◍ Alagoas</span><h4>Palmares</h4><p>Memória do maior quilombo das Américas e de Zumbi.</p></div></article>
+      <article class="ccard"><div class="media"><span>F</span></div><div class="body"><span class="eyebrow">◍ Maranhão</span><h4>Frechal</h4><p>Primeira comunidade titulada em reserva extrativista.</p></div></article>
+    </div>
+    <table class="spec" style="margin-top:1.5rem">
+      <thead><tr><th>Alvo</th><th>Token Tailwind</th><th>A partir de</th><th>Layout</th></tr></thead>
+      <tbody>
+        <tr><td>Celular <b>(prioridade)</b></td><td><code>base</code></td><td>0</td><td>1 coluna, navegação compacta</td></tr>
+        <tr><td>Tablet</td><td><code>md:</code></td><td>768px</td><td>2 colunas</td></tr>
+        <tr><td>Notebook</td><td><code>lg:</code></td><td>1024px</td><td>3 colunas</td></tr>
+        <tr><td>Contêiner máx.</td><td><code>xl:</code></td><td>1280px</td><td>largura travada em 75rem</td></tr>
+      </tbody>
+    </table>
+    <p class="note" style="margin-top:1rem">Estabilidade <em>entre</em> breakpoints via <code>clamp()</code> na tipografia e no espaço — escala fluida, sem saltos.</p>
+  </section>
+
+  <!-- 07 BARREIRA PRODUTO ⇄ INSTITUCIONAL -->
+  <section class="block">
+    <div class="sec-head"><span class="sec-num">07</span><div><h2>A barreira produto ⇄ institucional</h2><p>Dois sistemas, escopos distintos. À direita, um tema da comunidade (estilo “união” · paleta “verde”) — visualmente independente.</p></div></div>
+    <div class="barrier">
+      <div class="demo">
+        <div class="demo-title">Produto (chrome) · tokens em <code>:root</code></div>
+        <article class="ccard"><div class="media"><span>Q</span></div><div class="body"><span class="eyebrow">◍ Diretório</span><h4>Card de comunidade</h4><p>Identidade fixa do produto. Segue <code>--bg/--fg/--primary</code> e o <code>data-theme</code> global.</p></div></article>
+      </div>
+      <div class="vs" aria-hidden="true">isolado</div>
+      <div class="institutional" data-style="uniao" data-palette="verde">
+        <span style="font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ip-primary);font-weight:700">Tema da comunidade</span>
+        <h4>Comunidade <em>Kalunga</em></h4>
+        <p style="margin-top:.5rem">Escopado em <code>.institutional[data-style][data-palette]</code>. Usa <code>--ip-*</code>, jamais os tokens do produto.</p>
+        <button class="ip-btn" type="button">Conhecer a história</button>
+      </div>
+    </div>
+    <p class="note" style="margin-top:1.5rem"><b>Por que CSS pré-compilado e não <code>style</code> inline?</b> O CSP do app (<code>style-src 'self' 'nonce-…'</code>) bloqueia atributos <code>style</code> inline. Como os temas são finitos (2 estilos × 4 paletas × 2 modos = 16), cada combinação é uma regra <code>data-*</code> estática — seguro <em>e</em> performático.</p>
+  </section>
+
+  <!-- 08 ARQUITETURA -->
+  <section class="block">
+    <div class="sec-head"><span class="sec-num">08</span><div><h2>Arquitetura</h2><p>Como isso vira código no Next.</p></div></div>
+    <div class="grid cols-2">
+      <div>
+        <div class="demo-title" style="margin-bottom:.5rem">Estrutura de pastas</div>
+        <div class="diagram">src/
+├─ styles/
+│  ├─ globals.css        # único entrypoint
+│  ├─ tokens/
+│  │  ├─ primitives.css
+│  │  ├─ semantic.css    # :root (claro)
+│  │  └─ dark.css        # [data-theme=dark]
+│  ├─ base.css           # reset, tipo, foco
+│  └─ institutional/     # ISOLADO
+│     ├─ themes.css
+│     ├─ palettes.css
+│     └─ style-*.css
+├─ components/ui/         # Button, Card, Field…
+└─ app/  lib/  …</div>
+      </div>
+      <div>
+        <div class="demo-title" style="margin-bottom:.5rem">Divisão Tailwind ⇄ CSS</div>
+        <table class="spec">
+          <tbody>
+            <tr><td>Tokens, temas, base</td><td><b>CSS</b> (<code>@layer base</code>)</td></tr>
+            <tr><td>Layout, espaço, responsivo, estados</td><td><b>Tailwind</b></td></tr>
+            <tr><td>Abstrações (botão, card)</td><td><b>CSS</b> <code>@layer components</code></td></tr>
+            <tr><td>Pontual fora do utilitário</td><td><b>CSS Module</b></td></tr>
+          </tbody>
+        </table>
+        <p class="note" style="margin-top:1rem">Tokens semânticos são expostos como utilitários via <code>@theme inline</code> → <code>bg-bg</code>, <code>text-fg</code>, <code>text-primary</code>…</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site">
+    <div class="wordmark" style="margin-bottom:.75rem"><span class="dot" aria-hidden="true"></span>Quilombo</div>
+    Demonstrativo da fundação visual do produto · para debate. Não é tela final — é a fonte de verdade dos tokens.
+  </footer>
+</main>
+
+<script>
+/* SHOWCASE-ONLY — no Next isto vira um <script nonce> inline no <head>
+   (padrão anti-flash dos docs: lê localStorage e seta data-theme antes do paint). */
+(function () {
+  var root = document.documentElement;
+  var btn = document.getElementById('themeToggle');
+  var label = document.getElementById('themeLabel');
+  function apply(theme) {
+    root.setAttribute('data-theme', theme);
+    var dark = theme === 'dark';
+    btn.setAttribute('aria-pressed', String(dark));
+    label.textContent = dark ? 'Tema claro' : 'Tema escuro';
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('theme'); } catch (e) {}
+  apply(saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  btn.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    apply(next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>
