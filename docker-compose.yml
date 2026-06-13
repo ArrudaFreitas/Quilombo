@@ -97,6 +97,12 @@ services:
     command: sh -c "npm install && npm run dev -- --hostname 0.0.0.0"
     environment:
       NEXT_TELEMETRY_DISABLED: "1"
+      API_URL: "http://backend:8080"
+      NEXT_PUBLIC_BASE_DOMAIN: "quilombo.localhost"
+      NEXT_PUBLIC_STORAGE_URL: "http://localhost:9000/quilombo-uploads"
+    depends_on:
+      backend:
+        condition: service_healthy
     volumes:
       - ./frontend:/app
       - frontend_node_modules:/app/node_modules

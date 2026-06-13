@@ -63,5 +63,12 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Test
+        run: npm run test
+
       - name: Build
         run: npm run build
+        env:
+          API_URL: http://localhost:8080
+          NEXT_PUBLIC_BASE_DOMAIN: quilombo.localhost
+          NEXT_PUBLIC_STORAGE_URL: http://localhost:9000/quilombo-uploads
