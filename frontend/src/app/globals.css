@@ -1,99 +1,26 @@
 @import "tailwindcss";
 
-@import "../styles/tokens.css";
-@import "../styles/palettes.css";
-@import "../styles/themes/uniao.css";
-@import "../styles/themes/raizes.css";
-
-/*
- * Ponte tokens → Tailwind. O modo `inline` faz cada utilitário referenciar a
- * custom property em tempo de uso, então `bg-primary` reage à troca de
- * data-style/data-palette em qualquer ponto da árvore.
- *
- * Breakpoints (defaults do Tailwind, usados em todas as telas):
- *   base  = celulares           (< 640px)
- *   md    = tablets             (>= 768px)
- *   lg    = notebooks/desktop   (>= 1024px)
- * O layout base (mobile-first) também atende o reflow de 320px exigido pelo
- * WCAG 1.4.10 (equivale a 200%/400% de zoom).
- */
-@theme inline {
-  /* neutros */
-  --color-background:        var(--q-bg);
-  --color-background-subtle: var(--q-bg-subtle);
-  --color-surface:           var(--q-surface);
-  --color-surface-raised:    var(--q-surface-raised);
-  --color-border:            var(--q-border);
-  --color-border-strong:     var(--q-border-strong);
-  --color-foreground:        var(--q-text);
-  --color-muted:             var(--q-text-muted);
-  --color-subtle:            var(--q-text-subtle);
-
-  /* marca (definidos pela paleta ativa) */
-  --color-primary:        var(--q-primary);
-  --color-primary-strong: var(--q-primary-strong);
-  --color-on-primary:     var(--q-on-primary);
-  --color-secondary:      var(--q-secondary);
-  --color-accent:         var(--q-accent);
-  --color-on-accent:      var(--q-on-accent);
-
-  /* foco */
-  --color-focus: var(--q-focus);
-
-  /* estrutura (definidos pelo estilo ativo) */
-  --radius-theme:    var(--q-radius);
-  --radius-theme-sm: var(--q-radius-sm);
-  --shadow-theme:    var(--q-shadow);
-  --shadow-theme-sm: var(--q-shadow-sm);
-
-  /* tipografia (carregada em layout.tsx via next/font) */
-  --font-display: var(--font-fraunces), Georgia, serif;
-  --font-body:    var(--font-atkinson), system-ui, sans-serif;
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
 }
 
-@layer base {
-  html {
-    /* Nunca fixar font-size em px aqui: respeita o ajuste do usuário (WCAG 1.4.4). */
-    scroll-behavior: smooth;
-  }
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
 
-  body {
-    background-color: var(--q-bg);
-    color: var(--q-text);
-    font-family: var(--font-atkinson), system-ui, sans-serif;
-    line-height: 1.6;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
   }
+}
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-fraunces), Georgia, serif;
-    line-height: 1.2;
-    text-wrap: balance;
-  }
-
-  img, svg, video {
-    display: block;
-    max-width: 100%;
-    height: auto;
-  }
-
-  /* Indicador de foco visível e consistente em todo o app (WCAG 2.4.7). */
-  :focus-visible {
-    outline: 3px solid var(--q-focus);
-    outline-offset: 2px;
-    border-radius: var(--q-radius-sm);
-  }
-
-  /* Respeita usuários sensíveis a movimento (prefers-reduced-motion). */
-  @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-    }
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
 }
