@@ -71,11 +71,13 @@ services:
       # Seu e-mail Google — o seed o registra como admin das comunidades de dev
       DEV_ADMIN_EMAIL:        ${DEV_ADMIN_EMAIL:-}
       APP_BASE_DOMAIN:        quilombo.localhost
-      # Variáveis de MinIO — usadas quando a feature de upload for implementada
+      # MinIO — endpoint interno (rede do compose) para o backend gravar/remover;
+      # MINIO_PUBLIC_URL é a base servida ao navegador (host), não a rede interna.
       MINIO_ENDPOINT:         http://minio:9000
       MINIO_ACCESS_KEY:       quilombo
       MINIO_SECRET_KEY:       quilombo123
       MINIO_BUCKET:           quilombo-uploads
+      MINIO_PUBLIC_URL:       http://localhost:9000/quilombo-uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -85,6 +87,19 @@ services:
       timeout:      5s
       retries:      12
       start_period: 60s
+
+  # ── Frontend (Next.js em modo dev, com HMR via bind mount) ──────────────────
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    # npm install é no-op quando o lockfile não mudou; node_modules fica em
+    # volume nomeado para não conflitar com instalações feitas no host.
+    command: sh -c "npm install && npm run dev -- --hostname 0.0.0.0"
+    environment:
+      NEXT_TELEMETRY_DISABLED: "1"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
 
   # ── Reverse proxy ───────────────────────────────────────────────────────────
   nginx:
@@ -98,9 +113,12 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+      frontend:
+        condition: service_started
 
 # ── Volumes ──────────────────────────────────────────────────────────────────
 volumes:
   postgres_data:
   minio_data:
   nginx_certs:
+  frontend_node_modules:

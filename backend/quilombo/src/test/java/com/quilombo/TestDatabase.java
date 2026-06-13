@@ -33,6 +33,7 @@ public final class TestDatabase {
         st.execute("DELETE FROM institutional_pages");
         st.execute("DELETE FROM community_profiles");
         st.execute("DELETE FROM community_cards");
+        st.execute("DELETE FROM storage_usage");
         st.execute("DELETE FROM communities");
     }
 }

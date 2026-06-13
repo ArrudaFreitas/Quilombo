@@ -2,7 +2,7 @@
 
 Plataforma **multi-tenant** para comunidades quilombolas — cada comunidade é resolvida por subdomínio (`<comunidade>.quilombo.localhost`) e administra sua própria página institucional, seções de conteúdo e acervo de imagens.
 
-> **Status:** desenvolvimento inicial. No momento o repositório contém a configuração base do backend e a infraestrutura de desenvolvimento; as features de domínio ainda serão implementadas.
+> **Status:** funcional de ponta a ponta. Backend com multi-tenancy (subdomínio + RLS), autenticação (OAuth2 Google + JWT com refresh rotacionado), diretório público, página institucional e área administrativa completa (card, estilo/paleta, seções, acervo de imagens). Frontend Next.js com as três telas — diretório, página institucional tematizável e painel admin — conectadas à API (ver `frontend/README.md`).
 
 ---
 
@@ -20,6 +20,8 @@ Plataforma **multi-tenant** para comunidades quilombolas — cada comunidade é 
 | Object storage (dev) | MinIO (S3-compatível) |
 | Reverse proxy | nginx (TLS, preserva `Host` para resolver o tenant) |
 | Testes | JUnit 5 + Testcontainers (PostgreSQL real) |
+| Frontend | Next.js (App Router) + TypeScript + Tailwind CSS v4 |
+| Testes (frontend) | Vitest + Testing Library + axe (acessibilidade) |
 
 ## Estrutura do repositório
 
@@ -27,18 +29,29 @@ Plataforma **multi-tenant** para comunidades quilombolas — cada comunidade é 
 .
 ├── backend/quilombo/      # aplicação Spring Boot
 │   ├── src/main/java/com/quilombo/
-│   │   ├── auth/          # troca de código de login por JWT
-│   │   ├── community/     # tenant root (Community) e perfil público
+│   │   ├── auth/          # login por código/OAuth2 → JWT + refresh rotacionado
+│   │   ├── community/     # tenant root (Community), perfil público e card admin
+│   │   ├── page/          # página institucional: estilo/paleta e CRUD de seções
+│   │   ├── media/         # acervo de imagens: upload (resize + WebP), quota, alt
+│   │   ├── storage/       # abstração de object storage S3 (MinIO em dev)
+│   │   ├── common/        # envelope ApiResponse e tratamento de erros (ProblemDetail)
 │   │   ├── config/        # configurações (Security, JPA, OpenAPI, MapStruct…)
 │   │   ├── security/      # JWT e OAuth2
+│   │   ├── seed/          # seed idempotente das comunidades de dev
 │   │   └── tenant/        # multi-tenancy: @TenantId + RLS (subdomínio → tenant)
 │   ├── src/main/resources/
 │   │   ├── db/migration/  # migrations Flyway (V1__…)
 │   │   └── application*.yml
 │   └── Dockerfile
+├── frontend/              # app Next.js (ver frontend/README.md — temas, seções, a11y)
+│   └── src/
+│       ├── app/           # rotas (App Router)
+│       ├── lib/           # cliente da API ({data, meta}/ProblemDetail) e tenancy
+│       ├── sections/      # registry e componentes das seções da página
+│       └── styles/        # tokens semânticos, paletas e estilos (data-*)
 ├── infra/nginx/           # reverse proxy TLS para dev
 ├── infra/postgres/init/   # provisiona a role de runtime (RLS) na 1ª subida
-└── docker-compose.yml     # postgres, minio, backend, nginx
+└── docker-compose.yml     # postgres, minio, backend, frontend, nginx
 ```
 
 ---
@@ -57,10 +70,14 @@ Serviços expostos:
 
 | Serviço | URL |
 |---|---|
-| API (via nginx, TLS) | `https://quilombo.localhost:8080` |
+| Frontend — diretório público | `https://quilombo.localhost:8080` |
+| Frontend — página de uma comunidade | `https://kalunga.quilombo.localhost:8080` |
+| API (mesmo origin, via nginx) | `https://quilombo.localhost:8080/api/v1/…` |
 | Swagger UI | `https://quilombo.localhost:8080/swagger-ui.html` |
 | Health check | `https://quilombo.localhost:8080/actuator/health` |
 | Console do MinIO | `http://localhost:9001` (usuário/senha: `quilombo` / `quilombo123`) |
+
+> O nginx roteia `/api`, `/oauth2`, `/login/oauth2`, `/actuator` e o Swagger para o backend; todo o resto vai para o frontend — mesmo origin, sem CORS, preservando o `Host` que resolve o tenant.
 
 > O certificado TLS é auto-assinado e gerado no primeiro start. O navegador exibirá um aviso — confie nele localmente importando `infra/nginx/certs/quilombo.crt` como CA raiz, se quiser eliminar o aviso.
 >
