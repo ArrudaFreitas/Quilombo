@@ -4,6 +4,7 @@ import { headers } from 'next/headers'
 import { SkipLink } from '@/components/skip-link'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ThemeScript } from '@/components/theme-script'
+import { ThemeToggle } from '@/components/theme-toggle'
 import '@/styles/globals.css'
 
 // Display — Fraunces (variável: peso + óptico). Exposta como --font-fraunces.
@@ -65,6 +66,7 @@ export default async function RootLayout({
       <body className="flex min-h-full flex-col">
         <ThemeProvider>
           <SkipLink />
+          <ThemeToggle />
           {children}
         </ThemeProvider>
       </body>
