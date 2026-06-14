@@ -1,6 +1,6 @@
 # Quilombo
 
-Plataforma **multi-tenant** para comunidades quilombolas — cada comunidade é resolvida por subdomínio (`<comunidade>.quilombo.localhost`) e administra sua própria página institucional, seções de conteúdo e acervo de imagens.
+Plataforma **multi-tenant** para comunidades quilombolas — cada comunidade é resolvida por subdomínio (`<comunidade>.quilombo.ianarruda.dev`) e administra sua própria página institucional, seções de conteúdo e acervo de imagens.
 
 > **Status:** funcional de ponta a ponta. Backend com multi-tenancy (subdomínio + RLS), autenticação (OAuth2 Google + JWT com refresh rotacionado), diretório público, página institucional e área administrativa completa (card, estilo/paleta, seções, acervo de imagens). Frontend Next.js com as três telas — diretório, página institucional tematizável e painel admin — conectadas à API (ver `frontend/README.md`).
 
@@ -70,18 +70,22 @@ Serviços expostos:
 
 | Serviço | URL |
 |---|---|
-| Frontend — diretório público | `https://quilombo.localhost:8080` |
-| Frontend — página de uma comunidade | `https://kalunga.quilombo.localhost:8080` |
-| API (mesmo origin, via nginx) | `https://quilombo.localhost:8080/api/v1/…` |
-| Swagger UI | `https://quilombo.localhost:8080/swagger-ui.html` |
-| Health check | `https://quilombo.localhost:8080/actuator/health` |
+| Frontend — diretório público | `https://quilombo.ianarruda.dev:8080` |
+| Frontend — página de uma comunidade | `https://kalunga.quilombo.ianarruda.dev:8080` |
+| API (mesmo origin, via nginx) | `https://quilombo.ianarruda.dev:8080/api/v1/…` |
+| Swagger UI | `https://quilombo.ianarruda.dev:8080/swagger-ui.html` |
+| Health check | `https://quilombo.ianarruda.dev:8080/actuator/health` |
 | Console do MinIO | `http://localhost:9001` (usuário/senha: `quilombo` / `quilombo123`) |
 
-> O nginx roteia `/api`, `/oauth2`, `/login/oauth2`, `/actuator` e o Swagger para o backend; todo o resto vai para o frontend — mesmo origin, sem CORS, preservando o `Host` que resolve o tenant.
+> O nginx roteia `/api`, `/actuator` e o Swagger para o backend; todo o resto vai para o frontend — mesmo origin, sem CORS, preservando o `Host` que resolve o tenant.
 
-> O certificado TLS é auto-assinado e gerado no primeiro start. O navegador exibirá um aviso — confie nele localmente importando `infra/nginx/certs/quilombo.crt` como CA raiz, se quiser eliminar o aviso.
+> **TLS (mkcert) e `/etc/hosts` são pré-requisitos.** `quilombo.ianarruda.dev` é um domínio `.dev` (HSTS-preloaded): o navegador exige um certificado **confiável** (auto-assinado é bloqueado) e o domínio real só resolve em produção. Antes de subir, gere o cert com mkcert e mapeie o domínio para `127.0.0.1` — passo a passo em [`infra/nginx/README.md`](infra/nginx/README.md):
 >
-> Subdomínios `*.quilombo.localhost` resolvem para `127.0.0.1` na maioria dos sistemas. Se algum não resolver, adicione-o ao seu `/etc/hosts`.
+> ```bash
+> mkcert -install && ./infra/nginx/generate-dev-certs.sh   # cert confiável (uma vez)
+> # adicione ao /etc/hosts (e os slugs que for testar):
+> 127.0.0.1  quilombo.ianarruda.dev kalunga.quilombo.ianarruda.dev palmares.quilombo.ianarruda.dev frechal.quilombo.ianarruda.dev
+> ```
 
 ### Opção 2 — Maven local
 
@@ -98,10 +102,13 @@ No profile `dev`, a aplicação semeia na subida (idempotente) as comunidades do
 
 ```bash
 export DEV_ADMIN_EMAIL=seu-email@gmail.com
-export GOOGLE_CLIENT_ID=...      # credenciais OAuth do Google Cloud Console
-export GOOGLE_CLIENT_SECRET=...
+# Client-id do OAuth do Google (tipo "Aplicativo da Web"). Sem client secret — o login
+# verifica o idToken do Google Identity Services. Back e front leem esta mesma variável.
+export GOOGLE_CLIENT_ID=...apps.googleusercontent.com
 docker-compose up --build
 ```
+
+> No Google Cloud Console, registre as **Authorized JavaScript origins** (uma por host, sem redirect URI): `https://quilombo.ianarruda.dev:8080`, `https://kalunga.quilombo.ianarruda.dev:8080`, etc. Detalhes em [`infra/nginx/README.md`](infra/nginx/README.md).
 
 ---
 
@@ -127,9 +134,10 @@ Copie `backend/quilombo/.env.example` e preencha conforme o ambiente. **Nunca** 
 | `DB_USERNAME` / `DB_PASSWORD` | Credenciais do banco | homolog/prod |
 | `JWT_SECRET` | Segredo HMAC-SHA256 (mín. 32 caracteres) | homolog/prod |
 | `JWT_EXPIRATION_HOURS` | Validade do token (padrão `24`) | não |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Credenciais do OAuth2 Google | homolog/prod |
+| `GOOGLE_CLIENT_ID` | Client-id do OAuth Google (audiência do idToken; sem secret) | homolog/prod |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Mesmo client-id, exposto ao front (botão GIS) | homolog/prod |
 | `HOMOLOG_USER` / `HOMOLOG_PASSWORD` | Credenciais do Basic Auth do homolog | homolog |
-| `APP_BASE_DOMAIN` | Domínio base usado para CORS e redirects | sim |
+| `APP_BASE_DOMAIN` | Domínio base usado para CORS | sim |
 
 > Em `dev` há fallbacks seguros para todas as variáveis — não é necessário configurar nada para subir via Docker Compose.
 

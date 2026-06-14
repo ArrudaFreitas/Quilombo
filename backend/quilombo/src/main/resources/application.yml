@@ -35,15 +35,6 @@ spring:
     user: ${DB_MIGRATION_USERNAME:quilombo}
     password: ${DB_MIGRATION_PASSWORD:quilombo}
 
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${GOOGLE_CLIENT_ID:placeholder}
-            client-secret: ${GOOGLE_CLIENT_SECRET:placeholder}
-            scope: openid,email,profile
-
   mvc:
     problemdetails:
       enabled: true
@@ -101,3 +92,6 @@ app:
     email-hash-secret: ${EMAIL_HASH_SECRET:dev-only-email-hash-secret-change-in-production}
     refresh-expiration-days: ${REFRESH_EXPIRATION_DAYS:14}
     cookie-secure: true
+    # client-id do OAuth do Google: audiência esperada do idToken (GIS). Sem segredo —
+    # a verificação é só com as chaves públicas do Google.
+    google-client-id: ${GOOGLE_CLIENT_ID:placeholder}

@@ -2,23 +2,22 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const nav = { replace: vi.fn(), pathname: '/admin' }
+const nav = { replace: vi.fn() }
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ replace: nav.replace }),
-  usePathname: () => nav.pathname,
 }))
 
 const api = {
   refreshSession: vi.fn(),
   getMe: vi.fn(),
   logout: vi.fn(),
-  exchangeCode: vi.fn(),
+  loginWithGoogle: vi.fn(),
 }
 vi.mock('@/lib/api/auth', () => ({
   refreshSession: () => api.refreshSession(),
   getMe: (token: string) => api.getMe(token),
   logout: () => api.logout(),
-  exchangeCode: (code: string) => api.exchangeCode(code),
+  loginWithGoogle: (idToken: string) => api.loginWithGoogle(idToken),
 }))
 
 const { AuthProvider, useAuth } = await import('./auth-provider')
@@ -38,7 +37,7 @@ function Probe() {
 
 function renderProvider() {
   return render(
-    <AuthProvider slug="kalunga">
+    <AuthProvider>
       <Probe />
     </AuthProvider>,
   )
@@ -46,7 +45,6 @@ function renderProvider() {
 
 beforeEach(() => {
   nav.replace.mockReset()
-  nav.pathname = '/admin'
   Object.values(api).forEach((fn) => fn.mockReset())
 })
 
@@ -77,15 +75,6 @@ describe('AuthProvider', () => {
       expect(screen.getByTestId('status')).toHaveTextContent('unauthenticated'),
     )
     expect(api.getMe).not.toHaveBeenCalled()
-  })
-
-  it('não dispara silent refresh na rota de callback', async () => {
-    nav.pathname = '/auth/callback'
-
-    renderProvider()
-
-    await waitFor(() => expect(api.refreshSession).not.toHaveBeenCalled())
-    expect(screen.getByTestId('status')).toHaveTextContent('loading')
   })
 
   it('logout limpa a sessão e redireciona para /login', async () => {

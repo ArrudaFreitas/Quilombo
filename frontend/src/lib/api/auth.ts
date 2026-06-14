@@ -4,10 +4,10 @@ import { clientFetch } from './client'
 /**
  * Camada de API de autenticação (cliente, same-origin). Valida em runtime tudo
  * que vem do backend (zod). Contrato real (prefixo `/api/v1`):
- *   POST /auth/token   { code } → { data: { token } }  (+ cookie httpOnly de refresh)
- *   POST /auth/refresh (cookie) → { data: { token } }  (rotaciona o refresh)
- *   GET  /auth/me      (Bearer) → { data: { id, name, communitySlug } }
- *   POST /auth/logout  (cookie) → expira o cookie (idempotente)
+ *   POST /auth/google  { idToken } → { data: { token } }  (+ cookie httpOnly de refresh)
+ *   POST /auth/refresh (cookie)    → { data: { token } }  (rotaciona o refresh)
+ *   GET  /auth/me      (Bearer)    → { data: { id, name, communitySlug } }
+ *   POST /auth/logout  (cookie)    → expira o cookie (idempotente)
  *
  * O access token (JWT curto) é mantido só em memória; o refresh é httpOnly e
  * nunca é visível ao JavaScript.
@@ -23,11 +23,11 @@ const meSchema = z.object({
 
 export type AuthUser = z.infer<typeof meSchema>
 
-/** Troca o código de uso único (callback OAuth) por um access token. */
-export async function exchangeCode(code: string): Promise<string> {
-  const res = await clientFetch<unknown>('/auth/token', {
+/** Troca o idToken do Google (obtido no front via GIS) por um access token. */
+export async function loginWithGoogle(idToken: string): Promise<string> {
+  const res = await clientFetch<unknown>('/auth/google', {
     method: 'POST',
-    body: JSON.stringify({ code }),
+    body: JSON.stringify({ idToken }),
   })
   return tokenSchema.parse(res.data).token
 }

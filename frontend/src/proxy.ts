@@ -5,13 +5,18 @@ export function proxy(request: NextRequest) {
   const isDev = process.env.NODE_ENV === 'development'
   const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL
 
+  // Google Identity Services (login admin): o script é carregado de gsi/client, o
+  // botão renderiza num iframe de gsi/ e a lib chama os endpoints de gsi/.
+  const gsi = 'https://accounts.google.com/gsi/'
+
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ''};
+    script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${gsi}client${isDev ? " 'unsafe-eval'" : ''};
     style-src 'self' ${isDev ? "'unsafe-inline'" : `'nonce-${nonce}'`};
     img-src 'self' blob: data:${storageUrl ? ` ${storageUrl}` : ''};
     font-src 'self';
-    connect-src 'self'${isDev ? ' ws://localhost:* wss://localhost:*' : ''};
+    connect-src 'self' ${gsi}${isDev ? ' ws://localhost:* wss://localhost:*' : ''};
+    frame-src ${gsi};
     object-src 'none';
     base-uri 'self';
     form-action 'self';

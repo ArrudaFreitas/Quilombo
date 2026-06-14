@@ -41,8 +41,6 @@ class AuthRefreshWebIntegrationTest {
     @Autowired
     MockMvc mockMvc;
 
-    @Autowired
-    AuthService authService;
 
     @Autowired
     AdminRepository admins;
@@ -124,10 +122,9 @@ class AuthRefreshWebIntegrationTest {
     }
 
     private MvcResult login() throws Exception {
-        var code = authService.issueLoginCode(ADMIN_EMAIL, "Maria");
-        return mockMvc.perform(post(BASE_URL + "/token")
+        return mockMvc.perform(post(BASE_URL + "/google")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"code\":\"" + code + "\"}"))
+                        .content("{\"idToken\":\"" + ADMIN_EMAIL + "|Maria\"}"))
                 .andExpect(status().isOk())
                 .andReturn();
     }

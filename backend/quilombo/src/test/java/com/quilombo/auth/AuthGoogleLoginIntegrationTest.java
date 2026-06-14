@@ -23,22 +23,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Round-trip real contra PostgreSQL (Testcontainers) do fluxo completo:
- * código emitido no callback (sem tenant) e trocado por JWT no subdomínio da
- * comunidade, onde a allowlist de admins ({@code @TenantId} + RLS) decide.
+ * Round-trip real contra PostgreSQL (Testcontainers) do login por idToken do Google e da
+ * gestão de sessão. O {@code GoogleTokenVerifier} é stubado em {@link TestcontainersConfiguration}
+ * (sem rede): o "idToken" sintético é {@code "email|nome"}. A allowlist de admins
+ * ({@code @TenantId} + RLS) é por tenant, resolvido do subdomínio.
  */
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
 @ActiveProfiles("dev")
-class AuthTokenExchangeIntegrationTest {
+class AuthGoogleLoginIntegrationTest {
 
     private static final String ADMIN_EMAIL = "admin@example.com";
+    private static final String ID_TOKEN = ADMIN_EMAIL + "|Maria";
 
     @Autowired
     AuthService authService;
-
-    @Autowired
-    LoginCodeRepository loginCodes;
 
     @Autowired
     RefreshTokenRepository refreshTokens;
@@ -70,7 +69,7 @@ class AuthTokenExchangeIntegrationTest {
 
     @BeforeEach
     void seed() throws SQLException {
-        cleanAsOwner();
+        TestDatabase.wipe(jdbcUrl, ownerUser, ownerPassword);
         communityA = communities.save(community("kalunga", "Kalunga", "GO")).getId();
         communityB = communities.save(community("palmares", "Palmares", "AL")).getId();
 
@@ -87,28 +86,48 @@ class AuthTokenExchangeIntegrationTest {
     }
 
     @Test
-    void exchanges_code_for_jwt_bound_to_the_tenant_exactly_once() {
-        var code = authService.issueLoginCode(ADMIN_EMAIL, "Maria");
-
+    void logs_in_with_google_and_issues_jwt_bound_to_the_tenant() {
         TenantContext.setCommunityId(communityA);
-        var tokens = authService.exchangeCodeForToken(code);
+        var tokens = authService.loginWithGoogle(ID_TOKEN);
 
         var claims = jwtService.parseToken(tokens.accessToken());
-        assertThat(claims.getSubject()).isEqualTo(adminId.toString()); // sem PII
+        assertThat(claims.getSubject()).isEqualTo(adminId.toString()); // sub = id do admin, sem PII
         assertThat(((Number) claims.get("communityId")).longValue()).isEqualTo(communityA);
-        assertThat(claims.get("name")).isEqualTo("Maria");
-        assertThat(tokens.refreshToken()).isNotBlank(); // sessão longa emitida junto
+        assertThat(claims.get("name")).isEqualTo("Maria");          // nome veio do idToken verificado
+        assertThat(tokens.refreshToken()).isNotBlank();             // sessão longa emitida junto
+    }
 
-        assertThat(loginCodes.count()).isZero(); // uso único: consumido na troca
-        assertThatThrownBy(() -> authService.exchangeCodeForToken(code))
-                .isInstanceOf(InvalidLoginCodeException.class);
+    @Test
+    void rejects_an_invalid_id_token() {
+        TenantContext.setCommunityId(communityA);
+        // sem "@" o verificador stub simula assinatura/aud/iss inválidos (igual ao real → 401)
+        assertThatThrownBy(() -> authService.loginWithGoogle("token-invalido"))
+                .isInstanceOf(InvalidGoogleTokenException.class);
+    }
+
+    @Test
+    void rejects_email_outside_the_tenants_allowlist() {
+        // admin é de kalunga; em palmares a allowlist (tenant-scoped) não o contém
+        TenantContext.setCommunityId(communityB);
+        assertThatThrownBy(() -> authService.loginWithGoogle(ID_TOKEN))
+                .isInstanceOf(EmailNotAllowedException.class);
+
+        // no subdomínio certo o login funciona
+        TenantContext.setCommunityId(communityA);
+        assertThat(authService.loginWithGoogle(ID_TOKEN).accessToken()).isNotBlank();
+    }
+
+    @Test
+    void requires_a_tenant_from_the_subdomain() {
+        TenantContext.clear();
+        assertThatThrownBy(() -> authService.loginWithGoogle(ID_TOKEN))
+                .isInstanceOf(TenantRequiredException.class);
     }
 
     @Test
     void refresh_rotates_the_long_session_exactly_once() {
-        var code = authService.issueLoginCode(ADMIN_EMAIL, "Maria");
         TenantContext.setCommunityId(communityA);
-        var first = authService.exchangeCodeForToken(code);
+        var first = authService.loginWithGoogle(ID_TOKEN);
 
         var second = authService.refresh(first.refreshToken());
         assertThat(second.accessToken()).isNotBlank();
@@ -136,8 +155,7 @@ class AuthTokenExchangeIntegrationTest {
         assertThatThrownBy(() -> authService.refresh("desconhecido"))
                 .isInstanceOf(InvalidRefreshTokenException.class);
 
-        var code = authService.issueLoginCode(ADMIN_EMAIL, "Maria");
-        var tokens = authService.exchangeCodeForToken(code);
+        var tokens = authService.loginWithGoogle(ID_TOKEN);
         var stored = refreshTokens.findAll().getFirst();
         stored.setExpiresAt(Instant.now().minusSeconds(120));
         refreshTokens.save(stored);
@@ -147,9 +165,8 @@ class AuthTokenExchangeIntegrationTest {
 
     @Test
     void refresh_after_admin_removed_from_allowlist_is_rejected() throws SQLException {
-        var code = authService.issueLoginCode(ADMIN_EMAIL, "Maria");
         TenantContext.setCommunityId(communityA);
-        var tokens = authService.exchangeCodeForToken(code);
+        var tokens = authService.loginWithGoogle(ID_TOKEN);
 
         try (var owner = DriverManager.getConnection(jdbcUrl, ownerUser, ownerPassword);
              var st = owner.createStatement()) {
@@ -163,9 +180,8 @@ class AuthTokenExchangeIntegrationTest {
 
     @Test
     void logout_revokes_the_long_session() {
-        var code = authService.issueLoginCode(ADMIN_EMAIL, "Maria");
         TenantContext.setCommunityId(communityA);
-        var tokens = authService.exchangeCodeForToken(code);
+        var tokens = authService.loginWithGoogle(ID_TOKEN);
 
         authService.logout(tokens.refreshToken());
 
@@ -174,65 +190,11 @@ class AuthTokenExchangeIntegrationTest {
         authService.logout(tokens.refreshToken()); // idempotente
     }
 
-    @Test
-    void rejects_email_outside_the_tenants_allowlist_without_consuming_the_code() {
-        var code = authService.issueLoginCode(ADMIN_EMAIL, "Maria");
-
-        // admin é de kalunga; em palmares a allowlist (tenant-scoped) não o contém
-        TenantContext.setCommunityId(communityB);
-        assertThatThrownBy(() -> authService.exchangeCodeForToken(code))
-                .isInstanceOf(EmailNotAllowedException.class);
-
-        // o código não foi consumido: a troca no subdomínio certo ainda funciona
-        TenantContext.setCommunityId(communityA);
-        assertThat(authService.exchangeCodeForToken(code).accessToken()).isNotBlank();
-    }
-
-    @Test
-    void requires_a_tenant_from_the_subdomain() {
-        var code = authService.issueLoginCode(ADMIN_EMAIL, "Maria");
-
-        TenantContext.clear();
-        assertThatThrownBy(() -> authService.exchangeCodeForToken(code))
-                .isInstanceOf(TenantRequiredException.class);
-    }
-
-    @Test
-    void rejects_unknown_code() {
-        TenantContext.setCommunityId(communityA);
-        assertThatThrownBy(() -> authService.exchangeCodeForToken("codigo-inexistente"))
-                .isInstanceOf(InvalidLoginCodeException.class);
-    }
-
-    @Test
-    void rejects_expired_code_and_purges_it_on_next_issue() {
-        var code = authService.issueLoginCode(ADMIN_EMAIL, "Maria");
-
-        var stored = loginCodes.findAll().getFirst();
-        stored.setExpiresAt(Instant.now().minusSeconds(120));
-        loginCodes.save(stored);
-
-        TenantContext.setCommunityId(communityA);
-        assertThatThrownBy(() -> authService.exchangeCodeForToken(code))
-                .isInstanceOf(InvalidLoginCodeException.class);
-
-        // a limpeza oportunista remove o código expirado ao emitir o próximo
-        authService.issueLoginCode("outra@example.com", "Outra");
-        assertThat(loginCodes.findAll())
-                .singleElement()
-                .extracting(LoginCode::getExpiresAt)
-                .matches(expiry -> expiry.isAfter(Instant.now()));
-    }
-
     private static Community community(String slug, String name, String location) {
         var community = new Community();
         community.setSlug(slug);
         community.setName(name);
         community.setLocation(location);
         return community;
-    }
-
-    private void cleanAsOwner() throws SQLException {
-        TestDatabase.wipe(jdbcUrl, ownerUser, ownerPassword);
     }
 }

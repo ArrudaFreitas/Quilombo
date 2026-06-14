@@ -43,13 +43,13 @@ class AuthControllerWebTest {
     JwtService jwtService;
 
     @Test
-    void valid_code_returns_access_token_in_envelope_and_refresh_in_cookie() throws Exception {
-        given(authService.exchangeCodeForToken("good-code"))
+    void valid_idToken_returns_access_token_in_envelope_and_refresh_in_cookie() throws Exception {
+        given(authService.loginWithGoogle("good-token"))
                 .willReturn(new TokenPair("jwt-xyz", "refresh-abc"));
 
-        mockMvc.perform(post("/api/v1/auth/token")
+        mockMvc.perform(post("/api/v1/auth/google")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"code\":\"good-code\"}"))
+                        .content("{\"idToken\":\"good-token\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.token").value("jwt-xyz"))
                 .andExpect(jsonPath("$.meta.timestamp").exists())
@@ -97,22 +97,22 @@ class AuthControllerWebTest {
     }
 
     @Test
-    void blank_code_returns_validation_error() throws Exception {
-        mockMvc.perform(post("/api/v1/auth/token")
+    void blank_idToken_returns_validation_error() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/google")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"code\":\"\"}"))
+                        .content("{\"idToken\":\"\"}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors[0].field").value("code"));
+                .andExpect(jsonPath("$.errors[0].field").value("idToken"));
     }
 
     @Test
     void email_not_in_allowlist_returns_403_problem_detail() throws Exception {
-        given(authService.exchangeCodeForToken("foreign-code"))
+        given(authService.loginWithGoogle("foreign-token"))
                 .willThrow(new EmailNotAllowedException());
 
-        mockMvc.perform(post("/api/v1/auth/token")
+        mockMvc.perform(post("/api/v1/auth/google")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"code\":\"foreign-code\"}"))
+                        .content("{\"idToken\":\"foreign-token\"}"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.detail").value("E-mail não autorizado para esta comunidade"));
     }
@@ -125,14 +125,14 @@ class AuthControllerWebTest {
     }
 
     @Test
-    void invalid_code_returns_401_problem_detail() throws Exception {
-        given(authService.exchangeCodeForToken("bad-code"))
-                .willThrow(new InvalidLoginCodeException());
+    void invalid_idToken_returns_401_problem_detail() throws Exception {
+        given(authService.loginWithGoogle("bad-token"))
+                .willThrow(new InvalidGoogleTokenException());
 
-        mockMvc.perform(post("/api/v1/auth/token")
+        mockMvc.perform(post("/api/v1/auth/google")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"code\":\"bad-code\"}"))
+                        .content("{\"idToken\":\"bad-token\"}"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.detail").value("Código de login inválido ou expirado"));
+                .andExpect(jsonPath("$.detail").value("Token do Google inválido"));
     }
 }

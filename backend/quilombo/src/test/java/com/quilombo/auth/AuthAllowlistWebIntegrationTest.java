@@ -38,8 +38,6 @@ class AuthAllowlistWebIntegrationTest {
     @Autowired
     MockMvc mockMvc;
 
-    @Autowired
-    AuthService authService;
 
     @Autowired
     AdminRepository admins;
@@ -74,35 +72,29 @@ class AuthAllowlistWebIntegrationTest {
 
     @Test
     void exchanges_on_the_allowed_subdomain() throws Exception {
-        var code = authService.issueLoginCode(ADMIN_EMAIL, "Maria");
-
-        mockMvc.perform(post("https://kalunga.quilombo.localhost/api/v1/auth/token")
+        mockMvc.perform(post("https://kalunga.quilombo.localhost/api/v1/auth/google")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"code\":\"" + code + "\"}"))
+                        .content("{\"idToken\":\"" + ADMIN_EMAIL + "|Maria\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.token").isNotEmpty());
     }
 
     @Test
     void rejects_on_a_subdomain_whose_allowlist_lacks_the_email() throws Exception {
-        var code = authService.issueLoginCode(ADMIN_EMAIL, "Maria");
-
-        mockMvc.perform(post("https://palmares.quilombo.localhost/api/v1/auth/token")
+        mockMvc.perform(post("https://palmares.quilombo.localhost/api/v1/auth/google")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"code\":\"" + code + "\"}"))
+                        .content("{\"idToken\":\"" + ADMIN_EMAIL + "|Maria\"}"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.detail").value("E-mail não autorizado para esta comunidade"));
     }
 
     @Test
     void rejects_on_the_root_domain_where_there_is_no_tenant() throws Exception {
-        var code = authService.issueLoginCode(ADMIN_EMAIL, "Maria");
-
-        mockMvc.perform(post("https://quilombo.localhost/api/v1/auth/token")
+        mockMvc.perform(post("https://quilombo.localhost/api/v1/auth/google")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"code\":\"" + code + "\"}"))
+                        .content("{\"idToken\":\"" + ADMIN_EMAIL + "|Maria\"}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.detail").value("A troca do código exige o subdomínio da comunidade"));
+                .andExpect(jsonPath("$.detail").value("O login exige o subdomínio da comunidade"));
     }
 
     private static Community community(String slug, String name, String location) {

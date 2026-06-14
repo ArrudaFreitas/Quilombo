@@ -1,7 +1,7 @@
 package com.quilombo.auth;
 
+import com.quilombo.auth.dto.GoogleLoginRequest;
 import com.quilombo.auth.dto.MeResponse;
-import com.quilombo.auth.dto.TokenExchangeRequest;
 import com.quilombo.auth.dto.TokenResponse;
 import com.quilombo.common.api.ApiResponse;
 import com.quilombo.security.JwtPrincipal;
@@ -31,11 +31,11 @@ public class AuthController {
     private final AuthService authService;
     private final AuthCookies authCookies;
 
-    /** Troca o código de uso único (recebido no callback do OAuth) pelo par de tokens. */
-    @PostMapping("/token")
-    public ResponseEntity<ApiResponse<TokenResponse>> exchangeToken(
-            @Valid @RequestBody TokenExchangeRequest request) {
-        var tokens = authService.exchangeCodeForToken(request.code());
+    /** Troca o idToken do Google (obtido no front via GIS) pelo par de tokens da sessão. */
+    @PostMapping("/google")
+    public ResponseEntity<ApiResponse<TokenResponse>> loginWithGoogle(
+            @Valid @RequestBody GoogleLoginRequest request) {
+        var tokens = authService.loginWithGoogle(request.idToken());
         return withRefreshCookie(tokens);
     }
 

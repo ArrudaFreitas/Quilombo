@@ -21,27 +21,19 @@ import java.util.HexFormat;
 import java.util.Map;
 
 /**
- * Emissão e troca dos códigos de login de uso único.
+ * Login (Google idToken → JWT), refresh com rotação e logout.
  *
- * <p>No sucesso do OAuth, {@link #issueLoginCode} gera um código opaco e guarda
- * apenas o seu hash + o HMAC do e-mail verificado pelo Google. O callback chega
- * no domínio raiz (o redirect URI do Google é fixo), então <b>sem tenant</b> —
- * a autorização acontece na troca.
- *
- * <p>{@link #exchangeCodeForToken} roda no subdomínio da comunidade (tenant
- * resolvido pelo interceptor): o e-mail precisa estar na allowlist de admins
- * <b>daquela</b> comunidade ({@code @TenantId} + RLS restringem a busca). Sem
- * allowlist não há JWT. A recusa por allowlist (403) não consome o código — o
- * admin que errou de subdomínio pode trocar no certo dentro do TTL; o consumo
- * (uso único, atômico) acontece só no sucesso.
+ * <p>{@link #loginWithGoogle} roda no subdomínio da comunidade (tenant resolvido pelo
+ * interceptor): o front obtém o idToken via Google Identity Services e o envia; aqui ele é
+ * verificado ({@link GoogleTokenVerifier}) e o e-mail precisa estar na allowlist de admins
+ * <b>daquela</b> comunidade ({@code @TenantId} + RLS restringem a busca). Sem allowlist não
+ * há JWT — e nada do Google é persistido além do HMAC do e-mail, já materializado na allowlist.
  */
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
-    private static final Duration CODE_TTL = Duration.ofSeconds(60);
-
-    private final LoginCodeRepository repository;
+    private final GoogleTokenVerifier googleTokenVerifier;
     private final AdminRepository adminRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final CommunityRepository communityRepository;
@@ -51,44 +43,18 @@ public class AuthService {
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Transactional
-    public String issueLoginCode(String email, String name) {
-        repository.deleteExpired(Instant.now());
-
-        var rawCode = generateOpaqueToken();
-        var loginCode = new LoginCode();
-        loginCode.setCodeHash(sha256Hex(rawCode));
-        loginCode.setEmailHash(emailHasher.hash(email));
-        loginCode.setName(name != null ? name : "");
-        loginCode.setExpiresAt(Instant.now().plus(CODE_TTL));
-        repository.save(loginCode);
-
-        return rawCode;
-    }
-
-    @Transactional
-    public TokenPair exchangeCodeForToken(String rawCode) {
+    public TokenPair loginWithGoogle(String idToken) {
         var communityId = TenantContext.getCommunityId()
                 .orElseThrow(TenantRequiredException::new);
 
-        var loginCode = repository.findByCodeHash(sha256Hex(rawCode))
-                .orElseThrow(InvalidLoginCodeException::new);
+        // Verifica assinatura/aud/iss/exp e email_verified — 401 se inválido.
+        var google = googleTokenVerifier.verify(idToken);
 
-        // Expirado: rejeita sem consumir — lançar faria rollback de qualquer delete.
-        // A linha é removida pela limpeza oportunista no próximo issueLoginCode.
-        if (loginCode.getExpiresAt().isBefore(Instant.now())) {
-            throw new InvalidLoginCodeException();
-        }
-
-        // Allowlist da comunidade do subdomínio (busca tenant-scoped).
-        var admin = adminRepository.findByEmailHash(loginCode.getEmailHash())
+        // Allowlist da comunidade do subdomínio (busca tenant-scoped via @TenantId + RLS).
+        var admin = adminRepository.findByEmailHash(emailHasher.hash(google.email()))
                 .orElseThrow(EmailNotAllowedException::new);
 
-        // Consumo atômico: numa corrida concorrente, só uma transação deleta 1 linha.
-        if (repository.consumeById(loginCode.getId()) == 0) {
-            throw new InvalidLoginCodeException();
-        }
-
-        return issueTokens(admin.getId(), communityId, loginCode.getName());
+        return issueTokens(admin.getId(), communityId, google.name());
     }
 
     /**
