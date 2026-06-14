@@ -1,0 +1,50 @@
+import { z } from 'zod'
+import { clientFetch } from './client'
+
+/**
+ * Camada de API de autenticação (cliente, same-origin). Valida em runtime tudo
+ * que vem do backend (zod). Contrato real (prefixo `/api/v1`):
+ *   POST /auth/token   { code } → { data: { token } }  (+ cookie httpOnly de refresh)
+ *   POST /auth/refresh (cookie) → { data: { token } }  (rotaciona o refresh)
+ *   GET  /auth/me      (Bearer) → { data: { id, name, communitySlug } }
+ *   POST /auth/logout  (cookie) → expira o cookie (idempotente)
+ *
+ * O access token (JWT curto) é mantido só em memória; o refresh é httpOnly e
+ * nunca é visível ao JavaScript.
+ */
+
+const tokenSchema = z.object({ token: z.string() })
+
+const meSchema = z.object({
+  id: z.number().int(),
+  name: z.string(),
+  communitySlug: z.string(),
+})
+
+export type AuthUser = z.infer<typeof meSchema>
+
+/** Troca o código de uso único (callback OAuth) por um access token. */
+export async function exchangeCode(code: string): Promise<string> {
+  const res = await clientFetch<unknown>('/auth/token', {
+    method: 'POST',
+    body: JSON.stringify({ code }),
+  })
+  return tokenSchema.parse(res.data).token
+}
+
+/** Renova o access token a partir do cookie httpOnly de refresh. */
+export async function refreshSession(): Promise<string> {
+  const res = await clientFetch<unknown>('/auth/refresh', { method: 'POST' })
+  return tokenSchema.parse(res.data).token
+}
+
+/** Sessão atual (assinatura/expiração no filtro, allowlist no banco). Requer Bearer. */
+export async function getMe(token: string): Promise<AuthUser> {
+  const res = await clientFetch<unknown>('/auth/me', { token })
+  return meSchema.parse(res.data)
+}
+
+/** Revoga a sessão longa e expira o cookie. Idempotente. */
+export async function logout(): Promise<void> {
+  await clientFetch<unknown>('/auth/logout', { method: 'POST' })
+}
