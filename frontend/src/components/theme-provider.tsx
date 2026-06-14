@@ -10,8 +10,9 @@ import {
 } from 'react'
 import {
   DEFAULT_THEME,
-  THEME_STORAGE_KEY,
   isTheme,
+  readThemeCookie,
+  writeThemeCookie,
   type Theme,
 } from '@/lib/theme'
 
@@ -32,11 +33,8 @@ function readAppliedTheme(): Theme {
 
 function applyTheme(theme: Theme) {
   document.documentElement.setAttribute('data-theme', theme)
-  try {
-    localStorage.setItem(THEME_STORAGE_KEY, theme)
-  } catch {
-    /* storage indisponível: tema ainda funciona na sessão atual */
-  }
+  // Cookie no domínio-pai → a escolha vale para a raiz e todos os subdomínios.
+  writeThemeCookie(theme)
 }
 
 /**
@@ -64,13 +62,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const media = window.matchMedia('(prefers-color-scheme: dark)')
     const onChange = (event: MediaQueryListEvent) => {
-      let saved: string | null = null
-      try {
-        saved = localStorage.getItem(THEME_STORAGE_KEY)
-      } catch {
-        /* ignore */
-      }
-      if (!isTheme(saved)) {
+      // Sem escolha explícita (cookie ausente), acompanha a preferência do sistema.
+      if (!readThemeCookie()) {
         const system: Theme = event.matches ? 'dark' : 'light'
         setThemeState(system)
         document.documentElement.setAttribute('data-theme', system)
@@ -82,7 +75,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo(
     () => ({ theme, setTheme, toggleTheme }),
-    [theme, setTheme, toggleTheme]
+    [theme, setTheme, toggleTheme],
   )
 
   return <ThemeContext value={value}>{children}</ThemeContext>
