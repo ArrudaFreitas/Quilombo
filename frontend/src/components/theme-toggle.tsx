@@ -5,7 +5,7 @@ import { useTheme } from './theme-provider'
 /**
  * Alterna o tema do produto (claro/escuro). Vive no root layout, então está
  * presente em todas as telas; a preferência é global (data-theme no <html> +
- * localStorage via ThemeProvider).
+ * cookie no domínio-pai via ThemeProvider — compartilhado entre raiz e subdomínios).
  *
  * O ícone é dirigido por CSS (variante `dark:` = [data-theme="dark"]), não por
  * estado React — assim não há flash nem hydration mismatch (o data-theme já foi
@@ -20,7 +20,7 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       aria-label="Alternar tema claro e escuro"
       title="Alternar tema"
-      className="btn-icon absolute top-4 right-4 z-40 rounded-full shadow-sm flex items-center justify-center"
+      className="btn-icon absolute top-4 right-4 z-40 flex items-center justify-center rounded-full shadow-sm"
     >
       {/* Lua — visível no tema claro (ação: escurecer) */}
       <svg
