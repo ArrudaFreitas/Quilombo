@@ -5,7 +5,7 @@ vi.mock('./client', () => ({
   clientFetch: (...args: unknown[]) => clientFetch(...args),
 }))
 
-const { loginWithGoogle, getMe, logout, refreshSession } = await import('./auth')
+const { establishIdentity, getMe, logout, refreshSession } = await import('./auth')
 
 const envelope = (data: unknown) => ({
   data,
@@ -19,10 +19,10 @@ function callArgs(index: number) {
 beforeEach(() => clientFetch.mockReset())
 
 describe('auth API', () => {
-  it('loginWithGoogle posta { idToken } em /auth/google e devolve o token', async () => {
-    clientFetch.mockResolvedValue(envelope({ token: 'jwt' }))
+  it('establishIdentity posta { idToken } em /auth/google', async () => {
+    clientFetch.mockResolvedValue(envelope(null))
 
-    expect(await loginWithGoogle('id-token-abc')).toBe('jwt')
+    await establishIdentity('id-token-abc')
 
     const [path, opts] = callArgs(0)
     expect(path).toBe('/auth/google')

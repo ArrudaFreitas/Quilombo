@@ -13,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.BDDMockito.given;
@@ -21,7 +20,7 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,9 +42,9 @@ class AuthControllerWebTest {
     JwtService jwtService;
 
     @Test
-    void valid_idToken_returns_access_token_in_envelope_and_refresh_in_cookie() throws Exception {
+    void valid_idToken_returns_token_refresh_cookie_and_identity_cookie() throws Exception {
         given(authService.loginWithGoogle("good-token"))
-                .willReturn(new TokenPair("jwt-xyz", "refresh-abc"));
+                .willReturn(new AuthService.LoginResult("id-jwt", new TokenPair("jwt-xyz", "refresh-abc")));
 
         mockMvc.perform(post("/api/v1/auth/google")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -53,31 +52,47 @@ class AuthControllerWebTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.token").value("jwt-xyz"))
                 .andExpect(jsonPath("$.meta.timestamp").exists())
-                // refresh nunca no corpo — só no cookie httpOnly restrito às rotas de auth
+                // tokens nunca no corpo — só nos cookies httpOnly
                 .andExpect(content().string(not(containsString("refresh-abc"))))
-                .andExpect(header().string("Set-Cookie", allOf(
-                        containsString(AuthCookies.REFRESH_COOKIE + "=refresh-abc"),
-                        containsString("HttpOnly"),
-                        containsString("SameSite=Strict"),
-                        containsString("Path=/api/v1/auth"))));
+                .andExpect(content().string(not(containsString("id-jwt"))))
+                .andExpect(cookie().value(AuthCookies.REFRESH_COOKIE, "refresh-abc"))
+                .andExpect(cookie().httpOnly(AuthCookies.REFRESH_COOKIE, true))
+                .andExpect(cookie().path(AuthCookies.REFRESH_COOKIE, "/api/v1/auth"))
+                // identidade no domínio-pai (Domain), compartilhada pelos subdomínios
+                .andExpect(cookie().value(AuthCookies.IDENTITY_COOKIE, "id-jwt"))
+                .andExpect(cookie().httpOnly(AuthCookies.IDENTITY_COOKIE, true));
+    }
+
+    @Test
+    void apex_login_without_tenant_sets_only_the_identity_cookie() throws Exception {
+        given(authService.loginWithGoogle("apex-token"))
+                .willReturn(new AuthService.LoginResult("id-jwt", null));
+
+        mockMvc.perform(post("/api/v1/auth/google")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"idToken\":\"apex-token\"}"))
+                .andExpect(status().isOk())
+                .andExpect(cookie().value(AuthCookies.IDENTITY_COOKIE, "id-jwt"))
+                // sem tenant → sem sessão por-tenant: nem cookie de refresh nem token no corpo
+                .andExpect(cookie().doesNotExist(AuthCookies.REFRESH_COOKIE))
+                .andExpect(jsonPath("$.data.token").doesNotExist());
     }
 
     @Test
     void refresh_rotates_the_cookie_and_returns_a_new_access_token() throws Exception {
-        given(authService.refresh("old-refresh"))
+        given(authService.refresh("old-refresh", null))
                 .willReturn(new TokenPair("jwt-new", "refresh-new"));
 
         mockMvc.perform(post("/api/v1/auth/refresh")
                         .cookie(new Cookie(AuthCookies.REFRESH_COOKIE, "old-refresh")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.token").value("jwt-new"))
-                .andExpect(header().string("Set-Cookie",
-                        containsString(AuthCookies.REFRESH_COOKIE + "=refresh-new")));
+                .andExpect(cookie().value(AuthCookies.REFRESH_COOKIE, "refresh-new"));
     }
 
     @Test
     void refresh_without_cookie_returns_401() throws Exception {
-        given(authService.refresh(null)).willThrow(new InvalidRefreshTokenException());
+        given(authService.refresh(null, null)).willThrow(new InvalidRefreshTokenException());
 
         mockMvc.perform(post("/api/v1/auth/refresh"))
                 .andExpect(status().isUnauthorized())
@@ -85,13 +100,12 @@ class AuthControllerWebTest {
     }
 
     @Test
-    void logout_expires_the_cookie() throws Exception {
+    void logout_expires_both_cookies() throws Exception {
         mockMvc.perform(post("/api/v1/auth/logout")
                         .cookie(new Cookie(AuthCookies.REFRESH_COOKIE, "any")))
                 .andExpect(status().isOk())
-                .andExpect(header().string("Set-Cookie", allOf(
-                        containsString(AuthCookies.REFRESH_COOKIE + "="),
-                        containsString("Max-Age=0"))));
+                .andExpect(cookie().maxAge(AuthCookies.REFRESH_COOKIE, 0))
+                .andExpect(cookie().maxAge(AuthCookies.IDENTITY_COOKIE, 0));
 
         verify(authService).logout("any");
     }

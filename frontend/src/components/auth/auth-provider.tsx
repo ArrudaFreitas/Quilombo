@@ -12,30 +12,36 @@ import {
 import { useRouter } from 'next/navigation'
 import {
   getMe,
-  loginWithGoogle as apiLoginWithGoogle,
   logout as apiLogout,
   refreshSession,
   type AuthUser,
 } from '@/lib/api/auth'
+import { ApiError } from '@/lib/api/client'
 
-export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated'
+export type AuthStatus =
+  | 'loading'
+  | 'authenticated'
+  | 'unauthenticated'
+  /** Identidade válida, mas o e-mail não é admin DESTA comunidade (403 no refresh). */
+  | 'forbidden'
 
 type AuthContextValue = {
   status: AuthStatus
   user: AuthUser | null
   /** Access token corrente (em memória) — para chamadas autenticadas futuras. */
   getAccessToken: () => string | null
-  /** Conclui o login trocando o idToken do Google (GIS) por uma sessão. */
-  loginWithGoogle: (idToken: string) => Promise<void>
   logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 /**
- * Fonte de verdade da sessão no cliente. O access token (JWT curto) vive só em
- * memória (`useRef`); a sessão durável é o refresh httpOnly do backend, do qual
- * recuperamos a sessão no load (silent refresh). Não há nenhum caminho de bypass.
+ * Fonte de verdade da sessão no cliente, montada por tenant (subdomínio). O access
+ * token (JWT curto) vive só em memória (`useRef`); a sessão durável são os cookies
+ * httpOnly do backend (refresh por-tenant + identidade no domínio-pai). No load, o
+ * silent refresh troca a identidade pela sessão desta comunidade — ou sinaliza
+ * `forbidden` (403) se o e-mail não for admin aqui. O login em si é centralizado no
+ * ápice (`/login`), fora deste provider. Não há nenhum caminho de bypass.
  */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
@@ -51,8 +57,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setStatus('authenticated')
   }, [])
 
-  // Silent refresh único no mount: se houver refresh válido, recupera a sessão.
-  // Já-logado que cai no /login é reconhecido aqui e redirecionado pelo LoginForm.
+  // Silent refresh único no mount: bootstrapa a sessão desta comunidade a partir dos
+  // cookies. 403 = logado, mas não-admin daqui (não adianta mandar relogar).
   useEffect(() => {
     if (bootstrapped.current) return
     bootstrapped.current = true
@@ -62,26 +68,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const token = await refreshSession()
         if (active) await establish(token)
-      } catch {
+      } catch (err) {
         if (!active) return
         accessToken.current = null
         setUser(null)
-        setStatus('unauthenticated')
+        setStatus(
+          err instanceof ApiError && err.status === 403
+            ? 'forbidden'
+            : 'unauthenticated',
+        )
       }
     })()
     return () => {
       active = false
     }
   }, [establish])
-
-  // O botão GIS roda no subdomínio do tenant; o idToken é trocado por uma sessão
-  // em POST /auth/google (same-origin), que o nginx roteia preservando o Host.
-  const loginWithGoogle = useCallback(
-    async (idToken: string) => {
-      await establish(await apiLoginWithGoogle(idToken))
-    },
-    [establish],
-  )
 
   const logout = useCallback(async () => {
     try {
@@ -100,10 +101,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       status,
       user,
       getAccessToken: () => accessToken.current,
-      loginWithGoogle,
       logout,
     }),
-    [status, user, loginWithGoogle, logout],
+    [status, user, logout],
   )
 
   return <AuthContext value={value}>{children}</AuthContext>

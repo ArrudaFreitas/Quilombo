@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { ApiError } from '@/lib/api/client'
 
 const nav = { replace: vi.fn() }
 vi.mock('next/navigation', () => ({
@@ -11,13 +12,11 @@ const api = {
   refreshSession: vi.fn(),
   getMe: vi.fn(),
   logout: vi.fn(),
-  loginWithGoogle: vi.fn(),
 }
 vi.mock('@/lib/api/auth', () => ({
   refreshSession: () => api.refreshSession(),
   getMe: (token: string) => api.getMe(token),
   logout: () => api.logout(),
-  loginWithGoogle: (idToken: string) => api.loginWithGoogle(idToken),
 }))
 
 const { AuthProvider, useAuth } = await import('./auth-provider')
@@ -73,6 +72,17 @@ describe('AuthProvider', () => {
 
     await waitFor(() =>
       expect(screen.getByTestId('status')).toHaveTextContent('unauthenticated'),
+    )
+    expect(api.getMe).not.toHaveBeenCalled()
+  })
+
+  it('vai para forbidden quando o refresh é 403 (não-admin desta comunidade)', async () => {
+    api.refreshSession.mockRejectedValue(new ApiError(403, 'forbidden'))
+
+    renderProvider()
+
+    await waitFor(() =>
+      expect(screen.getByTestId('status')).toHaveTextContent('forbidden'),
     )
     expect(api.getMe).not.toHaveBeenCalled()
   })

@@ -19,13 +19,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.sql.SQLException;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Fio completo HTTP do login: o código emitido no callback só vira JWT no
- * subdomínio cuja allowlist contém o e-mail — o tenant vem do Host (interceptor),
- * a busca de admins é tenant-scoped e a raiz (sem tenant) é 400.
+ * Fio completo HTTP do login: ao logar direto num subdomínio, o idToken só vira sessão
+ * se o e-mail estiver na allowlist daquela comunidade (tenant do Host, busca tenant-scoped).
+ * Na raiz (ápice) o login é tenant-agnóstico — estabelece só a identidade.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -89,12 +90,16 @@ class AuthAllowlistWebIntegrationTest {
     }
 
     @Test
-    void rejects_on_the_root_domain_where_there_is_no_tenant() throws Exception {
+    void on_the_root_domain_establishes_identity_without_checking_any_allowlist() throws Exception {
+        // o login no ápice é tenant-agnóstico: verifica o idToken e devolve a identidade
+        // (cookie do domínio-pai), sem tenant e sem token de sessão no corpo. A allowlist
+        // só é consultada no /refresh, já no subdomínio.
         mockMvc.perform(post("https://quilombo.localhost/api/v1/auth/google")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"idToken\":\"" + ADMIN_EMAIL + "|Maria\"}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.detail").value("O login exige o subdomínio da comunidade"));
+                .andExpect(status().isOk())
+                .andExpect(cookie().exists(AuthCookies.IDENTITY_COOKIE))
+                .andExpect(jsonPath("$.data.token").doesNotExist());
     }
 
     private static Community community(String slug, String name, String location) {

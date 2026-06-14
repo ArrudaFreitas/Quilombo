@@ -1,46 +1,41 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { establishIdentity } from '@/lib/api/auth'
 import { ApiError } from '@/lib/api/client'
-import { safeReturnTo } from '@/lib/auth/tenant'
-import { useAuth } from './auth-provider'
+import { safeReturnUrl } from '@/lib/auth/tenant'
 import { GoogleSignInButton } from './google-sign-in-button'
 
 /**
- * CTA de login. O único caminho de autenticação é o Google real — o botão oficial
- * do Google Identity Services devolve o idToken, trocado por uma sessão no backend
- * (`POST /auth/google`). Sem login alternativo/bypass. Usuário já autenticado é
- * mandado direto para a área protegida.
+ * Login centralizado no ápice. O botão oficial do Google (GIS) devolve o idToken,
+ * que estabelece a **identidade** no backend (cookie do domínio-pai). Em seguida volta
+ * para o subdomínio de origem (`returnTo`), onde a sessão da comunidade é cunhada pela
+ * allowlist. Por rodar só no ápice, o Google precisa de **uma única origem** registrada.
+ * Standalone (sem `AuthProvider`): a sessão vive nos subdomínios, não aqui.
  */
-export function LoginForm({ returnTo }: { returnTo?: string }) {
-  const { status, loginWithGoogle } = useAuth()
-  const router = useRouter()
+export function ApexLogin({ returnTo }: { returnTo?: string }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (status === 'authenticated') router.replace(safeReturnTo(returnTo))
-  }, [status, returnTo, router])
 
   async function handleCredential(idToken: string) {
     setLoading(true)
     setError(null)
     try {
-      // sucesso muda o status para 'authenticated' → o efeito acima redireciona
-      await loginWithGoogle(idToken)
+      await establishIdentity(idToken)
+      const baseDomain =
+        process.env.NEXT_PUBLIC_BASE_DOMAIN ?? 'quilombo.localhost'
+      // full-page para o subdomínio: lá o silent-refresh troca a identidade pela sessão
+      window.location.assign(safeReturnUrl(returnTo, baseDomain))
     } catch (err) {
       setError(messageFor(err))
       setLoading(false)
     }
   }
 
-  const busy = loading || status === 'authenticated'
-
   return (
     <div>
-      <div aria-busy={busy}>
-        {busy ? (
+      <div aria-busy={loading}>
+        {loading ? (
           <p
             role="status"
             className="text-fg-muted flex items-center justify-center gap-2 py-2 text-sm"
@@ -71,9 +66,8 @@ export function LoginForm({ returnTo }: { returnTo?: string }) {
 
 /** Mapeia o erro da API para uma mensagem ao usuário (ProblemDetail → status). */
 function messageFor(error: unknown): string {
-  if (error instanceof ApiError) {
-    if (error.status === 401) return 'Não foi possível validar sua conta do Google.'
-    if (error.status === 403) return 'Este e-mail não está autorizado nesta comunidade.'
+  if (error instanceof ApiError && error.status === 401) {
+    return 'Não foi possível validar sua conta do Google.'
   }
   return 'Não foi possível entrar. Tente novamente.'
 }

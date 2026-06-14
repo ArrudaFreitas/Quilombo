@@ -77,11 +77,10 @@ class TenantResolutionWebIntegrationTest {
 
     @Test
     void root_domain_passes_without_tenant() throws Exception {
-        // chega ao controller sem tenant; o login exige subdomínio -> 400
+        // chega ao controller sem tenant; o login no ápice é tenant-agnóstico -> 200 (identidade)
         mockMvc.perform(post("https://quilombo.localhost/api/v1/auth/google")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"idToken\":\"inexistente\"}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.detail").value("O login exige o subdomínio da comunidade"));
+                        .content("{\"idToken\":\"alguem@example.com|X\"}"))
+                .andExpect(status().isOk());
     }
 }

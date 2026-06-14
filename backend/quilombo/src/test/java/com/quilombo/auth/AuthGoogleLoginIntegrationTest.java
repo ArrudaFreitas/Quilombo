@@ -23,10 +23,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Round-trip real contra PostgreSQL (Testcontainers) do login por idToken do Google e da
- * gestão de sessão. O {@code GoogleTokenVerifier} é stubado em {@link TestcontainersConfiguration}
- * (sem rede): o "idToken" sintético é {@code "email|nome"}. A allowlist de admins
- * ({@code @TenantId} + RLS) é por tenant, resolvido do subdomínio.
+ * Round-trip real contra PostgreSQL (Testcontainers) do login centralizado por idToken.
+ * O {@code GoogleTokenVerifier} é stubado em {@link TestcontainersConfiguration} (sem rede):
+ * o "idToken" sintético é {@code "email|nome"}. A identidade é tenant-agnóstica; a autorização
+ * (allowlist por comunidade, {@code @TenantId} + RLS) é resolvida do tenant atual.
  */
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
@@ -86,15 +86,27 @@ class AuthGoogleLoginIntegrationTest {
     }
 
     @Test
-    void logs_in_with_google_and_issues_jwt_bound_to_the_tenant() {
+    void on_a_subdomain_establishes_identity_and_issues_the_tenant_session() {
         TenantContext.setCommunityId(communityA);
-        var tokens = authService.loginWithGoogle(ID_TOKEN);
+        var result = authService.loginWithGoogle(ID_TOKEN);
 
-        var claims = jwtService.parseToken(tokens.accessToken());
+        assertThat(result.identityToken()).isNotBlank();        // identidade (cookie do pai)
+        assertThat(result.tokens()).isNotNull();                // sessão do tenant também
+
+        var claims = jwtService.parseToken(result.tokens().accessToken());
         assertThat(claims.getSubject()).isEqualTo(adminId.toString()); // sub = id do admin, sem PII
         assertThat(((Number) claims.get("communityId")).longValue()).isEqualTo(communityA);
-        assertThat(claims.get("name")).isEqualTo("Maria");          // nome veio do idToken verificado
-        assertThat(tokens.refreshToken()).isNotBlank();             // sessão longa emitida junto
+        assertThat(claims.get("name")).isEqualTo("Maria");
+        assertThat(result.tokens().refreshToken()).isNotBlank();
+    }
+
+    @Test
+    void on_the_apex_establishes_identity_only() {
+        TenantContext.clear(); // ápice: sem tenant
+        var result = authService.loginWithGoogle(ID_TOKEN);
+
+        assertThat(result.identityToken()).isNotBlank();
+        assertThat(result.tokens()).isNull(); // sem tenant → sem sessão por-tenant
     }
 
     @Test
@@ -106,86 +118,97 @@ class AuthGoogleLoginIntegrationTest {
     }
 
     @Test
-    void rejects_email_outside_the_tenants_allowlist() {
+    void rejects_email_outside_the_tenants_allowlist_on_direct_subdomain_login() {
         // admin é de kalunga; em palmares a allowlist (tenant-scoped) não o contém
         TenantContext.setCommunityId(communityB);
         assertThatThrownBy(() -> authService.loginWithGoogle(ID_TOKEN))
                 .isInstanceOf(EmailNotAllowedException.class);
 
-        // no subdomínio certo o login funciona
         TenantContext.setCommunityId(communityA);
-        assertThat(authService.loginWithGoogle(ID_TOKEN).accessToken()).isNotBlank();
+        assertThat(authService.loginWithGoogle(ID_TOKEN).tokens().accessToken()).isNotBlank();
     }
 
     @Test
-    void requires_a_tenant_from_the_subdomain() {
-        TenantContext.clear();
-        assertThatThrownBy(() -> authService.loginWithGoogle(ID_TOKEN))
-                .isInstanceOf(TenantRequiredException.class);
+    void bootstraps_a_tenant_session_from_the_identity_cookie() {
+        // identidade obtida no ápice (sem tenant)
+        var identity = authService.loginWithGoogle(ID_TOKEN).identityToken();
+
+        // num subdomínio onde o e-mail é admin: o refresh cunha a sessão (sem refresh por-tenant)
+        TenantContext.setCommunityId(communityA);
+        var tokens = authService.refresh(null, identity);
+        var claims = jwtService.parseToken(tokens.accessToken());
+        assertThat(claims.getSubject()).isEqualTo(adminId.toString());
+        assertThat(((Number) claims.get("communityId")).longValue()).isEqualTo(communityA);
+
+        // num subdomínio onde NÃO é admin: a allowlist recusa (403)
+        TenantContext.setCommunityId(communityB);
+        assertThatThrownBy(() -> authService.refresh(null, identity))
+                .isInstanceOf(EmailNotAllowedException.class);
     }
 
     @Test
-    void refresh_rotates_the_long_session_exactly_once() {
+    void refresh_rotates_the_per_tenant_session_exactly_once() {
         TenantContext.setCommunityId(communityA);
-        var first = authService.loginWithGoogle(ID_TOKEN);
+        var first = authService.loginWithGoogle(ID_TOKEN).tokens();
 
-        var second = authService.refresh(first.refreshToken());
+        var second = authService.refresh(first.refreshToken(), null);
         assertThat(second.accessToken()).isNotBlank();
         assertThat(second.refreshToken()).isNotEqualTo(first.refreshToken());
 
-        // claims re-cunhados na rotação
         var claims = jwtService.parseToken(second.accessToken());
         assertThat(claims.getSubject()).isEqualTo(adminId.toString());
         assertThat(claims.get("name")).isEqualTo("Maria");
 
-        // o refresh antigo foi consumido — reuso falha
-        assertThatThrownBy(() -> authService.refresh(first.refreshToken()))
+        // o refresh antigo foi consumido — sem identidade, o reuso falha
+        assertThatThrownBy(() -> authService.refresh(first.refreshToken(), null))
                 .isInstanceOf(InvalidRefreshTokenException.class);
     }
 
     @Test
     void refresh_requires_tenant_and_rejects_unknown_blank_and_expired_tokens() {
         TenantContext.clear();
-        assertThatThrownBy(() -> authService.refresh("qualquer"))
+        assertThatThrownBy(() -> authService.refresh("qualquer", null))
                 .isInstanceOf(TenantRequiredException.class);
 
         TenantContext.setCommunityId(communityA);
-        assertThatThrownBy(() -> authService.refresh(null))
+        assertThatThrownBy(() -> authService.refresh(null, null))
                 .isInstanceOf(InvalidRefreshTokenException.class);
-        assertThatThrownBy(() -> authService.refresh("desconhecido"))
+        assertThatThrownBy(() -> authService.refresh("desconhecido", null))
                 .isInstanceOf(InvalidRefreshTokenException.class);
 
-        var tokens = authService.loginWithGoogle(ID_TOKEN);
+        var tokens = authService.loginWithGoogle(ID_TOKEN).tokens();
         var stored = refreshTokens.findAll().getFirst();
         stored.setExpiresAt(Instant.now().minusSeconds(120));
         refreshTokens.save(stored);
-        assertThatThrownBy(() -> authService.refresh(tokens.refreshToken()))
+        assertThatThrownBy(() -> authService.refresh(tokens.refreshToken(), null))
                 .isInstanceOf(InvalidRefreshTokenException.class);
     }
 
     @Test
     void refresh_after_admin_removed_from_allowlist_is_rejected() throws SQLException {
         TenantContext.setCommunityId(communityA);
-        var tokens = authService.loginWithGoogle(ID_TOKEN);
+        var identity = authService.loginWithGoogle(ID_TOKEN).identityToken();
+        var tokens = authService.refresh(null, identity);
 
         try (var owner = DriverManager.getConnection(jdbcUrl, ownerUser, ownerPassword);
              var st = owner.createStatement()) {
             st.execute("DELETE FROM admins WHERE id = " + adminId);
         }
 
-        // ON DELETE CASCADE já revogou a sessão longa junto com o admin
-        assertThatThrownBy(() -> authService.refresh(tokens.refreshToken()))
-                .isInstanceOf(InvalidRefreshTokenException.class);
+        // ON DELETE CASCADE revogou o refresh por-tenant; e o bootstrap pela identidade
+        // não encontra mais o admin na allowlist → recusado (403).
+        assertThatThrownBy(() -> authService.refresh(tokens.refreshToken(), identity))
+                .isInstanceOf(EmailNotAllowedException.class);
     }
 
     @Test
-    void logout_revokes_the_long_session() {
+    void logout_revokes_the_per_tenant_session() {
         TenantContext.setCommunityId(communityA);
-        var tokens = authService.loginWithGoogle(ID_TOKEN);
+        var tokens = authService.loginWithGoogle(ID_TOKEN).tokens();
 
         authService.logout(tokens.refreshToken());
 
-        assertThatThrownBy(() -> authService.refresh(tokens.refreshToken()))
+        assertThatThrownBy(() -> authService.refresh(tokens.refreshToken(), null))
                 .isInstanceOf(InvalidRefreshTokenException.class);
         authService.logout(tokens.refreshToken()); // idempotente
     }
