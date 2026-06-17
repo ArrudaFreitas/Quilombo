@@ -33,9 +33,11 @@ class GoogleTokenVerifierImpl implements GoogleTokenVerifier {
     public GoogleUser verify(String idToken) {
         GoogleIdToken token;
         try {
-            // null = assinatura/aud/iss/exp inválidos; exceção = falha de transporte/cripto.
+            // null = assinatura/aud/iss/exp inválidos; exceção = falha de transporte/cripto
+            // ou, no parse, IllegalArgumentException quando o idToken é malformado/vazio —
+            // todas são "token inválido" (401), nunca um 500.
             token = verifier.verify(idToken);
-        } catch (GeneralSecurityException | IOException e) {
+        } catch (GeneralSecurityException | IOException | IllegalArgumentException e) {
             throw new InvalidGoogleTokenException();
         }
         if (token == null) {
