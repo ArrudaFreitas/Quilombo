@@ -33,8 +33,15 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         var config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of(
-                "https://*." + appProperties.baseDomain(),
-                "https://" + appProperties.baseDomain(),
+                // Subdomínios (uma origem por comunidade) e o ápice. O sufixo ":[*]" torna a
+                // porta OPCIONAL no match (regex `(:\d+)?`): cobre prod (origem sem porta, 443)
+                // e dev (origem com :8080). Necessário porque o nginx termina o TLS e encaminha
+                // HTTP ao backend, então o Spring vê o request como cross-origin e valida o
+                // header Origin do browser — que em dev carrega a porta. Sem o ":[*]" no domínio
+                // base, todo POST same-origin (login/refresh/logout) é recusado com 403
+                // "Invalid CORS request".
+                "https://*." + appProperties.baseDomain() + ":[*]",
+                "https://" + appProperties.baseDomain() + ":[*]",
                 "http://localhost:[*]",
                 "http://127.0.0.1:[*]"
         ));
