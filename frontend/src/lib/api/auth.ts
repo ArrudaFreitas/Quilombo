@@ -4,13 +4,15 @@ import { clientFetch } from './client'
 /**
  * Camada de API de autenticação (cliente, same-origin). Valida em runtime tudo
  * que vem do backend (zod). Contrato real (prefixo `/api/v1`):
- *   POST /auth/token   { code } → { data: { token } }  (+ cookie httpOnly de refresh)
- *   POST /auth/refresh (cookie) → { data: { token } }  (rotaciona o refresh)
- *   GET  /auth/me      (Bearer) → { data: { id, name, communitySlug } }
- *   POST /auth/logout  (cookie) → expira o cookie (idempotente)
+ *   POST /auth/google  { idToken } → estabelece a identidade (cookie do domínio-pai)
+ *   POST /auth/refresh (cookies)   → { data: { token } }  (bootstrap/rotação por tenant)
+ *   GET  /auth/me      (Bearer)    → { data: { id, name, communitySlug } }
+ *   POST /auth/logout  (cookies)   → expira os cookies (idempotente)
  *
- * O access token (JWT curto) é mantido só em memória; o refresh é httpOnly e
- * nunca é visível ao JavaScript.
+ * O login acontece no ápice (uma única origem no Google): /auth/google verifica o
+ * idToken e seta o cookie de identidade. Já no subdomínio, /auth/refresh troca a
+ * identidade pela sessão daquela comunidade. O access token (JWT curto) vive só em
+ * memória; refresh e identidade são httpOnly, invisíveis ao JavaScript.
  */
 
 const tokenSchema = z.object({ token: z.string() })
@@ -23,13 +25,12 @@ const meSchema = z.object({
 
 export type AuthUser = z.infer<typeof meSchema>
 
-/** Troca o código de uso único (callback OAuth) por um access token. */
-export async function exchangeCode(code: string): Promise<string> {
-  const res = await clientFetch<unknown>('/auth/token', {
+/** Verifica o idToken (GIS) e estabelece a identidade no cookie do domínio-pai. */
+export async function establishIdentity(idToken: string): Promise<void> {
+  await clientFetch<unknown>('/auth/google', {
     method: 'POST',
-    body: JSON.stringify({ code }),
+    body: JSON.stringify({ idToken }),
   })
-  return tokenSchema.parse(res.data).token
 }
 
 /** Renova o access token a partir do cookie httpOnly de refresh. */

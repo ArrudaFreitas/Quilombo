@@ -17,7 +17,7 @@ export type Theme = (typeof THEMES)[number]
 export const DEFAULT_THEME: Theme = 'light'
 
 /** Domínio-pai do cookie → compartilhado entre a raiz e os subdomínios. */
-const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN ?? 'quilombo.localhost'
+const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN ?? 'quilombo.ianarruda.dev'
 /** Validade da preferência: 1 ano. */
 const THEME_MAX_AGE = 60 * 60 * 24 * 365
 

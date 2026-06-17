@@ -6,13 +6,6 @@ import { AuthProvider } from '@/components/auth/auth-provider'
  * resolve a sessão a partir do refresh httpOnly. O `<html>`/`<body>` e o tema
  * vêm do layout raiz.
  */
-export default async function TenantLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode
-  params: Promise<{ slug: string }>
-}) {
-  const { slug } = await params
-  return <AuthProvider slug={slug}>{children}</AuthProvider>
+export default function TenantLayout({ children }: { children: React.ReactNode }) {
+  return <AuthProvider>{children}</AuthProvider>
 }

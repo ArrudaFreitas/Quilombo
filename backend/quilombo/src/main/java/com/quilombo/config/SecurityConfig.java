@@ -1,7 +1,6 @@
 package com.quilombo.config;
 
 import com.quilombo.security.JwtAuthenticationFilter;
-import com.quilombo.security.OAuth2AuthenticationSuccessHandler;
 import com.quilombo.security.RestAccessDeniedHandler;
 import com.quilombo.security.RestAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +33,15 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         var config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of(
-                "https://*." + appProperties.baseDomain(),
-                "https://" + appProperties.baseDomain(),
+                // Subdomínios (uma origem por comunidade) e o ápice. O sufixo ":[*]" torna a
+                // porta OPCIONAL no match (regex `(:\d+)?`): cobre prod (origem sem porta, 443)
+                // e dev (origem com :8080). Necessário porque o nginx termina o TLS e encaminha
+                // HTTP ao backend, então o Spring vê o request como cross-origin e valida o
+                // header Origin do browser — que em dev carrega a porta. Sem o ":[*]" no domínio
+                // base, todo POST same-origin (login/refresh/logout) é recusado com 403
+                // "Invalid CORS request".
+                "https://*." + appProperties.baseDomain() + ":[*]",
+                "https://" + appProperties.baseDomain() + ":[*]",
                 "http://localhost:[*]",
                 "http://127.0.0.1:[*]"
         ));
@@ -61,21 +67,18 @@ public class SecurityConfig {
     }
 
     /**
-     * Dev libera tudo (Swagger, Actuator, endpoints sem token), mas mantém o fluxo
-     * de login real funcional: oauth2Login registra os endpoints do handshake com o
-     * Google e o filtro JWT autentica Bearer quando presente — sem eles, o login só
-     * funcionaria em prod e o /auth/me seria intestável no navegador.
+     * Dev libera tudo (Swagger, Actuator, endpoints sem token), mas mantém o login real
+     * funcional: o filtro JWT autentica o Bearer quando presente — sem ele o /auth/me seria
+     * intestável no navegador. O login agora é o POST /auth/google (idToken), sem handshake.
      */
     @Bean
     @Profile("dev")
     SecurityFilterChain devFilterChain(HttpSecurity http,
-                                       JwtAuthenticationFilter jwtFilter,
-                                       OAuth2AuthenticationSuccessHandler successHandler) throws Exception {
+                                       JwtAuthenticationFilter jwtFilter) throws Exception {
         return http
                 .cors(withDefaults())
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                .oauth2Login(oauth2 -> oauth2.successHandler(successHandler))
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable())
                 .build();
@@ -100,15 +103,14 @@ public class SecurityConfig {
     @Profile("prod")
     SecurityFilterChain prodFilterChain(HttpSecurity http,
                                         JwtAuthenticationFilter jwtFilter,
-                                        OAuth2AuthenticationSuccessHandler successHandler,
                                         RestAuthenticationEntryPoint authenticationEntryPoint,
                                         RestAccessDeniedHandler accessDeniedHandler) throws Exception {
         return http
                 .cors(withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health", "/oauth2/**", "/login/oauth2/**").permitAll()
-                        // troca/refresh/logout autenticam pelo código ou cookie — sem Bearer
-                        .requestMatchers("/api/v1/auth/token", "/api/v1/auth/refresh",
+                        .requestMatchers("/actuator/health").permitAll()
+                        // login/refresh/logout autenticam pelo idToken ou cookie — sem Bearer
+                        .requestMatchers("/api/v1/auth/google", "/api/v1/auth/refresh",
                                 "/api/v1/auth/logout").permitAll()
                         // diretório e página institucional públicos — não exigem login
                         .requestMatchers(HttpMethod.GET, "/api/v1/communities",
@@ -118,10 +120,8 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler))
-                // OAuth2 precisa de sessão para armazenar o state/nonce do PKCE durante o handshake.
-                // O JWT assume após o redirecionamento do successHandler.
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                .oauth2Login(oauth2 -> oauth2.successHandler(successHandler))
+                // Sem handshake OAuth: API puramente por token (JWT Bearer + cookie de refresh).
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable())
                 .build();

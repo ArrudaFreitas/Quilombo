@@ -21,7 +21,9 @@ public record AppProperties(
             /* validade da sessão longa (cookie de refresh rotacionado) */
             int refreshExpirationDays,
             /* Secure no cookie de refresh — false apenas em dev sem TLS */
-            boolean cookieSecure
+            boolean cookieSecure,
+            /* client-id do OAuth do Google — audiência esperada do idToken verificado */
+            String googleClientId
     ) {}
 
     public record StorageProperties(

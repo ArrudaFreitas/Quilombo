@@ -1,13 +1,4 @@
 spring:
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: test-client-id
-            client-secret: test-client-secret
-            scope: openid,email,profile
-
   servlet:
     multipart:
       max-file-size: 10MB
@@ -22,6 +13,8 @@ app:
     email-hash-secret: test-email-hash-secret-for-junit-tests-only
     refresh-expiration-days: 14
     cookie-secure: false
+    # audiência do idToken; o GoogleTokenVerifier é stubado nos ITs (sem rede)
+    google-client-id: test-client-id
   storage:
     limit-bytes: 52428800
     upload-max-bytes: 5242880

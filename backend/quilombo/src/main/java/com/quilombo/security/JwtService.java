@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
@@ -19,12 +20,19 @@ public class JwtService {
 
     private final AppProperties appProperties;
 
+    /** Access token curto (validade de {@code app.jwt.expiration-hours}). */
     public String generateToken(String subject, Map<String, Object> extraClaims) {
+        return generateToken(subject, extraClaims,
+                Duration.ofHours(appProperties.jwt().expirationHours()));
+    }
+
+    /** Token com validade explícita — usado pelo cookie de identidade (sessão longa). */
+    public String generateToken(String subject, Map<String, Object> extraClaims, Duration ttl) {
+        var now = Instant.now();
         var builder = Jwts.builder()
                 .subject(subject)
-                .issuedAt(Date.from(Instant.now()))
-                .expiration(Date.from(Instant.now().plusSeconds(
-                        (long) appProperties.jwt().expirationHours() * 3600)))
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(now.plus(ttl)))
                 .signWith(signingKey());
         extraClaims.forEach(builder::claim);
         return builder.compact();

@@ -70,7 +70,9 @@ services:
       EMAIL_HASH_SECRET:      dev-docker-email-hash-nao-usar-em-producao
       # Seu e-mail Google — o seed o registra como admin das comunidades de dev
       DEV_ADMIN_EMAIL:        ${DEV_ADMIN_EMAIL:-}
-      APP_BASE_DOMAIN:        quilombo.localhost
+      # Client-id do OAuth do Google: audiência esperada do idToken. Mesmo id do front.
+      GOOGLE_CLIENT_ID:       ${GOOGLE_CLIENT_ID:-}
+      APP_BASE_DOMAIN:        quilombo.ianarruda.dev
       # MinIO — endpoint interno (rede do compose) para o backend gravar/remover;
       # MINIO_PUBLIC_URL é a base servida ao navegador (host), não a rede interna.
       MINIO_ENDPOINT:         http://minio:9000
@@ -98,7 +100,9 @@ services:
     environment:
       NEXT_TELEMETRY_DISABLED: "1"
       API_URL: "http://backend:8080"
-      NEXT_PUBLIC_BASE_DOMAIN: "quilombo.localhost"
+      NEXT_PUBLIC_BASE_DOMAIN: "quilombo.ianarruda.dev"
+      # Client-id do OAuth do Google — habilita o botão do Google Identity Services.
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       NEXT_PUBLIC_STORAGE_URL: "http://localhost:9000/quilombo-uploads"
     depends_on:
       backend:
@@ -115,7 +119,9 @@ services:
     ports:
       - "8080:443"
     volumes:
-      - nginx_certs:/etc/nginx/certs   # certificado gerado no primeiro start
+      # Certificados de dev gerados no host com mkcert (confiáveis — .dev é HSTS-preloaded
+      # e o navegador não permite furar cert inválido). Gitignored. Ver infra/nginx/README.
+      - ./infra/nginx/certs:/etc/nginx/certs
     depends_on:
       backend:
         condition: service_healthy
@@ -126,5 +132,4 @@ services:
 volumes:
   postgres_data:
   minio_data:
-  nginx_certs:
   frontend_node_modules:

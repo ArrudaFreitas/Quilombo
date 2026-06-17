@@ -59,29 +59,28 @@ class TenantResolutionWebIntegrationTest {
 
     @Test
     void unknown_subdomain_returns_404_before_reaching_the_controller() throws Exception {
-        mockMvc.perform(post("https://fantasma.quilombo.localhost/api/v1/auth/token")
+        mockMvc.perform(post("https://fantasma.quilombo.localhost/api/v1/auth/google")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"code\":\"qualquer\"}"))
+                        .content("{\"idToken\":\"qualquer\"}"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.detail").value("Comunidade não encontrada: fantasma"));
     }
 
     @Test
     void known_subdomain_passes_tenant_resolution_and_reaches_the_controller() throws Exception {
-        // 401 (código de login inválido) = o interceptor deixou a requisição passar
-        mockMvc.perform(post("https://kalunga.quilombo.localhost/api/v1/auth/token")
+        // 401 (idToken inválido) = o interceptor deixou a requisição passar até o controller
+        mockMvc.perform(post("https://kalunga.quilombo.localhost/api/v1/auth/google")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"code\":\"inexistente\"}"))
+                        .content("{\"idToken\":\"inexistente\"}"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void root_domain_passes_without_tenant() throws Exception {
-        // chega ao controller sem tenant; a troca exige subdomínio -> 400
-        mockMvc.perform(post("https://quilombo.localhost/api/v1/auth/token")
+        // chega ao controller sem tenant; o login no ápice é tenant-agnóstico -> 200 (identidade)
+        mockMvc.perform(post("https://quilombo.localhost/api/v1/auth/google")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"code\":\"inexistente\"}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.detail").value("A troca do código exige o subdomínio da comunidade"));
+                        .content("{\"idToken\":\"alguem@example.com|X\"}"))
+                .andExpect(status().isOk());
     }
 }

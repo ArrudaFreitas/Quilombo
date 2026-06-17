@@ -27,7 +27,6 @@ public final class TestDatabase {
     /** Variante para quem já tem uma conexão de dono aberta. */
     public static void wipe(Statement st) throws SQLException {
         st.execute("DELETE FROM refresh_tokens");
-        st.execute("DELETE FROM auth_login_codes");
         st.execute("DELETE FROM admins");
         st.execute("DELETE FROM page_sections");
         st.execute("DELETE FROM institutional_pages");

@@ -30,3 +30,30 @@ export function safeReturnTo(
   if (value.startsWith('//') || value.includes('\\')) return fallback
   return value
 }
+
+/**
+ * Valida um destino que pode ser uma **URL absoluta de outro subdomínio** — o login
+ * é centralizado no ápice e volta para o subdomínio do tenant. Aceita http(s) cujo host
+ * seja o domínio base ou um subdomínio dele (mesmo site), ou um caminho interno de raiz;
+ * qualquer outra coisa cai no ápice (`/`), evitando open redirect.
+ */
+export function safeReturnUrl(
+  value: string | null | undefined,
+  baseDomain: string,
+): string {
+  if (!value) return '/'
+  if (value.startsWith('/') && !value.startsWith('//') && !value.includes('\\')) {
+    return value
+  }
+  try {
+    const url = new URL(value)
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') return '/'
+    const host = url.hostname.toLowerCase()
+    if (host === baseDomain || host.endsWith(`.${baseDomain}`)) {
+      return url.toString()
+    }
+  } catch {
+    /* não é uma URL válida */
+  }
+  return '/'
+}

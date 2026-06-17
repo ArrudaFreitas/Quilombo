@@ -72,7 +72,7 @@ async function Results({ query, page }: { query?: string; page: number }) {
   const host =
     headerList.get('host') ??
     process.env.NEXT_PUBLIC_BASE_DOMAIN ??
-    'quilombo.localhost'
+    'quilombo.ianarruda.dev'
   const protocol = headerList.get('x-forwarded-proto') ?? 'https'
 
   const { items, page: info } = await getCommunities({

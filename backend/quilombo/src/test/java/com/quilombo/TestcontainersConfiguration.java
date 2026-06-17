@@ -1,7 +1,10 @@
 package com.quilombo;
 
+import com.quilombo.auth.GoogleTokenVerifier;
+import com.quilombo.auth.InvalidGoogleTokenException;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.DynamicPropertyRegistrar;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -29,6 +32,26 @@ public class TestcontainersConfiguration {
 	PostgreSQLContainer postgresContainer() {
 		return new PostgreSQLContainer(DockerImageName.parse("postgres:17-alpine"))
 				.withInitScript("testcontainers/init-roles.sql");
+	}
+
+	/**
+	 * Verificador do Google stubado: o build/CI não fala com o Google real. Nos ITs o
+	 * "idToken" é um valor sintético — {@code "email"} ou {@code "email|nome"}. Um valor
+	 * sem {@code @} simula um token inválido (assinatura/aud/iss) e resulta em 401, como
+	 * a verificação real. {@code @Primary} prevalece sobre o {@code GoogleTokenVerifierImpl}.
+	 */
+	@Bean
+	@Primary
+	GoogleTokenVerifier fakeGoogleTokenVerifier() {
+		return idToken -> {
+			var parts = idToken.split("\\|", 2);
+			var email = parts[0];
+			if (!email.contains("@")) {
+				throw new InvalidGoogleTokenException();
+			}
+			var name = parts.length > 1 ? parts[1] : "";
+			return new GoogleTokenVerifier.GoogleUser(email, "google-sub:" + email, name);
+		};
 	}
 
 	@Bean

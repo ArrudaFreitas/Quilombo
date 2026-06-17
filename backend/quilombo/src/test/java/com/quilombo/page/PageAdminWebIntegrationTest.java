@@ -4,7 +4,6 @@ import com.quilombo.TestDatabase;
 import com.quilombo.TestcontainersConfiguration;
 import com.quilombo.auth.Admin;
 import com.quilombo.auth.AdminRepository;
-import com.quilombo.auth.AuthService;
 import com.quilombo.auth.EmailHasher;
 import com.quilombo.community.Community;
 import com.quilombo.community.CommunityRepository;
@@ -48,8 +47,6 @@ class PageAdminWebIntegrationTest {
     @Autowired
     MockMvc mockMvc;
 
-    @Autowired
-    AuthService authService;
 
     @Autowired
     AdminRepository admins;
@@ -206,12 +203,11 @@ class PageAdminWebIntegrationTest {
         }
     }
 
-    /** Executa a troca real do código no subdomínio kalunga e devolve o JWT. */
+    /** Faz o login real (idToken stubado) no subdomínio kalunga e devolve o JWT. */
     private String login() throws Exception {
-        var code = authService.issueLoginCode(ADMIN_EMAIL, "Maria");
-        var body = mockMvc.perform(post("https://kalunga.quilombo.localhost/api/v1/auth/token")
+        var body = mockMvc.perform(post("https://kalunga.quilombo.localhost/api/v1/auth/google")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"code\":\"" + code + "\"}"))
+                        .content("{\"idToken\":\"" + ADMIN_EMAIL + "|Maria\"}"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         return JsonMapper.builder().build().readTree(body).get("data").get("token").asString();
