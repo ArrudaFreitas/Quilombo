@@ -68,7 +68,7 @@ springdoc:
     path: /swagger-ui.html
 
 app:
-  base-domain: ${APP_BASE_DOMAIN:quilombo.localhost}
+  base-domain: ${APP_BASE_DOMAIN:quilombo.ianarruda.dev}
   storage:
     limit-bytes: 52428800
     upload-max-bytes: 5242880

@@ -96,19 +96,20 @@ cd backend/quilombo
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-### Seed de desenvolvimento
+### Seed e login de desenvolvimento
 
-No profile `dev`, a aplicação semeia na subida (idempotente) as comunidades do MVP — `kalunga`, `palmares` e `frechal`. Para testar o **login com Google** no navegador, exporte seu e-mail antes de subir; o seed o registra como admin das três comunidades (apenas o HMAC do e-mail é persistido):
+No profile `dev`, a aplicação semeia na subida (idempotente) as comunidades do MVP — `kalunga`, `palmares` e `frechal`. As variáveis de dev ficam num `.env` na raiz, carregado automaticamente pelo Docker Compose:
 
 ```bash
-export DEV_ADMIN_EMAIL=seu-email@gmail.com
-# Client-id do OAuth do Google (tipo "Aplicativo da Web"). Sem client secret — o login
-# verifica o idToken do Google Identity Services. Back e front leem esta mesma variável.
-export GOOGLE_CLIENT_ID=...apps.googleusercontent.com
+cp .env.example .env          # já vem com o client-id de dev compartilhado
+# edite .env e aponte DEV_ADMIN_EMAIL para a SUA conta Google
+# (o seed a registra como admin das três comunidades — só o HMAC do e-mail é persistido)
 docker-compose up --build
 ```
 
-> No Google Cloud Console, registre as **Authorized JavaScript origins** (uma por host, sem redirect URI): `https://quilombo.ianarruda.dev:8080`, `https://kalunga.quilombo.ianarruda.dev:8080`, etc. Detalhes em [`infra/nginx/README.md`](infra/nginx/README.md).
+**O client-id do Google não é segredo e pode ser compartilhado:** o login verifica o idToken apenas com as chaves **públicas** do Google — não há *client secret*. As **Authorized JavaScript origins** do domínio de dev (`https://quilombo.ianarruda.dev:8080` e os subdomínios das comunidades) já estão registradas nesse client-id, e o domínio resolve em qualquer máquina via `/etc/hosts` (**não é preciso possuí-lo**). Ou seja: um contribuidor **não precisa criar nada no Google** — bastam o `.env.example`, o `/etc/hosts` e o mkcert.
+
+> **Passo manual único no Console do Google (uma vez, pelo mantenedor):** publique a tela de consentimento OAuth — os escopos `openid`/`email`/`profile` são **não-sensíveis** (sem revisão do Google). Publicada, qualquer conta Google loga e nenhum contribuidor precisa ser adicionado como *test user*. Para isolar, cada dev pode criar o próprio client OAuth e sobrescrever `GOOGLE_CLIENT_ID`/`NEXT_PUBLIC_GOOGLE_CLIENT_ID` no `.env`. Detalhes das origens em [`infra/nginx/README.md`](infra/nginx/README.md).
 
 ---
 

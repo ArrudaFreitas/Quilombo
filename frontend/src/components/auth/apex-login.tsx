@@ -23,7 +23,7 @@ export function ApexLogin({ returnTo }: { returnTo?: string }) {
     try {
       await establishIdentity(idToken)
       const baseDomain =
-        process.env.NEXT_PUBLIC_BASE_DOMAIN ?? 'quilombo.localhost'
+        process.env.NEXT_PUBLIC_BASE_DOMAIN ?? 'quilombo.ianarruda.dev'
       // full-page para o subdomínio: lá o silent-refresh troca a identidade pela sessão
       window.location.assign(safeReturnUrl(returnTo, baseDomain))
     } catch (err) {

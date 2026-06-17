@@ -16,7 +16,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (status !== 'unauthenticated') return
     const baseDomain =
-      process.env.NEXT_PUBLIC_BASE_DOMAIN ?? 'quilombo.localhost'
+      process.env.NEXT_PUBLIC_BASE_DOMAIN ?? 'quilombo.ianarruda.dev'
     const { protocol, port, href } = window.location
     const portPart = port ? `:${port}` : ''
     // login no ápice: uma única origem registrada no Google atende todos os subdomínios

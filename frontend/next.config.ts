@@ -1,6 +1,6 @@
 import type { NextConfig } from 'next'
 
-const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN ?? 'quilombo.localhost'
+const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN ?? 'quilombo.ianarruda.dev'
 const storageHost = process.env.NEXT_PUBLIC_STORAGE_URL
   ? new URL(process.env.NEXT_PUBLIC_STORAGE_URL).hostname
   : 'localhost'

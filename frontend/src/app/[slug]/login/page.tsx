@@ -20,7 +20,7 @@ export default async function TenantLoginRedirect({
   const { returnTo: rawReturnTo } = await searchParams
   const rawDest = Array.isArray(rawReturnTo) ? rawReturnTo[0] : rawReturnTo
 
-  const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN ?? 'quilombo.localhost'
+  const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN ?? 'quilombo.ianarruda.dev'
   const headerList = await headers()
   const host = headerList.get('host') ?? baseDomain
   const port = host.includes(':') ? `:${host.split(':')[1]}` : ''
