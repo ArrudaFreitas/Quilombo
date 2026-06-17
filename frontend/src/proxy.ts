@@ -5,14 +5,15 @@ export function proxy(request: NextRequest) {
   const isDev = process.env.NODE_ENV === 'development'
   const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL
 
-  // Google Identity Services (login admin): o script é carregado de gsi/client, o
-  // botão renderiza num iframe de gsi/ e a lib chama os endpoints de gsi/.
+  // Google Identity Services (login admin): o script vem de gsi/client, o botão
+  // injeta a folha de estilo gsi/style no nosso documento (style-src), renderiza
+  // num iframe de gsi/ (frame-src) e a lib chama os endpoints de gsi/ (connect-src).
   const gsi = 'https://accounts.google.com/gsi/'
 
   const cspHeader = `
     default-src 'self';
     script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${gsi}client${isDev ? " 'unsafe-eval'" : ''};
-    style-src 'self' ${isDev ? "'unsafe-inline'" : `'nonce-${nonce}'`};
+    style-src 'self' ${gsi}${isDev ? " 'unsafe-inline'" : ` 'nonce-${nonce}'`};
     img-src 'self' blob: data:${storageUrl ? ` ${storageUrl}` : ''};
     font-src 'self';
     connect-src 'self' ${gsi}${isDev ? ' ws://localhost:* wss://localhost:*' : ''};
@@ -27,7 +28,7 @@ export function proxy(request: NextRequest) {
     .trim()
 
   const baseDomain =
-    process.env.NEXT_PUBLIC_BASE_DOMAIN ?? 'quilombo.localhost'
+    process.env.NEXT_PUBLIC_BASE_DOMAIN ?? 'quilombo.ianarruda.dev'
   const host = (request.headers.get('host') ?? '').replace(/:\d+$/, '')
 
   const requestHeaders = new Headers(request.headers)

@@ -54,6 +54,10 @@ export function GoogleSignInButton({
         shape: 'pill',
         text: 'signin_with',
         logo_alignment: 'center',
+        // sem `width`: uma largura fixa faz o GIS embrulhar a pílula num container
+        // mais largo e claro (a pílula fica centralizada nele), o que vira um
+        // "retângulo branco" atrás do botão no fundo escuro. Sem largura, o
+        // container abraça a pílula — o botão sai com a largura natural do texto.
       })
     }
 
@@ -75,5 +79,17 @@ export function GoogleSignInButton({
       </p>
     )
   }
-  return <div ref={ref} className="flex justify-center" />
+  // O botão do GIS é um iframe cross-origin. No tema escuro a página propaga
+  // `color-scheme: dark`, e quando ele diverge do esquema (claro) do documento
+  // do Google, o navegador pinta um backdrop opaco atrás do iframe — o
+  // "retângulo branco" atrás da pílula (sobretudo no Firefox). Forçar
+  // `color-scheme: light` neste wrapper alinha o esquema ao do iframe e remove o
+  // backdrop, sem afetar o resto da página (o subtree só contém o botão).
+  return (
+    <div
+      ref={ref}
+      className="flex justify-center"
+      style={{ colorScheme: 'light' }}
+    />
+  )
 }
