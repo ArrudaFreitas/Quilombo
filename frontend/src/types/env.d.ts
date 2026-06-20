@@ -7,7 +7,5 @@ declare namespace NodeJS {
     readonly NEXT_PUBLIC_BASE_DOMAIN: string
     /** Client-id do OAuth do Google — habilita o botão do Google Identity Services. */
     readonly NEXT_PUBLIC_GOOGLE_CLIENT_ID?: string
-    /** URL pública do storage de imagens (MinIO ou S3). */
-    readonly NEXT_PUBLIC_STORAGE_URL?: string
   }
 }

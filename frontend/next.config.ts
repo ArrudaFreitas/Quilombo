@@ -1,19 +1,12 @@
 import type { NextConfig } from 'next'
 
 const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN ?? 'quilombo.ianarruda.dev'
-const storageHost = process.env.NEXT_PUBLIC_STORAGE_URL
-  ? new URL(process.env.NEXT_PUBLIC_STORAGE_URL).hostname
-  : 'localhost'
 
+// As imagens de comunidade vêm same-origin do MinIO via nginx (/quilombo-uploads/) e são
+// renderizadas com `unoptimized` (o backend já entrega WebP dimensionado), então não passam
+// pelo otimizador do Next — daí não há `images.remotePatterns` a configurar aqui.
 const nextConfig: NextConfig = {
   allowedDevOrigins: [baseDomain, `*.${baseDomain}`],
-
-  images: {
-    remotePatterns: [
-      { protocol: 'http', hostname: storageHost, port: '9000' },
-      { protocol: 'https', hostname: `**.${baseDomain}` },
-    ],
-  },
 
   async headers() {
     return [

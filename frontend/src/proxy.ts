@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server'
 export function proxy(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
   const isDev = process.env.NODE_ENV === 'development'
-  const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL
 
   // Google Identity Services (login admin): o script vem de gsi/client, o botão
   // injeta a folha de estilo gsi/style no nosso documento (style-src), renderiza
@@ -14,7 +13,7 @@ export function proxy(request: NextRequest) {
     default-src 'self';
     script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${gsi}client${isDev ? " 'unsafe-eval'" : ''};
     style-src 'self' ${gsi}${isDev ? " 'unsafe-inline'" : ` 'nonce-${nonce}'`};
-    img-src 'self' blob: data:${storageUrl ? ` ${storageUrl}` : ''};
+    img-src 'self' blob: data:;
     font-src 'self';
     connect-src 'self' ${gsi}${isDev ? ' ws://localhost:* wss://localhost:*' : ''};
     frame-src ${gsi};

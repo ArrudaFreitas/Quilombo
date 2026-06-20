@@ -29,23 +29,28 @@ interface CommunityImageProps {
   src: string | null
   name: string
   slug: string
+  /** Texto alternativo da imagem. Vazio (`''`) = decorativa (ex.: card do diretório,
+   * onde o link já carrega o nome acessível da comunidade). */
+  alt?: string
 }
 
 /**
- * Mídia do card. Renderiza a imagem (otimizada) quando há `src`; cai para o
- * placeholder de iniciais quando não há imagem OU quando o carregamento falha
- * (fallback de imagem). É decorativa — o nome acessível vem do link do card.
+ * Mídia do card. Renderiza a imagem quando há `src`; cai para o placeholder de
+ * iniciais quando não há imagem OU quando o carregamento falha (fallback de
+ * imagem). É decorativa — o nome acessível vem do link do card. A imagem vem
+ * same-origin do MinIO via nginx; `unoptimized` pula o otimizador do Next (o
+ * backend já entrega WebP dimensionado).
  */
-export function CommunityImage({ src, name, slug }: CommunityImageProps) {
+export function CommunityImage({ src, name, slug, alt = '' }: CommunityImageProps) {
   const [failed, setFailed] = useState(false)
 
   if (src && !failed) {
     return (
       <Image
         src={src}
-        alt=""
+        alt={alt}
         fill
-        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        unoptimized
         className="object-cover"
         onError={() => setFailed(true)}
       />

@@ -93,4 +93,19 @@ describe('clientFetch', () => {
       clientFetch('/auth/refresh', { method: 'POST' }),
     ).rejects.toMatchObject({ status: 504 })
   })
+
+  it('omite Content-Type JSON quando o corpo é FormData (boundary do browser)', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(jsonResponse({ data: {}, meta: {} }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const form = new FormData()
+    form.append('file', 'x')
+    await clientFetch('/admin/upload', { method: 'POST', body: form })
+
+    const headers = (fetchMock.mock.calls[0][1] as RequestInit)
+      .headers as Record<string, string>
+    expect('Content-Type' in headers).toBe(false)
+  })
 })

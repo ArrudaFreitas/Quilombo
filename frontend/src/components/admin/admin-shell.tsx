@@ -1,0 +1,111 @@
+'use client'
+
+import { useState } from 'react'
+import { useAuth } from '@/components/auth/auth-provider'
+import { CommunityTab } from './community-tab'
+
+type TabId = 'card' | 'page' | 'images'
+
+const TABS: { id: TabId; label: string }[] = [
+  { id: 'card', label: 'Comunidade' },
+  { id: 'page', label: 'Página' },
+  { id: 'images', label: 'Imagens' },
+]
+
+/**
+ * Casca do painel administrativo do tenant: barra superior (identidade da
+ * comunidade + sair) e abas. Renderizada dentro do `AuthGuard`, então a sessão
+ * já está garantida. Por ora só a aba "Comunidade" está implementada; as demais
+ * exibem um marcador "em construção".
+ */
+export function AdminShell() {
+  const { user, logout } = useAuth()
+  const [active, setActive] = useState<TabId>('card')
+
+  return (
+    <div className="min-h-dvh">
+      <header className="border-border bg-bg-subtle border-b">
+        <div className="container-page flex items-center justify-between gap-4 py-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <span
+              className="bg-primary inline-block size-2.5 shrink-0 rounded-full"
+              aria-hidden="true"
+            />
+            <span className="font-display text-fg font-bold">Quilombo</span>
+            {user?.communitySlug ? (
+              <>
+                <span className="text-fg-subtle" aria-hidden="true">
+                  ·
+                </span>
+                <span className="text-fg-muted truncate text-sm font-bold tracking-wide uppercase">
+                  {user.communitySlug}
+                </span>
+              </>
+            ) : null}
+          </div>
+
+          <div className="flex shrink-0 items-center gap-3">
+            {user?.name ? (
+              <span className="text-fg-muted hidden text-sm sm:inline">
+                {user.name}
+              </span>
+            ) : null}
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={() => void logout()}
+            >
+              Sair
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="container-page">
+        <div className="tabs" role="tablist" aria-label="Seções do painel">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              id={`tab-${tab.id}`}
+              type="button"
+              role="tab"
+              aria-selected={active === tab.id}
+              aria-controls={`panel-${tab.id}`}
+              className="tab"
+              onClick={() => setActive(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <div
+          id={`panel-${active}`}
+          role="tabpanel"
+          aria-labelledby={`tab-${active}`}
+          tabIndex={0}
+        >
+          {active === 'card' ? (
+            <CommunityTab />
+          ) : (
+            <ComingSoon
+              title={active === 'page' ? 'Página institucional' : 'Acervo de imagens'}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ComingSoon({ title }: { title: string }) {
+  return (
+    <div className="py-16 text-center">
+      <span className="badge">Em construção</span>
+      <h2 className="font-display text-fg mt-4 text-2xl font-semibold">{title}</h2>
+      <p className="text-fg-muted mt-2 text-balance">
+        Esta seção será habilitada em breve.
+      </p>
+    </div>
+  )
+}

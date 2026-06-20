@@ -14,6 +14,7 @@ const base = {
   name: 'Kalunga',
   location: 'Chapada dos Veadeiros, GO',
   imageUrl: null,
+  imageAltText: null,
   shortDescription: null,
 }
 
@@ -45,16 +46,16 @@ describe('CommunityCard', () => {
         community={{
           ...base,
           imageUrl: 'https://cdn.example/x.webp',
+          imageAltText: 'Vista aérea do território',
           shortDescription: 'Maior comunidade do país',
         }}
         href="#"
       />
     )
 
-    expect(container.querySelector('img')).toHaveAttribute(
-      'src',
-      'https://cdn.example/x.webp'
-    )
+    const img = container.querySelector('img')
+    expect(img).toHaveAttribute('src', 'https://cdn.example/x.webp')
+    expect(img).toHaveAttribute('alt', 'Vista aérea do território')
     expect(screen.getByText('Maior comunidade do país')).toBeInTheDocument()
   })
 })

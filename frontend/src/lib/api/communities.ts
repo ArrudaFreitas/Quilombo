@@ -14,6 +14,7 @@ const communitySchema = z.object({
   name: z.string(),
   location: z.string(),
   imageUrl: z.string().nullable().default(null),
+  imageAltText: z.string().nullable().default(null),
   shortDescription: z.string().nullable().default(null),
 })
 
