@@ -37,6 +37,9 @@ public class CommunityCard {
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
+    @Column(name = "image_alt_text", length = 500)
+    private String imageAltText;
+
     @Column(name = "short_description")
     private String shortDescription;
 }

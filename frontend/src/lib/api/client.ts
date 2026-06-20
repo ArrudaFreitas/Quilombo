@@ -32,6 +32,10 @@ export async function clientFetch<T>(
   path: string,
   { token, headers, signal, ...options }: ClientFetchOptions = {},
 ): Promise<ApiResponse<T>> {
+  // FormData carrega seu próprio Content-Type (com boundary) — não sobrepor com JSON.
+  const isMultipart =
+    typeof FormData !== 'undefined' && options.body instanceof FormData
+
   let response: Response
   try {
     response = await fetch(`/api/v1${path}`, {
@@ -39,7 +43,7 @@ export async function clientFetch<T>(
       credentials: 'same-origin',
       signal: signal ?? AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
       headers: {
-        'Content-Type': 'application/json',
+        ...(isMultipart ? {} : { 'Content-Type': 'application/json' }),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...headers,
       },

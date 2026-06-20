@@ -41,12 +41,14 @@ public class CardAdminService {
         // primeira escrita cria o perfil; @TenantId preenche o community_id
         var profile = profiles.findTopByOrderByIdAsc().orElseGet(CommunityProfile::new);
         profile.setImageUrl(request.imageUrl());
+        profile.setImageAltText(request.imageAltText());
         profile.setShortDescription(request.shortDescription());
         profiles.save(profile);
 
         var card = cards.findByCommunitySlug(community.getSlug())
                 .orElseGet(() -> newCard(community));
         card.setImageUrl(request.imageUrl());
+        card.setImageAltText(request.imageAltText());
         card.setShortDescription(request.shortDescription());
         cards.save(card);
 

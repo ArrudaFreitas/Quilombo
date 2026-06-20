@@ -12,7 +12,8 @@ interface CommunityCardProps {
  * funciona sem JS) com nome acessível descritivo.
  */
 export function CommunityCard({ community, href }: CommunityCardProps) {
-  const { slug, name, location, imageUrl, shortDescription } = community
+  const { slug, name, location, imageUrl, imageAltText, shortDescription } =
+    community
 
   return (
     <li>
@@ -22,7 +23,12 @@ export function CommunityCard({ community, href }: CommunityCardProps) {
         className="surface card-interactive group flex h-full flex-col overflow-hidden"
       >
         <div className="bg-bg-subtle relative aspect-[16/9] overflow-hidden">
-          <CommunityImage src={imageUrl} name={name} slug={slug} />
+          <CommunityImage
+            src={imageUrl}
+            name={name}
+            slug={slug}
+            alt={imageAltText ?? ''}
+          />
         </div>
 
         <div className="flex flex-1 flex-col p-5">

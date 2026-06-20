@@ -97,19 +97,24 @@ class CardAdminWebIntegrationTest {
                         .header("Authorization", "Bearer " + jwt)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"imageUrl\":\"/uploads/kalunga.webp\","
+                                + "\"imageAltText\":\"Vista do território ao pôr do sol\","
                                 + "\"shortDescription\":\"O maior quilombo do Brasil\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.imageUrl").value("/uploads/kalunga.webp"))
+                .andExpect(jsonPath("$.data.imageAltText").value("Vista do território ao pôr do sol"))
                 .andExpect(jsonPath("$.data.shortDescription").value("O maior quilombo do Brasil"));
 
         // a leitura admin reflete a escrita
         mockMvc.perform(get(CARD_URL).header("Authorization", "Bearer " + jwt))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.imageAltText").value("Vista do território ao pôr do sol"))
                 .andExpect(jsonPath("$.data.shortDescription").value("O maior quilombo do Brasil"));
 
-        // e o diretório público (community_cards) foi sincronizado
+        // e o diretório público (community_cards) foi sincronizado — inclusive o alt
         mockMvc.perform(get("https://quilombo.localhost/api/v1/communities"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[?(@.slug == 'kalunga')].imageAltText")
+                        .value("Vista do território ao pôr do sol"))
                 .andExpect(jsonPath("$.data[?(@.slug == 'kalunga')].shortDescription")
                         .value("O maior quilombo do Brasil"));
     }

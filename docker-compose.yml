@@ -74,12 +74,13 @@ services:
       GOOGLE_CLIENT_ID:       ${GOOGLE_CLIENT_ID:-}
       APP_BASE_DOMAIN:        quilombo.ianarruda.dev
       # MinIO — endpoint interno (rede do compose) para o backend gravar/remover;
-      # MINIO_PUBLIC_URL é a base servida ao navegador (host), não a rede interna.
+      # MINIO_PUBLIC_URL é a base servida ao navegador: relativa e same-origin, pois o
+      # nginx faz proxy de /quilombo-uploads/ ao MinIO (não a rede interna nem localhost:9000).
       MINIO_ENDPOINT:         http://minio:9000
       MINIO_ACCESS_KEY:       quilombo
       MINIO_SECRET_KEY:       quilombo123
       MINIO_BUCKET:           quilombo-uploads
-      MINIO_PUBLIC_URL:       http://localhost:9000/quilombo-uploads
+      MINIO_PUBLIC_URL:       /quilombo-uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -103,7 +104,6 @@ services:
       NEXT_PUBLIC_BASE_DOMAIN: "quilombo.ianarruda.dev"
       # Client-id do OAuth do Google — habilita o botão do Google Identity Services.
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
-      NEXT_PUBLIC_STORAGE_URL: "http://localhost:9000/quilombo-uploads"
     depends_on:
       backend:
         condition: service_healthy

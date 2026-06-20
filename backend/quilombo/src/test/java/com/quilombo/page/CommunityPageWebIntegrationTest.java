@@ -73,6 +73,7 @@ class CommunityPageWebIntegrationTest {
         inTenant(kalungaId, () -> {
             var profile = new CommunityProfile();
             profile.setImageUrl("/uploads/kalunga.webp");
+            profile.setImageAltText("Vista do território ao pôr do sol");
             profile.setShortDescription("Maior comunidade quilombola do país");
             profiles.save(profile);
 
@@ -104,6 +105,8 @@ class CommunityPageWebIntegrationTest {
                 .andExpect(jsonPath("$.data.community.name").value("Kalunga"))
                 .andExpect(jsonPath("$.data.community.location").value("Chapada dos Veadeiros, GO"))
                 .andExpect(jsonPath("$.data.card.imageUrl").value("/uploads/kalunga.webp"))
+                .andExpect(jsonPath("$.data.card.imageAltText")
+                        .value("Vista do território ao pôr do sol"))
                 .andExpect(jsonPath("$.data.card.shortDescription")
                         .value("Maior comunidade quilombola do país"))
                 .andExpect(jsonPath("$.data.page.style").value("raizes"))

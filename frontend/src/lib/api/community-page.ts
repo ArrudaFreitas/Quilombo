@@ -20,6 +20,7 @@ const communityPageSchema = z.object({
   card: z
     .object({
       imageUrl: z.string().nullable().default(null),
+      imageAltText: z.string().nullable().default(null),
       shortDescription: z.string().nullable().default(null),
     })
     .nullable()

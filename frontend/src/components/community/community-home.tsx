@@ -94,6 +94,7 @@ export function CommunityHome() {
             src={card?.imageUrl ?? null}
             name={community.name}
             slug={community.slug}
+            alt={card?.imageAltText ?? ''}
           />
         </div>
 

@@ -1,0 +1,19 @@
+/*
+ * Estilos pontuais do painel que fogem dos utilitários (CSS Module → compilado
+ * em stylesheet, compatível com o CSP; nunca style inline). A barra de quota usa
+ * <progress> + accent-color (propriedade padrão, sem pseudo-elementos vendor):
+ * o preenchimento segue o token do tema e o valor vem do atributo, não de uma
+ * largura calculada em linha.
+ */
+.storageBar {
+  display: block;
+  width: 100%;
+  height: 0.5rem;
+  accent-color: var(--primary);
+}
+.storageBar[data-level='warn'] {
+  accent-color: var(--accent);
+}
+.storageBar[data-level='danger'] {
+  accent-color: var(--danger);
+}
