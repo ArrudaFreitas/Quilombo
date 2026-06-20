@@ -5,9 +5,8 @@ vi.mock('@/lib/api/client', () => ({
   clientFetch: (...args: unknown[]) => clientFetch(...args),
 }))
 
-const { listImages, uploadImage, getStorage } = await import(
-  '@/lib/api/admin/media'
-)
+const { listImages, uploadImage, getStorage, updateAltText, deleteImage } =
+  await import('@/lib/api/admin/media')
 
 const envelope = (data: unknown) => ({
   data,
@@ -16,7 +15,8 @@ const envelope = (data: unknown) => ({
 
 const image = {
   filename: 'kalunga_abc.webp',
-  url: 'http://localhost:9000/quilombo/kalunga_abc.webp',
+  url: '/quilombo-uploads/kalunga_abc.webp',
+  sizeKb: 42.5,
   altText: 'Vista do território',
   inUse: false,
 }
@@ -48,6 +48,33 @@ describe('admin media api', () => {
     expect((options.body as FormData).get('altText')).toBe('Vista do território')
     expect((options.body as FormData).get('file')).toBeInstanceOf(File)
     expect(result.url).toContain('kalunga_abc.webp')
+  })
+
+  it('atualiza o alt em PUT /admin/images/{filename}/alt', async () => {
+    clientFetch.mockResolvedValue(envelope({ ...image, altText: 'Novo alt' }))
+
+    const result = await updateAltText('jwt', 'kalunga_abc.webp', 'Novo alt')
+
+    expect(clientFetch).toHaveBeenCalledWith(
+      '/admin/images/kalunga_abc.webp/alt',
+      expect.objectContaining({
+        method: 'PUT',
+        token: 'jwt',
+        body: JSON.stringify({ altText: 'Novo alt' }),
+      }),
+    )
+    expect(result.altText).toBe('Novo alt')
+  })
+
+  it('remove a imagem em DELETE /admin/images/{filename}', async () => {
+    clientFetch.mockResolvedValue(envelope(null))
+
+    await deleteImage('jwt', 'kalunga_abc.webp')
+
+    expect(clientFetch).toHaveBeenCalledWith(
+      '/admin/images/kalunga_abc.webp',
+      expect.objectContaining({ method: 'DELETE', token: 'jwt' }),
+    )
   })
 
   it('busca a quota em /admin/storage', async () => {

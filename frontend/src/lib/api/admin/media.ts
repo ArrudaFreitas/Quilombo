@@ -10,6 +10,7 @@ import { clientFetch } from '../client'
 const imageSchema = z.object({
   filename: z.string(),
   url: z.string(),
+  sizeKb: z.number().default(0),
   altText: z.string().nullable().default(null),
   inUse: z.boolean(),
 })
@@ -57,4 +58,29 @@ export async function uploadImage(
 export async function getStorage(token: string): Promise<StorageUsage> {
   const res = await clientFetch<unknown>('/admin/storage', { token })
   return storageSchema.parse(res.data)
+}
+
+/** Atualiza o texto alternativo de uma imagem e devolve o objeto atualizado. */
+export async function updateAltText(
+  token: string,
+  filename: string,
+  altText: string,
+): Promise<AdminImage> {
+  const res = await clientFetch<unknown>(
+    `/admin/images/${encodeURIComponent(filename)}/alt`,
+    {
+      method: 'PUT',
+      token,
+      body: JSON.stringify({ altText }),
+    },
+  )
+  return imageSchema.parse(res.data)
+}
+
+/** Remove uma imagem do acervo. O backend recusa (em uso) com `ApiError`. */
+export async function deleteImage(token: string, filename: string): Promise<void> {
+  await clientFetch<unknown>(`/admin/images/${encodeURIComponent(filename)}`, {
+    method: 'DELETE',
+    token,
+  })
 }
