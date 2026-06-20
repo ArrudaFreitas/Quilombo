@@ -27,10 +27,11 @@ public record CommunityPageResponse(
     }
 
     /** {@code null} na resposta enquanto o admin não preencher o perfil. */
-    public record CardInfo(String imageUrl, String shortDescription) {
+    public record CardInfo(String imageUrl, String imageAltText, String shortDescription) {
 
         public static CardInfo from(CommunityProfile profile) {
-            return new CardInfo(profile.getImageUrl(), profile.getShortDescription());
+            return new CardInfo(
+                    profile.getImageUrl(), profile.getImageAltText(), profile.getShortDescription());
         }
     }
 

@@ -11,6 +11,7 @@ public record CardResponse(
         String name,
         String location,
         String imageUrl,
+        String imageAltText,
         String shortDescription) {
 
     public static CardResponse from(Community community, CommunityProfile profile) {
@@ -18,6 +19,7 @@ public record CardResponse(
                 community.getName(),
                 community.getLocation(),
                 profile != null ? profile.getImageUrl() : null,
+                profile != null ? profile.getImageAltText() : null,
                 profile != null ? profile.getShortDescription() : null);
     }
 }
