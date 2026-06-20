@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useAuth } from '@/components/auth/auth-provider'
 import { CommunityTab } from './community-tab'
+import { ImagesTab } from './images-tab'
 
 type TabId = 'card' | 'page' | 'images'
 
@@ -87,10 +88,10 @@ export function AdminShell() {
         >
           {active === 'card' ? (
             <CommunityTab />
+          ) : active === 'images' ? (
+            <ImagesTab />
           ) : (
-            <ComingSoon
-              title={active === 'page' ? 'Página institucional' : 'Acervo de imagens'}
-            />
+            <ComingSoon title="Página institucional" />
           )}
         </div>
       </div>
