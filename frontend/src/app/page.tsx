@@ -87,7 +87,7 @@ async function Results({ query, page }: { query?: string; page: number }) {
       <h2 id="results-heading" className="sr-only">
         Comunidades
       </h2>
-      <p aria-live="polite" className="text-fg-subtle mb-6 text-sm">
+      <p aria-live="polite" className="text-fg-muted mb-6 text-sm">
         {total}{' '}
         {total === 1 ? 'comunidade encontrada' : 'comunidades encontradas'}
         {query ? ` para “${query}”` : ''}

@@ -35,13 +35,13 @@ export function InstitutionalPage({ page }: { page: CommunityPage }) {
 
   return (
     <div className="institutional" data-style={style} data-palette={palette}>
-      <a className="ip-skip" href="#conteudo">
+      <a className="ip-skip" href="#main-content">
         Pular para o conteúdo
       </a>
 
       <Header name={community.name} style={style} />
 
-      <main id="conteudo" tabIndex={-1}>
+      <main id="main-content" tabIndex={-1}>
         {sections.length === 0 ? (
           <EmptyNotice name={community.name} />
         ) : (
@@ -91,7 +91,7 @@ function Header({ name, style }: { name: string; style: string }) {
   return (
     <header className="ip-header">
       <div className="ip-header-inner wrap">
-        <a className="ip-brand" href="#conteudo" aria-label={`${name} — início`}>
+        <a className="ip-brand" href="#main-content" aria-label={`${name} — início`}>
           {style === 'raizes' ? (
             <Emblema className="ip-brand-icon" />
           ) : (
@@ -146,7 +146,7 @@ function Footer({ name, style }: { name: string; style: string }) {
                 <a href={apexUrl()}>Todas as comunidades</a>
               </li>
               <li>
-                <a href="#conteudo">Início</a>
+                <a href="#main-content">Início</a>
               </li>
               <li>
                 <Link href="/admin">Área administrativa</Link>

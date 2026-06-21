@@ -171,7 +171,7 @@ function QuotaBar({ storage }: { storage: StorageUsage }) {
         value={Math.min(storage.percent, 100)}
         aria-label="Uso de armazenamento da comunidade"
       />
-      <span className="text-fg-subtle text-xs">
+      <span className="text-fg-muted text-xs">
         {free.toFixed(1)} MB disponíveis · {storage.percent.toFixed(0)}% usado
       </span>
     </div>
@@ -283,7 +283,7 @@ function Uploader({
             Arraste uma imagem ou{' '}
             <span className="text-primary font-bold">clique para selecionar</span>
           </span>
-          <span className="text-fg-subtle text-xs">PNG, JPG, WebP — máx. 5 MB</span>
+          <span className="text-fg-muted text-xs">PNG, JPG, WebP — máx. 5 MB</span>
         </button>
       ) : (
         <div className="bg-bg-subtle relative aspect-[16/9] overflow-hidden rounded-lg">
@@ -310,7 +310,7 @@ function Uploader({
           <label className="field-label" htmlFor="upload-alt-text">
             Texto alternativo <span className="text-danger">*</span>
           </label>
-          <p className="text-fg-subtle text-xs">
+          <p className="text-fg-muted text-xs">
             Descreva a imagem para quem usa leitor de tela. Ex.: &ldquo;Vista do
             território ao pôr do sol&rdquo;.
           </p>
@@ -434,10 +434,10 @@ function ManageCard({
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-3">
-        <p className="text-fg-subtle truncate text-xs" title={image.filename}>
+        <p className="text-fg-muted truncate text-xs" title={image.filename}>
           {image.filename}
         </p>
-        <p className="text-fg-subtle text-xs">{image.sizeKb.toFixed(1)} KB · WebP</p>
+        <p className="text-fg-muted text-xs">{image.sizeKb.toFixed(1)} KB · WebP</p>
 
         {editing ? (
           <div className="grid gap-2">
@@ -481,7 +481,7 @@ function ManageCard({
             {image.altText ? (
               <span className="line-clamp-2">{image.altText}</span>
             ) : (
-              <span className="text-fg-subtle italic">
+              <span className="text-fg-muted italic">
                 Sem texto alternativo — clique para adicionar
               </span>
             )}
@@ -518,7 +518,7 @@ function ManageCard({
           ) : (
             <button
               type="button"
-              className="text-fg-subtle hover:text-danger inline-flex items-center gap-1.5 text-sm"
+              className="text-fg-muted hover:text-danger inline-flex items-center gap-1.5 text-sm"
               onClick={() =>
                 image.inUse
                   ? setError('Imagem em uso — remova das seções/card antes de excluir.')

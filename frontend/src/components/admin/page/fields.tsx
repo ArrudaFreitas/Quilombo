@@ -51,7 +51,7 @@ function TextField({ field, value, onChange }: FieldProps) {
         {field.required ? <span className="text-danger"> *</span> : null}
       </label>
       {field.hint ? (
-        <p className="text-fg-subtle text-xs">{field.hint}</p>
+        <p className="text-fg-muted text-xs">{field.hint}</p>
       ) : null}
       <input
         id={id}
@@ -63,7 +63,7 @@ function TextField({ field, value, onChange }: FieldProps) {
         onChange={(e) => onChange(e.target.value)}
       />
       {field.maxLength ? (
-        <span className="text-fg-subtle text-xs">
+        <span className="text-fg-muted text-xs">
           {v.length}/{field.maxLength}
         </span>
       ) : null}
@@ -81,7 +81,7 @@ function TextareaField({ field, value, onChange }: FieldProps) {
         {field.required ? <span className="text-danger"> *</span> : null}
       </label>
       {field.hint ? (
-        <p className="text-fg-subtle text-xs">{field.hint}</p>
+        <p className="text-fg-muted text-xs">{field.hint}</p>
       ) : null}
       <textarea
         id={id}
@@ -93,7 +93,7 @@ function TextareaField({ field, value, onChange }: FieldProps) {
         onChange={(e) => onChange(e.target.value)}
       />
       {field.maxLength ? (
-        <span className="text-fg-subtle text-xs">
+        <span className="text-fg-muted text-xs">
           {v.length}/{field.maxLength}
         </span>
       ) : null}
@@ -128,7 +128,7 @@ function PillsField({ field, value, onChange }: FieldProps) {
     <div className="field">
       <label className="field-label">{field.label}</label>
       {field.hint ? (
-        <p className="text-fg-subtle text-xs">{field.hint}</p>
+        <p className="text-fg-muted text-xs">{field.hint}</p>
       ) : null}
       <div className="grid gap-2">
         {items.map((pill, i) => (
@@ -174,7 +174,7 @@ function ImageFieldControl({ field, value, onChange }: FieldProps) {
         {field.required ? <span className="text-danger"> *</span> : null}
       </label>
       {field.hint ? (
-        <p className="text-fg-subtle text-xs">{field.hint}</p>
+        <p className="text-fg-muted text-xs">{field.hint}</p>
       ) : null}
       <ImageField
         value={img.url}
@@ -253,13 +253,13 @@ function ArrayField({ field, value, onChange }: FieldProps) {
     <div className="field">
       <label className="field-label">{field.label}</label>
       {field.hint ? (
-        <p className="text-fg-subtle text-xs">{field.hint}</p>
+        <p className="text-fg-muted text-xs">{field.hint}</p>
       ) : null}
       <div className="grid gap-3">
         {items.map((item, i) => (
           <div key={i} className="border-border rounded-lg border p-3">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-fg-subtle text-xs font-bold">#{i + 1}</span>
+              <span className="text-fg-muted text-xs font-bold">#{i + 1}</span>
               <ArrayItemControls
                 index={i}
                 total={items.length}
@@ -326,7 +326,7 @@ function RichContentField({ field, value, onChange }: FieldProps) {
     <div className="field">
       <label className="field-label">{field.label}</label>
       {field.hint ? (
-        <p className="text-fg-subtle text-xs">{field.hint}</p>
+        <p className="text-fg-muted text-xs">{field.hint}</p>
       ) : null}
 
       <div className="grid gap-3">
