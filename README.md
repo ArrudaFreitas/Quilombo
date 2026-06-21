@@ -6,12 +6,57 @@ Plataforma **multi-tenant** para comunidades quilombolas — cada comunidade é 
 
 ---
 
+## Funcionalidades
+
+### Diretório público
+- Lista todas as comunidades cadastradas, com busca por nome e paginação.
+- Cada card leva à página institucional da comunidade (subdomínio próprio).
+
+### Página institucional (por comunidade)
+- Montada a partir de **seções reutilizáveis**, configuradas pela própria comunidade: Hero,
+  Descrição curta, Descrição longa, Carrossel, Eventos/Encontros, Cronologia e Localização
+  (até 20 seções por página, cada uma podendo ser reordenada ou desativada sem perder o conteúdo).
+- **2 temas** de visual (*União & Comunidade* e *Raízes*), cada um com paletas de cor próprias —
+  a troca de tema/paleta não afeta o conteúdo, só a aparência.
+- Skip-link, contraste e nomes acessíveis seguem WCAG 2.1 AA (auditado com Lighthouse).
+
+### Autenticação
+- Login único via **Google (OAuth2 idToken)**, centralizado no domínio-ápice — nenhum
+  contribuidor precisa criar credenciais próprias no Google para rodar o projeto localmente.
+- Sessão como **JWT de acesso em memória + refresh token rotacionado** (httpOnly), com bootstrap
+  por comunidade ao trocar de subdomínio.
+
+### Área administrativa (por comunidade, autenticada)
+- **Comunidade** — edita a descrição curta e a imagem de capa do card exibido no diretório.
+- **Página** — o construtor da página institucional: adicionar/reordenar/ativar/remover seções,
+  editar o conteúdo de cada uma e escolher tema + paleta, com pré-visualização ao vivo.
+- **Imagens** — acervo de imagens da comunidade (upload com validação de tipo/tamanho, texto
+  alternativo obrigatório, indicador de cota de armazenamento e remoção).
+
+---
+
+## Screenshots
+
+| Diretório público | Login |
+|---|---|
+| ![Diretório de comunidades](docs/screenshots/diretorio.jpg) | ![Tela de login com Google](docs/screenshots/login.jpg) |
+
+| Página institucional — tema Raízes | Página institucional — tema União & Comunidade |
+|---|---|
+| ![Página institucional, tema Raízes](docs/screenshots/pagina-raizes.jpg) | ![Página institucional, tema União & Comunidade](docs/screenshots/pagina-uniao.jpg) |
+
+| Admin — Comunidade | Admin — Página | Admin — Imagens |
+|---|---|---|
+| ![Aba Comunidade do admin](docs/screenshots/admin-comunidade.png) | ![Aba Página do admin](docs/screenshots/admin-pagina.png) | ![Aba Imagens do admin](docs/screenshots/admin-imagens.png) |
+
+---
+
 ## Stack
 
 | Camada | Tecnologia |
 |---|---|
 | Linguagem | Java 21 |
-| Framework | Spring Boot 4.0.6 (Web MVC, Validation) |
+| Framework | Spring Boot 4.0.7 (Web MVC, Validation) |
 | Banco | PostgreSQL 17 + Flyway (migrations) |
 | Segurança | Spring Security — JWT (JJWT) + OAuth2 Login (Google) |
 | Mapeamento | MapStruct + Lombok |
@@ -43,7 +88,7 @@ Plataforma **multi-tenant** para comunidades quilombolas — cada comunidade é 
 │   │   ├── db/migration/  # migrations Flyway (V1__…)
 │   │   └── application*.yml
 │   └── Dockerfile
-├── frontend/              # app Next.js (ver frontend/README.md — temas, seções, a11y)
+├── frontend/              # app Next.js (App Router) — temas, seções e a11y descritos acima
 │   └── src/
 │       ├── app/           # rotas (App Router)
 │       ├── lib/           # cliente da API ({data, meta}/ProblemDetail) e tenancy
@@ -51,6 +96,7 @@ Plataforma **multi-tenant** para comunidades quilombolas — cada comunidade é 
 │       └── styles/        # tokens semânticos, paletas e estilos (data-*)
 ├── infra/nginx/           # reverse proxy TLS para dev
 ├── infra/postgres/init/   # provisiona a role de runtime (RLS) na 1ª subida
+├── docs/screenshots/      # imagens usadas neste README
 └── docker-compose.yml     # postgres, minio, backend, frontend, nginx
 ```
 
