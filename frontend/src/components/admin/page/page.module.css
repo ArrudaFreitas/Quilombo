@@ -1,0 +1,56 @@
+/*
+ * Cores dos swatches do seletor de estilo/paleta. Conjunto finito (2 estilos ×
+ * 4 paletas), então cada cor é uma regra estática por data-attribute — nunca
+ * style="" inline (proibido pelo CSP estrito: style-src 'self' 'nonce').
+ */
+
+.paletteSwatch {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-full, 9999px);
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+}
+.paletteSwatch[data-selected='true'] {
+  border-color: var(--fg);
+}
+.paletteSwatch[data-palette='verde'] {
+  background: #2e6b4b;
+}
+.paletteSwatch[data-palette='terracota'] {
+  background: #a1572f;
+}
+.paletteSwatch[data-palette='ocre'] {
+  background: #8a6a18;
+}
+.paletteSwatch[data-palette='indigo'] {
+  background: #2c4a7c;
+}
+
+.styleSwatch {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: none;
+  border-radius: var(--radius-md, 0.625rem);
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+}
+.styleSwatch[data-style='uniao'] {
+  background: #f3ebd6;
+}
+.styleSwatch[data-style='raizes'] {
+  background: #f4eee0;
+}
+.styleDot {
+  width: 1rem;
+  height: 1rem;
+  border-radius: var(--radius-full, 9999px);
+}
+.styleDot[data-style='uniao'] {
+  background: #a1572f;
+}
+.styleDot[data-style='raizes'] {
+  background: #2e6b4b;
+}
