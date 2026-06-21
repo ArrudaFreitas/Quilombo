@@ -19,6 +19,9 @@ RUN apk add --no-cache curl
 
 COPY --from=builder /build/target/*.jar app.jar
 
+RUN addgroup -S app && adduser -S app -G app
+USER app
+
 EXPOSE 8080
 
 ENTRYPOINT [ \
