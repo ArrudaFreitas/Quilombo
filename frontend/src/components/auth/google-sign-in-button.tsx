@@ -74,7 +74,7 @@ export function GoogleSignInButton({
 
   if (!clientId) {
     return (
-      <p role="note" className="text-fg-subtle text-center text-sm">
+      <p role="note" className="text-fg-muted text-center text-sm">
         Configure <code>NEXT_PUBLIC_GOOGLE_CLIENT_ID</code> para habilitar o login.
       </p>
     )

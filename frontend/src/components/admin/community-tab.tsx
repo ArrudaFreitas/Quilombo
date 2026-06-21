@@ -124,7 +124,7 @@ export function CommunityTab() {
             <LockIcon />
             Informações fixas
           </h2>
-          <p className="text-fg-subtle text-sm">
+          <p className="text-fg-muted text-sm">
             Nome e localização são oficiais e geridos pela equipe do Quilombo.
           </p>
           <div className="field">
@@ -157,7 +157,7 @@ export function CommunityTab() {
           <h2 className="font-display text-fg text-lg font-semibold">
             Imagem de capa
           </h2>
-          <p className="text-fg-subtle text-sm">
+          <p className="text-fg-muted text-sm">
             Uma foto do território ou das tradições. Formato paisagem (16:9).
           </p>
           <ImageField
@@ -176,7 +176,7 @@ export function CommunityTab() {
           <h2 className="font-display text-fg text-lg font-semibold">
             Descrição curta
           </h2>
-          <p className="text-fg-subtle text-sm">
+          <p className="text-fg-muted text-sm">
             Uma ou duas frases que apresentam a comunidade a um visitante.
           </p>
           <textarea
@@ -188,7 +188,7 @@ export function CommunityTab() {
             placeholder="Ex.: Formada por descendentes de africanos escravizados, a comunidade preserva tradições centenárias às margens do rio."
           />
           <span
-            className={`text-xs ${descLeft <= 20 ? 'text-danger' : 'text-fg-subtle'}`}
+            className={`text-xs ${descLeft <= 20 ? 'text-danger' : 'text-fg-muted'}`}
           >
             {descLeft} caracteres restantes
           </span>
@@ -206,7 +206,7 @@ export function CommunityTab() {
             </span>
           ) : null}
           {!dirty && saveState !== 'ok' ? (
-            <span className="text-fg-subtle text-sm">
+            <span className="text-fg-muted text-sm">
               Sem alterações pendentes.
             </span>
           ) : null}
@@ -229,7 +229,7 @@ export function CommunityTab() {
       </div>
 
       <aside className="lg:sticky lg:top-6 lg:self-start">
-        <p className="text-fg-subtle mb-3 text-xs font-bold tracking-wide uppercase">
+        <p className="text-fg-muted mb-3 text-xs font-bold tracking-wide uppercase">
           Pré-visualização
         </p>
         <CardPreview
@@ -240,7 +240,7 @@ export function CommunityTab() {
           imageAlt={draftImageAlt}
           description={draftDesc}
         />
-        <p className="text-fg-subtle mt-3 text-xs text-balance">
+        <p className="text-fg-muted mt-3 text-xs text-balance">
           As alterações ficam visíveis para todos os visitantes assim que você
           salva.
         </p>
@@ -281,7 +281,7 @@ function CardPreview({
         {description.trim() ? (
           <p className="text-fg-muted mt-2 line-clamp-3 text-sm">{description}</p>
         ) : (
-          <p className="text-fg-subtle mt-2 text-sm italic">
+          <p className="text-fg-muted mt-2 text-sm italic">
             Nenhuma descrição ainda.
           </p>
         )}

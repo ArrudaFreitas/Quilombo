@@ -7,6 +7,7 @@ const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN ?? 'quilombo.ianarruda.de
 // pelo otimizador do Next — daí não há `images.remotePatterns` a configurar aqui.
 const nextConfig: NextConfig = {
   allowedDevOrigins: [baseDomain, `*.${baseDomain}`],
+  poweredByHeader: false,
 
   async headers() {
     return [
@@ -20,6 +21,7 @@ const nextConfig: NextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
           },
+          { key: 'Cross-Origin-Resource-Policy', value: 'same-origin' },
         ],
       },
     ]

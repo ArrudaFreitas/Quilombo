@@ -19,7 +19,6 @@ export function CommunityCard({ community, href }: CommunityCardProps) {
     <li>
       <a
         href={href}
-        aria-label={`Ver a comunidade ${name}, em ${location}`}
         className="surface card-interactive group flex h-full flex-col overflow-hidden"
       >
         <div className="bg-bg-subtle relative aspect-[16/9] overflow-hidden">

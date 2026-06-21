@@ -57,7 +57,7 @@ export function ApexLogin({ returnTo }: { returnTo?: string }) {
         </p>
       )}
 
-      <p className="text-fg-subtle mt-5 text-center text-sm text-balance">
+      <p className="text-fg-muted mt-5 text-center text-sm text-balance">
         Apenas administradores previamente autorizados têm acesso.
       </p>
     </div>

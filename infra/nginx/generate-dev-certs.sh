@@ -25,4 +25,8 @@ mkcert \
   -key-file  "$CERT_DIR/quilombo.key" \
   "quilombo.ianarruda.dev" "*.quilombo.ianarruda.dev" localhost 127.0.0.1
 
+# mkcert grava a key com 600 — o container do nginx roda como usuário não-root (uid
+# fixo, diferente do uid do host), então precisa de permissão de leitura para "outros".
+chmod 644 "$CERT_DIR/quilombo.key"
+
 echo "Certificado de dev gerado em $CERT_DIR (quilombo.crt / quilombo.key)."

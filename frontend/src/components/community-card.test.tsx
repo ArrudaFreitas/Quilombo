@@ -24,8 +24,10 @@ describe('CommunityCard', () => {
       <CommunityCard community={base} href="https://kalunga.quilombo.localhost" />
     )
 
+    // Nome acessível = texto visível dentro do link (sem aria-label paralelo),
+    // então inclui local e nome — evita o mismatch nome-acessível/texto-visível (WCAG 2.5.3).
     const link = screen.getByRole('link', {
-      name: /ver a comunidade kalunga, em chapada dos veadeiros, go/i,
+      name: /chapada dos veadeiros, go\s+kalunga/i,
     })
     expect(link).toHaveAttribute('href', 'https://kalunga.quilombo.localhost')
     expect(

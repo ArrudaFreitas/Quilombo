@@ -330,7 +330,7 @@ function SectionLibrary({
           <span className="font-display text-fg text-lg font-semibold">
             Adicionar seção
           </span>
-          <span className="text-fg-subtle text-xs">
+          <span className="text-fg-muted text-xs">
             {count}/{SECTIONS_LIMIT} seções na página
           </span>
         </span>
@@ -351,13 +351,13 @@ function SectionLibrary({
               title={schema.description}
             >
               <span className="text-fg text-sm font-bold">{schema.label}</span>
-              <span className="text-fg-subtle line-clamp-2 text-xs">
+              <span className="text-fg-muted line-clamp-2 text-xs">
                 {schema.description}
               </span>
             </button>
           ))}
           {full ? (
-            <p className="text-fg-subtle text-xs">
+            <p className="text-fg-muted text-xs">
               Limite de {SECTIONS_LIMIT} atingido.
             </p>
           ) : null}
@@ -450,7 +450,7 @@ function SectionEditor({
 
       {expanded ? (
         <div className="border-border grid gap-4 border-t p-4">
-          <p className="text-fg-subtle text-sm">{schema.description}</p>
+          <p className="text-fg-muted text-sm">{schema.description}</p>
           {schema.fields.map((field) => (
             <FieldRenderer
               key={field.key}
@@ -493,7 +493,7 @@ function StylePanel({
       <div className="grid gap-3">
         <div>
           <h2 className="font-display text-fg text-lg font-semibold">Estilo</h2>
-          <p className="text-fg-subtle text-sm text-balance">
+          <p className="text-fg-muted text-sm text-balance">
             Muda a aparência (tipografia, formas, sombras). O conteúdo não é
             afetado.
           </p>
@@ -518,7 +518,7 @@ function StylePanel({
               </span>
               <span className="grid">
                 <span className="text-fg text-sm font-bold">{s.label}</span>
-                <span className="text-fg-subtle line-clamp-2 text-xs">
+                <span className="text-fg-muted line-clamp-2 text-xs">
                   {s.description}
                 </span>
               </span>
@@ -558,7 +558,7 @@ function StylePanel({
           </span>
         ) : null}
         {dirty && saveState !== 'ok' ? (
-          <span className="text-fg-subtle text-sm">
+          <span className="text-fg-muted text-sm">
             Há alterações não salvas.
           </span>
         ) : null}

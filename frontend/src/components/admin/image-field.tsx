@@ -217,7 +217,7 @@ function UploadPanel({
             Arraste ou{' '}
             <span className="text-primary font-bold">clique para selecionar</span>
           </span>
-          <span className="text-fg-subtle text-xs">PNG, JPG, WebP — máx. 5 MB</span>
+          <span className="text-fg-muted text-xs">PNG, JPG, WebP — máx. 5 MB</span>
         </button>
       ) : (
         <div className="bg-bg-subtle relative aspect-[16/9] overflow-hidden rounded-lg">
@@ -244,7 +244,7 @@ function UploadPanel({
           <label className="field-label" htmlFor="image-alt-text">
             Texto alternativo <span className="text-danger">*</span>
           </label>
-          <p className="text-fg-subtle text-xs">
+          <p className="text-fg-muted text-xs">
             Descreva a imagem para quem usa leitor de tela. Ex.: &ldquo;Vista do
             território ao pôr do sol&rdquo;.
           </p>
@@ -371,7 +371,7 @@ function StorageHint({ storage }: { storage: StorageUsage }) {
         value={Math.min(storage.percent, 100)}
         aria-label="Uso de armazenamento da comunidade"
       />
-      <span className="text-fg-subtle text-xs">
+      <span className="text-fg-muted text-xs">
         {storage.usedMb.toFixed(1)} MB de {storage.limitMb} MB usados
       </span>
     </div>
