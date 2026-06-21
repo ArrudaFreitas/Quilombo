@@ -1,0 +1,604 @@
+/* ============================================================================
+   ESTILO "União & Comunidade" — quente, arredondado, comunal (arcos, sombra
+   suave, grão de papel). Escopo: .institutional[data-style='uniao'].
+   Porte do MVP, reconstruído mobile-first (base = celular; min-width = tablet/
+   notebook) + WCAG 2.1 AA (alvos ≥44px, contraste, foco/movimento no tokens.css).
+   ============================================================================ */
+
+.institutional[data-style='uniao'] {
+  --ip-arch: 54% 54% var(--ip-r-lg) var(--ip-r-lg) / 42% 42% var(--ip-r-lg)
+    var(--ip-r-lg);
+}
+
+/* grão de papel (sutil) */
+.institutional[data-style='uniao']::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+[data-theme='dark'] .institutional[data-style='uniao']::after {
+  mix-blend-mode: screen;
+  opacity: 0.05;
+}
+
+/* tipografia */
+.institutional[data-style='uniao'] h1,
+.institutional[data-style='uniao'] h2,
+.institutional[data-style='uniao'] h3 {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+/* kicker com ponto colorido */
+.institutional[data-style='uniao'] .kicker::before {
+  content: '';
+  width: 0.5625rem;
+  height: 0.5625rem;
+  flex: none;
+  border-radius: var(--ip-r-full);
+  background: var(--ip-accent);
+}
+
+/* botões (pílula; alvo ≥48px) */
+.institutional[data-style='uniao'] .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6875rem;
+  min-height: 3rem;
+  padding: 0.8125rem 1.625rem;
+  border: 2px solid transparent;
+  border-radius: var(--ip-r-full);
+  font-family: var(--ip-fb);
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.2s var(--ip-ease),
+    background-color 0.3s,
+    box-shadow 0.3s;
+}
+.institutional[data-style='uniao'] .btn:hover {
+  transform: translateY(-2px);
+}
+.institutional[data-style='uniao'] .btn-primary {
+  background: var(--ip-primary);
+  color: var(--ip-on-primary);
+  box-shadow: var(--ip-shadow-sm);
+}
+.institutional[data-style='uniao'] .btn-ghost {
+  background: transparent;
+  color: var(--ip-primary-strong);
+  border-color: currentColor;
+}
+.institutional[data-style='uniao'] .btn svg {
+  width: 1.1875rem;
+  height: 1.1875rem;
+}
+.institutional[data-style='uniao'] .btn-ico {
+  width: 3.125rem;
+  height: 3.125rem;
+  padding: 0;
+  justify-content: center;
+  background: var(--ip-surface);
+  color: var(--ip-text);
+  border: 1.5px solid var(--ip-border-strong);
+}
+.institutional[data-style='uniao'] .btn-ico:hover {
+  background: var(--ip-primary);
+  color: var(--ip-on-primary);
+  border-color: var(--ip-primary);
+  transform: translateY(-2px);
+}
+
+/* motivo arco */
+.institutional[data-style='uniao'] .arch {
+  overflow: hidden;
+  border-radius: var(--ip-arch);
+}
+
+/* ── HERO ── */
+.institutional[data-style='uniao'] .hero {
+  position: relative;
+  overflow: hidden;
+}
+.institutional[data-style='uniao'] .hero .wrap {
+  display: grid;
+  gap: clamp(1.75rem, 5vw, 4.5rem);
+  align-items: center;
+  padding-block: clamp(2.5rem, 8vw, 6.5rem);
+}
+.institutional[data-style='uniao'] .hero .sun {
+  position: absolute;
+  top: -8.75rem;
+  right: -7.5rem;
+  width: 26.25rem;
+  height: 26.25rem;
+  z-index: 0;
+  color: var(--ip-accent);
+  opacity: 0.16;
+  animation: ip-spin 90s linear infinite;
+}
+
+@keyframes ip-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.institutional[data-style='uniao'] .hero-txt {
+  position: relative;
+  z-index: 2;
+}
+.institutional[data-style='uniao'] .hero-txt h1 {
+  font-size: clamp(2.25rem, 7vw, 4.8rem);
+}
+.institutional[data-style='uniao'] .hero-txt h1 em {
+  font-style: italic;
+  color: var(--ip-primary);
+}
+.institutional[data-style='uniao'] .hero-txt .tagline {
+  margin: var(--ip-s5) 0 var(--ip-s6);
+  max-width: 46ch;
+  font-size: clamp(1.05rem, 2.3vw, 1.35rem);
+  color: var(--ip-text-muted);
+}
+.institutional[data-style='uniao'] .hero-cta {
+  display: flex;
+  gap: var(--ip-s4);
+  flex-wrap: wrap;
+}
+.institutional[data-style='uniao'] .hero-art {
+  position: relative;
+  z-index: 1;
+  order: -1;
+  max-width: 24rem;
+  margin-inline: auto;
+}
+.institutional[data-style='uniao'] .hero-art .arch {
+  aspect-ratio: 3 / 4;
+  box-shadow: var(--ip-shadow);
+}
+.institutional[data-style='uniao'] .hero-art .arch .ph {
+  width: 100%;
+  height: 100%;
+}
+.institutional[data-style='uniao'] .selo {
+  position: absolute;
+  left: 0;
+  bottom: 2.625rem;
+  max-width: 10.625rem;
+  padding: 0.875rem 1.25rem;
+  border-radius: var(--ip-r-full);
+  background: var(--ip-accent);
+  color: var(--ip-on-accent);
+  font-family: var(--ip-fd);
+  font-weight: 600;
+  font-size: 1.05rem;
+  line-height: 1.15;
+  box-shadow: var(--ip-shadow-sm);
+  transform: rotate(-5deg);
+}
+
+@media (width >= 64rem) {
+  .institutional[data-style='uniao'] .hero .wrap {
+    grid-template-columns: 1.05fr 0.95fr;
+  }
+  .institutional[data-style='uniao'] .hero-art {
+    order: 0;
+    max-width: none;
+  }
+  .institutional[data-style='uniao'] .selo {
+    left: -1.375rem;
+  }
+}
+
+/* ── DESCRIÇÃO CURTA ── */
+.institutional[data-style='uniao'] .curta .panel {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(2.5rem, 7vw, 5.25rem) clamp(1.75rem, 6vw, 4.5rem);
+  border-radius: var(--ip-r-xl);
+  background: var(--ip-primary);
+  color: var(--ip-on-primary);
+  text-align: center;
+  box-shadow: var(--ip-shadow);
+}
+.institutional[data-style='uniao'] .curta .panel::before,
+.institutional[data-style='uniao'] .curta .panel::after {
+  content: '';
+  position: absolute;
+  border-radius: var(--ip-r-full);
+  background: rgb(255 255 255 / 0.08);
+}
+.institutional[data-style='uniao'] .curta .panel::before {
+  width: 17.5rem;
+  height: 17.5rem;
+  top: -7.5rem;
+  left: -5.625rem;
+}
+.institutional[data-style='uniao'] .curta .panel::after {
+  width: 12.5rem;
+  height: 12.5rem;
+  bottom: -6.875rem;
+  right: -3.75rem;
+}
+.institutional[data-style='uniao'] .curta .portrait {
+  position: relative;
+  z-index: 1;
+  width: 6.875rem;
+  height: 6.875rem;
+  margin: 0 auto var(--ip-s5);
+  overflow: hidden;
+  border-radius: var(--ip-r-full);
+  border: 4px solid color-mix(in srgb, var(--ip-on-primary) 35%, transparent);
+}
+.institutional[data-style='uniao'] .curta .portrait .ph {
+  width: 100%;
+  height: 100%;
+  background: color-mix(in srgb, var(--ip-on-primary) 16%, transparent);
+  color: var(--ip-on-primary);
+}
+.institutional[data-style='uniao'] .curta .ktag {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  margin-bottom: var(--ip-s4);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ip-on-primary);
+  opacity: 0.85;
+}
+.institutional[data-style='uniao'] .curta p {
+  position: relative;
+  z-index: 1;
+  max-width: 24ch;
+  margin: 0 auto;
+  font-family: var(--ip-fd);
+  font-weight: 500;
+  font-size: clamp(1.5rem, 3.6vw, 2.3rem);
+  line-height: 1.28;
+}
+
+/* ── DESCRIÇÃO LONGA ── */
+.institutional[data-style='uniao'] .longa .read {
+  max-width: 68ch;
+  margin-inline: auto;
+  font-size: 1.12rem;
+}
+.institutional[data-style='uniao'] .longa .read > p {
+  margin: 0 0 var(--ip-s5);
+}
+.institutional[data-style='uniao'] .longa h3 {
+  margin: var(--ip-s7) 0 var(--ip-s3);
+  font-size: 1.5rem;
+  color: var(--ip-primary);
+}
+.institutional[data-style='uniao'] .longa figure {
+  margin: var(--ip-s7) 0;
+}
+.institutional[data-style='uniao'] .longa figure .arch {
+  aspect-ratio: 5 / 3;
+  box-shadow: var(--ip-shadow-sm);
+}
+.institutional[data-style='uniao'] .longa figure .ph {
+  width: 100%;
+  height: 100%;
+}
+.institutional[data-style='uniao'] .longa figcaption {
+  margin-top: var(--ip-s3);
+  font-size: 0.86rem;
+  color: var(--ip-text-subtle);
+  text-align: center;
+}
+.institutional[data-style='uniao'] .longa blockquote {
+  position: relative;
+  margin: var(--ip-s8) 0;
+  padding-left: var(--ip-s6);
+  border-left: 4px solid var(--ip-accent);
+}
+.institutional[data-style='uniao'] .longa blockquote p {
+  margin: 0;
+  font-family: var(--ip-fd);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(1.5rem, 3.4vw, 2rem);
+  line-height: 1.25;
+  color: var(--ip-text);
+}
+.institutional[data-style='uniao'] .longa blockquote .qm {
+  position: absolute;
+  left: -0.125rem;
+  top: -2.5rem;
+  font-family: var(--ip-fd);
+  font-weight: 700;
+  font-size: 5rem;
+  line-height: 1;
+  color: var(--ip-accent);
+  opacity: 0.4;
+}
+.institutional[data-style='uniao'] .longa blockquote cite {
+  display: block;
+  margin-top: var(--ip-s4);
+  font-family: var(--ip-fb);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--ip-text-muted);
+}
+
+/* ── CARROSSEL ── */
+.institutional[data-style='uniao'] .car-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ip-s5);
+  margin-bottom: var(--ip-s6);
+  flex-wrap: wrap;
+}
+.institutional[data-style='uniao'] .car-ctrl {
+  display: flex;
+  gap: var(--ip-s3);
+}
+.institutional[data-style='uniao'] .track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: clamp(16.25rem, 80%, 22.5rem);
+  gap: var(--ip-s5);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 0.375rem 0.375rem var(--ip-s4);
+  margin: -0.375rem;
+  scrollbar-width: none;
+}
+.institutional[data-style='uniao'] .track::-webkit-scrollbar {
+  display: none;
+}
+.institutional[data-style='uniao'] .slide {
+  scroll-snap-align: start;
+}
+.institutional[data-style='uniao'] .slide .card {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-r-xl);
+  background: var(--ip-surface);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: var(--ip-shadow-sm);
+  transition:
+    transform 0.25s var(--ip-ease),
+    box-shadow 0.25s;
+}
+.institutional[data-style='uniao'] .slide:nth-child(odd) .card {
+  transform: rotate(-0.8deg);
+}
+.institutional[data-style='uniao'] .slide:nth-child(even) .card {
+  transform: rotate(0.8deg);
+}
+.institutional[data-style='uniao'] .slide .card:hover {
+  transform: translateY(-6px) rotate(0deg);
+  box-shadow: var(--ip-shadow);
+}
+.institutional[data-style='uniao'] .slide .ph {
+  aspect-ratio: 4 / 3;
+}
+.institutional[data-style='uniao'] .slide .cap {
+  padding: var(--ip-s4) var(--ip-s5) var(--ip-s5);
+}
+.institutional[data-style='uniao'] .slide .cap h3 {
+  font-size: 1.2rem;
+}
+.institutional[data-style='uniao'] .slide .cap p {
+  margin: 0.375rem 0 0;
+  font-size: 0.95rem;
+  color: var(--ip-text-muted);
+}
+
+@media (width >= 48rem) {
+  .institutional[data-style='uniao'] .track {
+    grid-auto-columns: clamp(16.25rem, 34%, 22.5rem);
+  }
+}
+
+/* ── EVENTOS ── */
+.institutional[data-style='uniao'] .ev-list {
+  display: grid;
+  gap: var(--ip-s4);
+}
+.institutional[data-style='uniao'] .ev {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--ip-s5);
+  align-items: center;
+  padding: var(--ip-s4) var(--ip-s5);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-r-xl);
+  background: var(--ip-surface);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: var(--ip-shadow-sm);
+  transition:
+    transform 0.2s var(--ip-ease),
+    box-shadow 0.2s,
+    border-color 0.2s;
+}
+.institutional[data-style='uniao'] .ev:hover {
+  transform: translateX(6px);
+  border-color: var(--ip-primary);
+  box-shadow: var(--ip-shadow);
+}
+.institutional[data-style='uniao'] .ev .date {
+  min-width: 5.625rem;
+  padding: var(--ip-s4);
+  border-radius: var(--ip-r-lg);
+  background: var(--ip-accent);
+  color: var(--ip-on-accent);
+  text-align: center;
+}
+.institutional[data-style='uniao'] .ev .date .d {
+  font-family: var(--ip-fd);
+  font-weight: 700;
+  font-size: 2.1rem;
+  line-height: 0.9;
+}
+.institutional[data-style='uniao'] .ev .date .m {
+  display: block;
+  margin-top: 0.3125rem;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.institutional[data-style='uniao'] .ev .info h3 {
+  font-size: 1.3rem;
+}
+.institutional[data-style='uniao'] .ev .info p {
+  margin: 0.3125rem 0 0;
+  color: var(--ip-text-muted);
+}
+.institutional[data-style='uniao'] .ev .go {
+  display: none;
+}
+.institutional[data-style='uniao'] .ev .go svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--ip-primary);
+}
+
+@media (width >= 35rem) {
+  .institutional[data-style='uniao'] .ev {
+    grid-template-columns: auto 1fr auto;
+  }
+  .institutional[data-style='uniao'] .ev .go {
+    display: block;
+  }
+}
+
+/* ── CRONOLOGIA ── */
+.institutional[data-style='uniao'] .tl {
+  display: grid;
+  gap: clamp(1.5rem, 6vw, 4.25rem);
+}
+.institutional[data-style='uniao'] .marco {
+  display: grid;
+  gap: var(--ip-s3);
+}
+.institutional[data-style='uniao'] .marco .ano {
+  font-family: var(--ip-fd);
+  font-weight: 700;
+  font-size: clamp(2.6rem, 7vw, 4.6rem);
+  line-height: 0.85;
+  letter-spacing: -0.02em;
+  color: var(--ip-primary);
+}
+.institutional[data-style='uniao'] .marco.rec .ano {
+  color: var(--ip-accent);
+}
+.institutional[data-style='uniao'] .marco h3 {
+  margin-bottom: var(--ip-s2);
+  font-size: 1.4rem;
+}
+.institutional[data-style='uniao'] .marco p {
+  margin: 0;
+  max-width: 54ch;
+  color: var(--ip-text-muted);
+}
+
+@media (width >= 40rem) {
+  .institutional[data-style='uniao'] .marco {
+    grid-template-columns: minmax(7.5rem, 11.25rem) 1fr;
+    gap: clamp(1.25rem, 4vw, 3.25rem);
+    align-items: baseline;
+  }
+  .institutional[data-style='uniao'] .marco .body {
+    position: relative;
+    padding-left: clamp(1.25rem, 3vw, 2.5rem);
+    border-left: 2px solid var(--ip-border);
+  }
+  .institutional[data-style='uniao'] .marco .body::before {
+    content: '';
+    position: absolute;
+    left: -0.5625rem;
+    top: 0.5rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: var(--ip-r-full);
+    background: var(--ip-primary);
+    border: 3px solid var(--ip-bg);
+  }
+  .institutional[data-style='uniao'] .marco.rec .body::before {
+    background: var(--ip-accent);
+  }
+}
+
+/* ── LOCALIZAÇÃO ── */
+.institutional[data-style='uniao'] .loc {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+}
+.institutional[data-style='uniao'] .loc .arch {
+  min-height: 15rem;
+  box-shadow: var(--ip-shadow-sm);
+}
+.institutional[data-style='uniao'] .loc .arch .ph {
+  width: 100%;
+  height: 100%;
+}
+.institutional[data-style='uniao'] .loc-card {
+  align-self: center;
+  padding: clamp(1.625rem, 4vw, 2.5rem);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-r-xl);
+  background: var(--ip-surface);
+  box-shadow: var(--ip-shadow-sm);
+}
+.institutional[data-style='uniao'] .loc-card h3 {
+  font-size: 1.5rem;
+  color: var(--ip-primary);
+}
+.institutional[data-style='uniao'] .loc-card address {
+  margin: var(--ip-s4) 0 var(--ip-s5);
+  font-style: normal;
+  font-size: 1.15rem;
+  line-height: 1.65;
+}
+.institutional[data-style='uniao'] .pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ip-s2);
+  margin-bottom: var(--ip-s6);
+}
+.institutional[data-style='uniao'] .pill {
+  padding: 0.5625rem 1rem;
+  border-radius: var(--ip-r-full);
+  background: var(--ip-secondary);
+  color: var(--ip-text);
+  font-weight: 700;
+  font-size: 0.86rem;
+}
+
+@media (width >= 48rem) {
+  .institutional[data-style='uniao'] .loc {
+    grid-template-columns: 1.25fr 1fr;
+    align-items: stretch;
+  }
+  .institutional[data-style='uniao'] .loc .arch {
+    min-height: 20rem;
+  }
+}
+
+/* ── SCALLOP (transição p/ rodapé) ── */
+.institutional[data-style='uniao'] .scallop {
+  display: block;
+  width: 100%;
+  height: 3rem;
+  margin-bottom: -1px;
+  color: var(--ip-bg-subtle);
+}

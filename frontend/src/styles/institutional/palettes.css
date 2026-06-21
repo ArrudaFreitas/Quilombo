@@ -1,0 +1,74 @@
+/* ============================================================================
+   INSTITUCIONAL — PALETAS (cores de marca)
+   As mesmas 4 paletas valem para os dois estilos; muda só a cor. O modo escuro
+   recalibra cada paleta (contraste AA) e vem do tema global do produto.
+   Escopo: .institutional[data-palette]  /  [data-theme='dark'] .institutional[…]
+   ============================================================================ */
+
+/* ── CLARO ── */
+.institutional[data-palette='verde'] {
+  --ip-primary: #2e6b4b;
+  --ip-primary-strong: #245539;
+  --ip-on-primary: #fff;
+  --ip-secondary: #cfe2d5;
+  --ip-accent: #a1572f;
+  --ip-on-accent: #fff;
+}
+.institutional[data-palette='terracota'] {
+  --ip-primary: #a1572f;
+  --ip-primary-strong: #7e4324;
+  --ip-on-primary: #fff;
+  --ip-secondary: #f0d6c3;
+  --ip-accent: #8a6a18;
+  --ip-on-accent: #fff;
+}
+.institutional[data-palette='ocre'] {
+  --ip-primary: #8a6a18;
+  --ip-primary-strong: #6e5410;
+  --ip-on-primary: #fff;
+  --ip-secondary: #f3e2b0;
+  --ip-accent: #2e6b4b;
+  --ip-on-accent: #fff;
+}
+.institutional[data-palette='indigo'] {
+  --ip-primary: #2c4a7c;
+  --ip-primary-strong: #1e3357;
+  --ip-on-primary: #fff;
+  --ip-secondary: #d8e1f1;
+  --ip-accent: #a1572f;
+  --ip-on-accent: #fff;
+}
+
+/* ── ESCURO (recalibrado para contraste em superfícies escuras) ── */
+[data-theme='dark'] .institutional[data-palette='verde'] {
+  --ip-primary: #6fbe93;
+  --ip-primary-strong: #86cca6;
+  --ip-on-primary: #0e1b12;
+  --ip-secondary: #2c5a3e;
+  --ip-accent: #e29a6a;
+  --ip-on-accent: #1a1206;
+}
+[data-theme='dark'] .institutional[data-palette='terracota'] {
+  --ip-primary: #e29a6a;
+  --ip-primary-strong: #ebae84;
+  --ip-on-primary: #23130a;
+  --ip-secondary: #5c3420;
+  --ip-accent: #e0b85a;
+  --ip-on-accent: #1f1605;
+}
+[data-theme='dark'] .institutional[data-palette='ocre'] {
+  --ip-primary: #e6be5e;
+  --ip-primary-strong: #efce7e;
+  --ip-on-primary: #211904;
+  --ip-secondary: #5e4a12;
+  --ip-accent: #6fbe93;
+  --ip-on-accent: #0e1b12;
+}
+[data-theme='dark'] .institutional[data-palette='indigo'] {
+  --ip-primary: #88b2e4;
+  --ip-primary-strong: #a3c5ec;
+  --ip-on-primary: #0b1525;
+  --ip-secondary: #28406a;
+  --ip-accent: #e29a6a;
+  --ip-on-accent: #1a1206;
+}
