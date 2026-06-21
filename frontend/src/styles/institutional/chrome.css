@@ -1,0 +1,199 @@
+/* ============================================================================
+   INSTITUCIONAL — CHROME (skip link, header, footer) + ajuste de imagens.
+   Escopo: .institutional. Header simples (marca + voltar ao diretório): o
+   alternador de tema é o global do produto (canto superior direito). Porte do
+   MVP, mobile-first. Hex permitido aqui (override do stylelint).
+   ============================================================================ */
+
+/* skip link */
+.institutional .ip-skip {
+  position: absolute;
+  left: 0.875rem;
+  top: -4rem;
+  z-index: 200;
+  padding: 0.625rem 1rem;
+  border-radius: var(--ip-r-md);
+  background: var(--ip-surface);
+  color: var(--ip-text);
+  font-weight: 700;
+  text-decoration: none;
+  transition: top 0.2s;
+}
+.institutional .ip-skip:focus {
+  top: 0.875rem;
+}
+
+/* ── HEADER ── */
+.institutional .ip-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  border-bottom: 1px solid var(--ip-border);
+  background: color-mix(in srgb, var(--ip-bg) 88%, transparent);
+  backdrop-filter: blur(14px);
+}
+.institutional[data-style='raizes'] .ip-header {
+  background: var(--ip-bg);
+  border-bottom: var(--ip-bw) solid var(--ip-border-strong);
+  backdrop-filter: none;
+}
+.institutional .ip-header-inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 4.25rem;
+  /* reserva o canto superior direito para o alternador de tema global */
+  padding-right: 3.25rem;
+}
+.institutional .ip-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: var(--ip-text);
+  text-decoration: none;
+}
+.institutional .ip-brand-icon {
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  color: var(--ip-primary);
+}
+.institutional .ip-brand span {
+  max-width: 14rem;
+  overflow: hidden;
+  font-family: var(--ip-fd);
+  font-weight: 600;
+  font-size: 1.1rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.institutional[data-style='raizes'] .ip-brand span {
+  font-weight: 900;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.institutional .ip-back {
+  margin-left: auto;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ip-text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.institutional .ip-back:hover {
+  color: var(--ip-primary);
+}
+.institutional[data-style='raizes'] .ip-accent-bar {
+  height: 0.3125rem;
+  background: var(--ip-accent);
+}
+
+/* ── ESTADO VAZIO (aviso ao visitante) ── */
+.institutional .ip-empty {
+  display: grid;
+  gap: var(--ip-s4);
+  place-items: center;
+  text-align: center;
+}
+.institutional .ip-empty h2 {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  color: var(--ip-primary);
+}
+.institutional .ip-empty p {
+  max-width: 42ch;
+  color: var(--ip-text-muted);
+}
+
+/* ── FOOTER ── */
+.institutional .ip-footer {
+  padding-block: var(--ip-s8) var(--ip-s6);
+  background: var(--ip-bg-subtle);
+}
+.institutional[data-style='raizes'] .ip-footer {
+  border-top: var(--ip-bw) solid var(--ip-border-strong);
+}
+.institutional .ip-footer-cols {
+  display: grid;
+  gap: var(--ip-s5);
+  margin-bottom: var(--ip-s7);
+}
+.institutional .ip-footer h4 {
+  margin: 0 0 var(--ip-s3);
+  font-family: var(--ip-fb);
+  font-weight: 700;
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ip-text-subtle);
+}
+.institutional .ip-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: var(--ip-s2);
+  font-family: var(--ip-fd);
+  font-weight: 600;
+  font-size: 1.4rem;
+  color: var(--ip-text);
+}
+.institutional[data-style='raizes'] .ip-footer-brand {
+  font-weight: 900;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+}
+.institutional .ip-footer-logo {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--ip-primary);
+}
+.institutional .ip-footer p {
+  margin: 0;
+  max-width: 38ch;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--ip-text-muted);
+}
+.institutional .ip-footer ul {
+  display: grid;
+  gap: var(--ip-s2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.institutional .ip-footer a {
+  color: var(--ip-primary-strong);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-size: 0.9rem;
+}
+.institutional .ip-footer-copy {
+  padding-top: var(--ip-s5);
+  border-top: 1px solid var(--ip-border);
+  font-size: 0.8rem;
+  color: var(--ip-text-subtle);
+}
+.institutional[data-style='raizes'] .ip-footer-copy {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (width >= 48rem) {
+  .institutional .ip-footer-cols {
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: var(--ip-s7);
+  }
+}
+
+/* ── imagens reais dentro dos containers (sem style inline; CSP) ── */
+.institutional .curta .portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.institutional .slide img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}

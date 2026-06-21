@@ -14,8 +14,13 @@
 @import './base.css';
 @import './components.css';
 
-/* preparação isolada dos temas institucionais (sem temas ainda) */
+/* temas institucionais isolados (escopo .institutional, namespace --ip-*) */
 @import './institutional/scaffold.css';
+@import './institutional/tokens.css';
+@import './institutional/palettes.css';
+@import './institutional/style-uniao.css';
+@import './institutional/style-raizes.css';
+@import './institutional/chrome.css';
 
 /* ----------------------------------------------------------------------------
    THEMING: modo escuro por atributo (sobrescreve o prefers-color-scheme

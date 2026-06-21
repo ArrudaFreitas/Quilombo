@@ -1,0 +1,573 @@
+/* ============================================================================
+   ESTILO "Raízes" — geométrico, estruturado (âncora Rubem Valentim): sombra dura
+   offset, grade rígida, caixa-alta, emblema/faixa. Escopo:
+   .institutional[data-style='raizes']. Porte do MVP, mobile-first + WCAG 2.1 AA.
+   ============================================================================ */
+
+.institutional[data-style='raizes'] {
+  --ip-r-sm: 0.1875rem;
+  --ip-r-md: 0.375rem;
+  --ip-bw: 2.5px; /* borda forte */
+  --ip-ink: #221f18; /* cor da sombra dura (claro) */
+}
+[data-theme='dark'] .institutional[data-style='raizes'] {
+  --ip-ink: #000;
+}
+
+/* grão de impressão */
+.institutional[data-style='raizes']::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  opacity: 0.06;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+[data-theme='dark'] .institutional[data-style='raizes']::after {
+  mix-blend-mode: screen;
+  opacity: 0.06;
+}
+
+/* tipografia — caixa-alta, geométrica */
+.institutional[data-style='raizes'] h1,
+.institutional[data-style='raizes'] h2,
+.institutional[data-style='raizes'] h3 {
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  line-height: 1.02;
+  text-transform: uppercase;
+}
+.institutional[data-style='raizes'] .head h2 {
+  font-size: clamp(1.9rem, 5vw, 3rem);
+}
+
+/* kicker — só texto, espaçado */
+.institutional[data-style='raizes'] .kicker {
+  font-size: 0.74rem;
+  letter-spacing: 0.22em;
+}
+.institutional[data-style='raizes'] .kicker::before {
+  display: none;
+}
+
+/* filete colorido sob o título */
+.institutional[data-style='raizes'] .head .fil {
+  display: block;
+  width: 5.25rem;
+  height: 0.375rem;
+  margin-top: var(--ip-s4);
+  background: var(--ip-accent);
+}
+.institutional[data-style='raizes'] .head.center .fil {
+  margin-inline: auto;
+}
+
+/* botões — retangulares + sombra dura offset (alvo ≥50px) */
+.institutional[data-style='raizes'] .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 3.125rem;
+  padding: 0.8125rem 1.625rem;
+  border: var(--ip-bw) solid var(--ip-border-strong);
+  border-radius: var(--ip-r-sm);
+  font-family: var(--ip-fb);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.12s var(--ip-ease),
+    box-shadow 0.12s var(--ip-ease),
+    background-color 0.3s;
+}
+.institutional[data-style='raizes'] .btn-primary {
+  background: var(--ip-primary);
+  color: var(--ip-on-primary);
+  box-shadow: 6px 6px 0 var(--ip-ink);
+}
+.institutional[data-style='raizes'] .btn-primary:hover {
+  transform: translate(3px, 3px);
+  box-shadow: 3px 3px 0 var(--ip-ink);
+}
+.institutional[data-style='raizes'] .btn-ghost {
+  background: var(--ip-surface);
+  color: var(--ip-text);
+  box-shadow: 6px 6px 0 var(--ip-accent);
+}
+.institutional[data-style='raizes'] .btn-ghost:hover {
+  transform: translate(3px, 3px);
+  box-shadow: 3px 3px 0 var(--ip-accent);
+}
+.institutional[data-style='raizes'] .btn svg {
+  width: 1.1875rem;
+  height: 1.1875rem;
+}
+.institutional[data-style='raizes'] .btn-ico {
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: 0;
+  justify-content: center;
+  background: var(--ip-surface);
+  color: var(--ip-text);
+  box-shadow: 5px 5px 0 var(--ip-ink);
+}
+.institutional[data-style='raizes'] .btn-ico:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 3px 3px 0 var(--ip-ink);
+}
+
+/* faixa de padrão diagonal */
+.institutional[data-style='raizes'] .faixa {
+  width: 100%;
+  height: 1rem;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--ip-primary) 0 14px,
+    var(--ip-accent) 14px 28px,
+    var(--ip-secondary) 28px 42px
+  );
+}
+
+/* placeholder duotone */
+.institutional[data-style='raizes'] .duo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--ip-secondary);
+  color: var(--ip-primary);
+}
+.institutional[data-style='raizes'] .duo svg {
+  width: 46%;
+  max-width: 140px;
+  stroke-width: 1.5;
+}
+
+/* frame com borda forte + sombra dura */
+.institutional[data-style='raizes'] .frame {
+  border: var(--ip-bw) solid var(--ip-border-strong);
+  background: var(--ip-surface);
+  box-shadow: 10px 10px 0 var(--ip-accent);
+}
+
+/* ── HERO ── */
+.institutional[data-style='raizes'] .hero {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  border-bottom: var(--ip-bw) solid var(--ip-border-strong);
+}
+.institutional[data-style='raizes'] .hero .wrap {
+  padding-block: clamp(2.75rem, 7vw, 5.25rem);
+}
+.institutional[data-style='raizes'] .hero .em-big {
+  width: 5.25rem;
+  height: 6.5rem;
+  margin: 0 auto var(--ip-s5);
+}
+.institutional[data-style='raizes'] .hero h1 {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  line-height: 0.94;
+}
+.institutional[data-style='raizes'] .hero .tagline {
+  margin: var(--ip-s5) auto var(--ip-s6);
+  max-width: 50ch;
+  font-size: clamp(1.05rem, 2.3vw, 1.3rem);
+  color: var(--ip-text-muted);
+}
+.institutional[data-style='raizes'] .hero .cta {
+  display: flex;
+  gap: var(--ip-s4);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.institutional[data-style='raizes'] .hero-img {
+  position: relative;
+  margin-top: clamp(2.25rem, 5vw, 3.5rem);
+}
+.institutional[data-style='raizes'] .hero-img .frame {
+  aspect-ratio: 16 / 9;
+}
+.institutional[data-style='raizes'] .hero-img .duo {
+  width: 100%;
+  height: 100%;
+}
+.institutional[data-style='raizes'] .hero-selo {
+  position: absolute;
+  right: 1.125rem;
+  bottom: -1.375rem;
+  padding: 0.625rem 1rem;
+  border: var(--ip-bw) solid var(--ip-border-strong);
+  background: var(--ip-accent);
+  color: var(--ip-on-accent);
+  box-shadow: 5px 5px 0 var(--ip-ink);
+  font-family: var(--ip-fd);
+  font-weight: 900;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (width >= 48rem) {
+  .institutional[data-style='raizes'] .hero-img .frame {
+    aspect-ratio: 16 / 6;
+  }
+}
+
+/* ── DESCRIÇÃO CURTA (color-block primária) ── */
+.institutional[data-style='raizes'] section.curta {
+  background: var(--ip-primary);
+  color: var(--ip-on-primary);
+}
+.institutional[data-style='raizes'] .curta {
+  text-align: center;
+}
+.institutional[data-style='raizes'] .curta .em-c {
+  width: 4.375rem;
+  height: 5.375rem;
+  margin: 0 auto var(--ip-s5);
+}
+.institutional[data-style='raizes'] .curta .lbl {
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.institutional[data-style='raizes'] .curta p {
+  max-width: 24ch;
+  margin: var(--ip-s4) auto 0;
+  font-family: var(--ip-fd);
+  font-weight: 500;
+  font-size: clamp(1.5rem, 3.8vw, 2.4rem);
+  line-height: 1.22;
+}
+
+/* ── DESCRIÇÃO LONGA ── */
+.institutional[data-style='raizes'] .longa .read {
+  max-width: 68ch;
+  margin-inline: auto;
+  font-size: 1.12rem;
+}
+.institutional[data-style='raizes'] .longa .read > p {
+  margin: 0 0 var(--ip-s5);
+}
+.institutional[data-style='raizes'] .longa h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: var(--ip-s7) 0 var(--ip-s3);
+  font-family: var(--ip-fd);
+  font-weight: 900;
+  font-size: 1.3rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--ip-text);
+}
+.institutional[data-style='raizes'] .longa h3::before {
+  content: '';
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  background: var(--ip-accent);
+}
+.institutional[data-style='raizes'] .longa figure {
+  margin: var(--ip-s7) 0;
+}
+.institutional[data-style='raizes'] .longa figure .frame {
+  aspect-ratio: 5 / 2.6;
+}
+.institutional[data-style='raizes'] .longa figure .duo {
+  width: 100%;
+  height: 100%;
+}
+.institutional[data-style='raizes'] .longa figcaption {
+  margin-top: var(--ip-s3);
+  font-size: 0.84rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--ip-text-subtle);
+}
+.institutional[data-style='raizes'] .longa blockquote {
+  position: relative;
+  margin: var(--ip-s8) 0;
+  padding: var(--ip-s5) var(--ip-s6);
+  border: var(--ip-bw) solid var(--ip-border-strong);
+  background: var(--ip-surface);
+  box-shadow: 8px 8px 0 var(--ip-accent);
+}
+.institutional[data-style='raizes'] .longa blockquote p {
+  margin: 0;
+  font-family: var(--ip-fd);
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(1.4rem, 3.2vw, 1.9rem);
+  line-height: 1.25;
+}
+.institutional[data-style='raizes'] .longa blockquote cite {
+  display: block;
+  margin-top: var(--ip-s4);
+  font-family: var(--ip-fb);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ip-text-muted);
+}
+
+/* ── CARROSSEL ── */
+.institutional[data-style='raizes'] .car-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ip-s5);
+  margin-bottom: var(--ip-s6);
+  flex-wrap: wrap;
+}
+.institutional[data-style='raizes'] .car-ctrl {
+  display: flex;
+  gap: var(--ip-s3);
+}
+.institutional[data-style='raizes'] .track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: clamp(15.625rem, 80%, 20.625rem);
+  gap: var(--ip-s5);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 0.375rem 0.375rem var(--ip-s5);
+  margin: -0.375rem;
+  scrollbar-width: none;
+}
+.institutional[data-style='raizes'] .track::-webkit-scrollbar {
+  display: none;
+}
+.institutional[data-style='raizes'] .slide {
+  scroll-snap-align: start;
+}
+.institutional[data-style='raizes'] .slide .card {
+  display: block;
+  border: var(--ip-bw) solid var(--ip-border-strong);
+  background: var(--ip-surface);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: 8px 8px 0 var(--ip-ink);
+  transition:
+    transform 0.12s var(--ip-ease),
+    box-shadow 0.12s var(--ip-ease);
+}
+.institutional[data-style='raizes'] .slide .card:hover {
+  transform: translate(4px, 4px);
+  box-shadow: 4px 4px 0 var(--ip-ink);
+}
+.institutional[data-style='raizes'] .slide .duo {
+  aspect-ratio: 4 / 3;
+  border-bottom: var(--ip-bw) solid var(--ip-border-strong);
+}
+.institutional[data-style='raizes'] .slide .cap {
+  padding: var(--ip-s4) var(--ip-s5) var(--ip-s5);
+}
+.institutional[data-style='raizes'] .slide .cap h3 {
+  font-family: var(--ip-fd);
+  font-weight: 900;
+  font-size: 1.05rem;
+  text-transform: uppercase;
+}
+.institutional[data-style='raizes'] .slide .cap p {
+  margin: 0.375rem 0 0;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ip-text-muted);
+}
+
+@media (width >= 48rem) {
+  .institutional[data-style='raizes'] .track {
+    grid-auto-columns: clamp(15.625rem, 33%, 20.625rem);
+  }
+}
+
+/* ── EVENTOS ── */
+.institutional[data-style='raizes'] .ev-list {
+  display: grid;
+  gap: var(--ip-s4);
+}
+.institutional[data-style='raizes'] .ev {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--ip-s5);
+  align-items: center;
+  padding: var(--ip-s4);
+  border: var(--ip-bw) solid var(--ip-border-strong);
+  background: var(--ip-surface);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: 6px 6px 0 var(--ip-ink);
+  transition:
+    transform 0.12s var(--ip-ease),
+    box-shadow 0.12s var(--ip-ease);
+}
+.institutional[data-style='raizes'] .ev:hover {
+  transform: translate(4px, 4px);
+  box-shadow: 2px 2px 0 var(--ip-ink);
+}
+.institutional[data-style='raizes'] .ev .date {
+  min-width: 5.5rem;
+  padding: var(--ip-s3) var(--ip-s4);
+  border: var(--ip-bw) solid var(--ip-border-strong);
+  background: var(--ip-accent);
+  color: var(--ip-on-accent);
+  text-align: center;
+}
+.institutional[data-style='raizes'] .ev .date .d {
+  font-family: var(--ip-fd);
+  font-weight: 900;
+  font-size: 2.2rem;
+  line-height: 0.85;
+}
+.institutional[data-style='raizes'] .ev .date .m {
+  display: block;
+  margin-top: 0.3125rem;
+  font-weight: 700;
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.institutional[data-style='raizes'] .ev .info h3 {
+  font-family: var(--ip-fd);
+  font-weight: 900;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+}
+.institutional[data-style='raizes'] .ev .info p {
+  margin: 0.3125rem 0 0;
+  color: var(--ip-text-muted);
+}
+.institutional[data-style='raizes'] .ev .go {
+  display: none;
+}
+.institutional[data-style='raizes'] .ev .go svg {
+  width: 1.625rem;
+  height: 1.625rem;
+  color: var(--ip-primary);
+}
+
+@media (width >= 35rem) {
+  .institutional[data-style='raizes'] .ev {
+    grid-template-columns: auto 1fr auto;
+  }
+  .institutional[data-style='raizes'] .ev .go {
+    display: block;
+  }
+}
+
+/* ── CRONOLOGIA ── */
+.institutional[data-style='raizes'] .tl {
+  display: grid;
+  gap: clamp(1.5rem, 5vw, 3.75rem);
+}
+.institutional[data-style='raizes'] .marco {
+  display: grid;
+  gap: var(--ip-s2);
+}
+.institutional[data-style='raizes'] .marco .ano {
+  font-family: var(--ip-fd);
+  font-weight: 900;
+  font-size: clamp(2.8rem, 8vw, 5rem);
+  line-height: 0.8;
+  letter-spacing: -0.02em;
+  color: var(--ip-primary);
+}
+.institutional[data-style='raizes'] .marco.rec .ano {
+  color: var(--ip-accent);
+}
+.institutional[data-style='raizes'] .marco h3 {
+  margin-bottom: var(--ip-s2);
+  font-family: var(--ip-fd);
+  font-weight: 900;
+  font-size: 1.3rem;
+  text-transform: uppercase;
+}
+.institutional[data-style='raizes'] .marco p {
+  margin: 0;
+  max-width: 54ch;
+  color: var(--ip-text-muted);
+}
+
+@media (width >= 40rem) {
+  .institutional[data-style='raizes'] .marco {
+    grid-template-columns: minmax(8.125rem, 12.5rem) 1fr;
+    gap: clamp(1.25rem, 4vw, 3rem);
+    align-items: start;
+  }
+  .institutional[data-style='raizes'] .marco .body {
+    position: relative;
+    padding-left: clamp(1.25rem, 3vw, 2.5rem);
+    border-left: var(--ip-bw) solid var(--ip-border-strong);
+  }
+}
+
+/* ── LOCALIZAÇÃO ── */
+.institutional[data-style='raizes'] .loc {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+}
+.institutional[data-style='raizes'] .loc .frame {
+  min-height: 15rem;
+}
+.institutional[data-style='raizes'] .loc .duo {
+  width: 100%;
+  height: 100%;
+}
+.institutional[data-style='raizes'] .loc-card {
+  align-self: center;
+  padding: clamp(1.5rem, 4vw, 2.375rem);
+  border: var(--ip-bw) solid var(--ip-border-strong);
+  background: var(--ip-surface);
+  box-shadow: 10px 10px 0 var(--ip-accent);
+}
+.institutional[data-style='raizes'] .loc-card h3 {
+  font-family: var(--ip-fd);
+  font-weight: 900;
+  font-size: 1.4rem;
+  text-transform: uppercase;
+  color: var(--ip-text);
+}
+.institutional[data-style='raizes'] .loc-card address {
+  margin: var(--ip-s4) 0 var(--ip-s5);
+  font-style: normal;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+.institutional[data-style='raizes'] .pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ip-s2);
+  margin-bottom: var(--ip-s6);
+}
+.institutional[data-style='raizes'] .pill {
+  padding: 0.5rem 0.875rem;
+  border: 2px solid var(--ip-border-strong);
+  background: var(--ip-secondary);
+  color: var(--ip-text);
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (width >= 48rem) {
+  .institutional[data-style='raizes'] .loc {
+    grid-template-columns: 1.2fr 1fr;
+    align-items: stretch;
+  }
+  .institutional[data-style='raizes'] .loc .frame {
+    min-height: 20rem;
+  }
+}

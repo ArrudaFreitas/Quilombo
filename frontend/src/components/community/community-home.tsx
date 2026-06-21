@@ -1,10 +1,9 @@
 'use client'
 
-import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { CommunityImage } from '@/components/community-image'
 import { ApiError } from '@/lib/api/client'
 import { getCommunityPage, type CommunityPage } from '@/lib/api/community-page'
+import { InstitutionalPage } from './institutional-page'
 
 type State =
   | { status: 'loading' }
@@ -14,9 +13,10 @@ type State =
 
 /**
  * Home pública de uma comunidade. Busca a página institucional no browser
- * (same-origin via nginx → o backend resolve o tenant pelo subdomínio) e
- * renderiza a identidade da comunidade. Slug inexistente (404) e demais erros
- * têm estados próprios; o conteúdo institucional completo é de uma etapa futura.
+ * (same-origin via nginx → o backend resolve o tenant pelo subdomínio) e, quando
+ * pronta, renderiza a {@link InstitutionalPage} com o estilo/paleta/seções
+ * configurados no painel. Slug inexistente (404) e demais erros têm estados
+ * próprios (no chrome do produto, antes de conhecermos o tema da comunidade).
  */
 export function CommunityHome() {
   const [state, setState] = useState<State>({ status: 'loading' })
@@ -65,69 +65,12 @@ export function CommunityHome() {
     )
   }
 
-  const { community, card } = state.page
-
-  return (
-    <main
-      id="main-content"
-      tabIndex={-1}
-      className="container-page py-12 md:py-16"
-    >
-      <article className="mx-auto max-w-3xl">
-        <p className="text-primary mb-3 inline-flex items-center gap-1.5 text-sm font-bold tracking-wider uppercase">
-          <PinIcon />
-          <span>{community.location}</span>
-        </p>
-
-        <h1 className="font-display text-fg text-4xl leading-[1.05] font-semibold md:text-6xl">
-          {community.name}
-        </h1>
-
-        {card?.shortDescription ? (
-          <p className="text-fg-muted mt-5 max-w-prose text-lg text-balance">
-            {card.shortDescription}
-          </p>
-        ) : null}
-
-        <div className="bg-bg-subtle relative mt-8 aspect-[16/9] overflow-hidden rounded-2xl">
-          <CommunityImage
-            src={card?.imageUrl ?? null}
-            name={community.name}
-            slug={community.slug}
-            alt={card?.imageAltText ?? ''}
-          />
-        </div>
-
-        <section className="surface mt-10 rounded-2xl p-6 md:p-8">
-          <span className="badge">Em construção</span>
-          <h2 className="font-display text-fg mt-3 text-2xl font-semibold">
-            A página desta comunidade está sendo preparada
-          </h2>
-          <p className="text-fg-muted mt-2 text-balance">
-            Em breve, {community.name} terá aqui sua história, território e
-            cultura.
-          </p>
-        </section>
-
-        <p className="text-fg-subtle mt-10 text-sm">
-          É administrador desta comunidade?{' '}
-          <Link
-            href="/admin"
-            className="text-primary font-semibold underline-offset-4 hover:underline"
-          >
-            Acessar o painel
-          </Link>
-          .
-        </p>
-      </article>
-    </main>
-  )
+  return <InstitutionalPage page={state.page} />
 }
 
 /** Mensagem centralizada (404/erro), com retorno ao diretório no ápice. */
 function Centered({ title, message }: { title: string; message: string }) {
-  const baseDomain =
-    process.env.NEXT_PUBLIC_BASE_DOMAIN ?? 'quilombo.ianarruda.dev'
+  const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN ?? 'quilombo.ianarruda.dev'
   const apexHref =
     typeof window !== 'undefined'
       ? `${window.location.protocol}//${baseDomain}${
@@ -152,7 +95,7 @@ function Centered({ title, message }: { title: string; message: string }) {
   )
 }
 
-/** Skeleton com a silhueta da home (sem layout shift no carregamento). */
+/** Skeleton neutro do produto (antes de conhecermos o tema da comunidade). */
 function CommunityHomeSkeleton() {
   return (
     <main className="container-page py-12 md:py-16" aria-hidden="true">
@@ -164,22 +107,5 @@ function CommunityHomeSkeleton() {
         <div className="bg-bg-subtle mt-8 aspect-[16/9] w-full animate-pulse rounded-2xl" />
       </div>
     </main>
-  )
-}
-
-function PinIcon() {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      aria-hidden="true"
-    >
-      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-      <circle cx="12" cy="9" r="2.5" />
-    </svg>
   )
 }
