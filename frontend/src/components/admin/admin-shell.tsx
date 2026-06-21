@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useAuth } from '@/components/auth/auth-provider'
 import { CommunityTab } from './community-tab'
 import { ImagesTab } from './images-tab'
+import { PageTab } from './page/page-tab'
 
 type TabId = 'card' | 'page' | 'images'
 
@@ -16,8 +17,8 @@ const TABS: { id: TabId; label: string }[] = [
 /**
  * Casca do painel administrativo do tenant: barra superior (identidade da
  * comunidade + sair) e abas. Renderizada dentro do `AuthGuard`, então a sessão
- * já está garantida. Por ora só a aba "Comunidade" está implementada; as demais
- * exibem um marcador "em construção".
+ * já está garantida. Três abas: Comunidade (card), Página (construtor
+ * institucional) e Imagens (acervo).
  */
 export function AdminShell() {
   const { user, logout } = useAuth()
@@ -91,22 +92,10 @@ export function AdminShell() {
           ) : active === 'images' ? (
             <ImagesTab />
           ) : (
-            <ComingSoon title="Página institucional" />
+            <PageTab />
           )}
         </div>
       </div>
-    </div>
-  )
-}
-
-function ComingSoon({ title }: { title: string }) {
-  return (
-    <div className="py-16 text-center">
-      <span className="badge">Em construção</span>
-      <h2 className="font-display text-fg mt-4 text-2xl font-semibold">{title}</h2>
-      <p className="text-fg-muted mt-2 text-balance">
-        Esta seção será habilitada em breve.
-      </p>
     </div>
   )
 }
